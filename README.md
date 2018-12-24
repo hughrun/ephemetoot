@@ -19,7 +19,7 @@ This script requires Python3, the `mastodon.py` package and an API access token.
 5. Replace `YOUR_ACCESS_TOKEN_HERE` in config.py with the access token string
 6. Set the base_url to match your mastodon server
 7. Set the `days_to_keep` to the number of days you want to keep toots before deleting them
-8. If you do **not** wish to keep all pinned toots regardless of age, change `saved_pinned` to `False`
+8. If you do **not** wish to keep all pinned toots regardless of age, change `save_pinned` to `False`
 9. If there are any other toots you want to keep, put the ID numbers (without quotes) in the `toots_to_save` list, separated by commas. For example:
 
 `toots_to_save = [100029521330725397, 100013562864734780, 100044187305250752]`
