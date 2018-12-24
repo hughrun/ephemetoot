@@ -3,12 +3,14 @@ Based partially on tweet-deleting script by @flesueur (https://gist.github.com/f
 
 # Usage
 
+You can use this script to delete toots that are older than a certain number of days. By default it will keep any pinned toots, but you can change that in `congif.py` if you want them to be deleted. You can also make a list toots that you want to save, by adding the ID numbers to the `toots_to_save` list in `config.py` (see point 9 below). The ID of a toot is the last part of its individual URL. e.g. for https://ausglam.space/@hugh/101294246770105799 the id is `101294246770105799`
+
 This script requires Python3, the `mastodon.py` package and an API access token.
 
 1. Install Python3 if you don't already have it
 2. Install the mastodon package: `pip3 install mastodon.py`
 3. Copy example.config.py to a new file called config.py (e.g. `cp example.config.py config.py`)
-4. Log in to you Mastodon account
+4. Log in to your Mastodon account
     1. Click the settings cog
     2. Click on Development
     3. Click 'NEW APPLICATION'
@@ -22,10 +24,10 @@ This script requires Python3, the `mastodon.py` package and an API access token.
 8. If you do **not** wish to keep all pinned toots regardless of age, change `save_pinned` to `False`
 9. If there are any other toots you want to keep, put the ID numbers (without quotes) in the `toots_to_save` list, separated by commas. For example:
 
-`toots_to_save = [100029521330725397, 100013562864734780, 100044187305250752]`
+  `toots_to_save = [100029521330725397, 100013562864734780, 100044187305250752]`
 
 10. Run the script with `python3 ephemetoot.py`. Depending on how many toots you have and how long you want to keep them, it may take a minute or two before you see any results.
-11. To run every day use crontab:
+11. To run automatically every day try using crontab:
     1. `crontab -e`
     2. `@daily python3 ~/ephemetoot/ephemetoot.py`
 

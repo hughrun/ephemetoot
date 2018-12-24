@@ -17,7 +17,8 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#     You can contact Hugh on Twitter @hughrundle 
+#     You can contact Hugh on Mastodon @hugh@ausglam.space
+#     or on Twitter @hughrundle 
 #     or email hugh [at] hughrundle [dot] net
 #  #####################################################################
 
