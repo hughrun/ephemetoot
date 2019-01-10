@@ -72,6 +72,7 @@ def checkToots(timeline, deleted_count=0):
       print('No toots found!')
 
 # trigger from here
-account = mastodon.account(user_id)
-print('Checking ' + str(account.statuses_count) + ' toots...')
-checkToots(timeline)
+if __name__ == '__main__':
+  account = mastodon.account(user_id)
+  print('Checking ' + str(account.statuses_count) + ' toots...')
+  checkToots(timeline)
