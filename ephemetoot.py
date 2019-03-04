@@ -26,8 +26,8 @@ import config
 import json
 from mastodon import Mastodon
 from datetime import datetime, timedelta, timezone
+import click
 
-print("Fetching account details...")
 
 mastodon = Mastodon(access_token=config.access_token, api_base_url=config.base_url)
 
@@ -36,7 +36,17 @@ user_id = mastodon.account_verify_credentials().id
 timeline = mastodon.account_statuses(user_id, limit=40)
 
 
-def checkToots(timeline, deleted_count=0):
+@click.command()
+@click.option("--test", is_flag=True, help="do a test run without deleting any toots")
+def checkFlags(test):
+    print("Fetching account details...")
+    print("Checking " + str(account.statuses_count) + " toots...")
+    if test:
+        print("This is a test run...")
+    checkToots(timeline, test)
+
+
+def checkToots(timeline, test, deleted_count=0):
     for toot in timeline:
         try:
             if config.save_pinned and hasattr(toot, "pinned") and toot.pinned:
@@ -62,7 +72,8 @@ def checkToots(timeline, deleted_count=0):
                         + toot.created_at.strftime("%d %b %Y")
                     )
                     deleted_count += 1
-                    mastodon.status_delete(toot)
+                    if not test:
+                        mastodon.status_delete(toot)
         except:
             print("🛑 **error** with toot - " + str(toot.id))
 
@@ -73,9 +84,16 @@ def checkToots(timeline, deleted_count=0):
         max_id = timeline[-1:][0].id
         next_batch = mastodon.account_statuses(user_id, limit=40, max_id=max_id)
         if len(next_batch) > 0:
-            checkToots(next_batch, deleted_count)
+            checkToots(next_batch, test, deleted_count)
         else:
-            print("Removed " + str(deleted_count) + " toots.")
+            if test:
+                print(
+                    "Test run. This would have removed "
+                    + str(deleted_count)
+                    + " toots."
+                )
+            else:
+                print("Removed " + str(deleted_count) + " toots.")
     except IndexError:
         print("No toots found!")
 
@@ -83,5 +101,4 @@ def checkToots(timeline, deleted_count=0):
 # trigger from here
 if __name__ == "__main__":
     account = mastodon.account(user_id)
-    print("Checking " + str(account.statuses_count) + " toots...")
-    checkToots(timeline)
+    checkFlags()
