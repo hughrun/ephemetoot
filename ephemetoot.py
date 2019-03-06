@@ -62,7 +62,8 @@ def checkToots(timeline, deleted_count=0):
                     )
                     deleted_count += 1
                     # unreblog the original toot (their toot), not the toot created by boosting (your toot)
-                    mastodon.status_unreblog(toot.reblog)
+                    if not options.test:
+                        mastodon.status_unreblog(toot.reblog)
                 else:
                     print(
                         "❌ deleting toot "
