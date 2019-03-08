@@ -1,6 +1,6 @@
 #  #####################################################################
 #     Ephemetoot - A script to delete your old toots
-#     Copyright (C) 2018  Hugh Rundle
+#     Copyright (C) 2018 Hugh Rundle, 2019 Hugh Rundle & Mark Eaton
 #     Based partially on tweet-deleting script by @flesueur
 #     (https://gist.github.com/flesueur/bcb2d9185b64c5191915d860ad19f23f)
 #
@@ -18,7 +18,6 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #     You can contact Hugh on Mastodon @hugh@ausglam.space
-#     or on Twitter @hughrundle
 #     or email hugh [at] hughrundle [dot] net
 #  #####################################################################
 
