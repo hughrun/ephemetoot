@@ -22,10 +22,19 @@
 #     or email hugh [at] hughrundle [dot] net
 #  #####################################################################
 
+from argparse import ArgumentParser
 import config
 import json
 from mastodon import Mastodon
 from datetime import datetime, timedelta, timezone
+
+parser = ArgumentParser()
+parser.add_argument(
+    "--test", action="store_true", help="do a test run without deleting any toots"
+)
+options = parser.parse_args()
+if options.test:
+    print("This is a test run...")
 
 print("Fetching account details...")
 
@@ -53,7 +62,8 @@ def checkToots(timeline, deleted_count=0):
                     )
                     deleted_count += 1
                     # unreblog the original toot (their toot), not the toot created by boosting (your toot)
-                    mastodon.status_unreblog(toot.reblog)
+                    if not options.test:
+                        mastodon.status_unreblog(toot.reblog)
                 else:
                     print(
                         "❌ deleting toot "
@@ -62,7 +72,8 @@ def checkToots(timeline, deleted_count=0):
                         + toot.created_at.strftime("%d %b %Y")
                     )
                     deleted_count += 1
-                    mastodon.status_delete(toot)
+                    if not options.test:
+                        mastodon.status_delete(toot)
         except:
             print("🛑 **error** with toot - " + str(toot.id))
 
@@ -75,7 +86,14 @@ def checkToots(timeline, deleted_count=0):
         if len(next_batch) > 0:
             checkToots(next_batch, deleted_count)
         else:
-            print("Removed " + str(deleted_count) + " toots.")
+            if options.test:
+                print(
+                    "Test run. This would have removed "
+                    + str(deleted_count)
+                    + " toots."
+                )
+            else:
+                print("Removed " + str(deleted_count) + " toots.")
     except IndexError:
         print("No toots found!")
 
