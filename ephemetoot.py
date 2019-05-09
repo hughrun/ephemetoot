@@ -26,6 +26,7 @@ import config
 import json
 from mastodon import Mastodon
 from datetime import datetime, timedelta, timezone
+import time
 
 parser = ArgumentParser()
 parser.add_argument(
@@ -72,7 +73,21 @@ def checkToots(timeline, deleted_count=0):
                     )
                     deleted_count += 1
                     if not options.test:
-                        mastodon.status_delete(toot)
+                        # the delete API call is limited to 30 deletions every 30 minutes
+                        if (deleted_count == 30) or (
+                            deleted_count > 30 and (deleted_count % 30 == 0)
+                        ):
+                            mastodon.status_delete(toot)
+                            print(
+                                "waiting 30 minutes: API limit reached at "
+                                + str(deleted_count)
+                                + " deletions"
+                            )
+                            time.sleep(
+                                1805
+                            )  # wait 30 minnutes with 5 extra seconds leeway
+                        else:
+                            mastodon.status_delete(toot)
         except:
             print("🛑 **error** with toot - " + str(toot.id))
 
