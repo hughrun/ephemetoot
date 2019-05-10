@@ -9,7 +9,7 @@ This script requires Python3, the `mastodon.py` package and an API access token.
 
 # Setup
 
-1. Install Python3 if you don't already have it
+1. Install Python3 if you don't already have it (recommended approach is to [use Homebrew](https://docs.brew.sh/Homebrew-and-Python) if you're on MacOS)
 2. Install the mastodon package: `pip3 install mastodon.py`
 3. Copy _example.config.py_ to a new file called _config.py_ (e.g. `cp example.config.py config.py`)
 4. Log in to your Mastodon account using a web browser
@@ -34,19 +34,33 @@ This script requires Python3, the `mastodon.py` package and an API access token.
 
 To do a test-run without actually deleting anything, run the script with the '--test' flag: `python3 ephemetoot.py --test`
 
+Depending on how many toots you have and how long you want to keep them, it may take a minute or two before you see any results.
+
 ## Live mode
 
 Run the script with no flags: `python3 ephemetoot.py`.
 
 Depending on how many toots you have and how long you want to keep them, it may take a minute or two before you see any results.
 
+Note that the Mastodon API limits toot deletions to 30 deletes per 30 minutes. If you are running `ephemetoot` for the first time and have a lot of toots to delete, it may take a while as the script will pause for 30 minutes when it reaches a multiple of 30 deletions.
+
+## Scheduling
+
+Deleting old toots daily is the best approach to keeping your timeline clean and avoiding problems wiht the API rate limit.
+
 To run automatically every day you could try using crontab:
   1. `crontab -e`
   2. `@daily python3 ~/ephemetoot/ephemetoot.py`
 
+Alternatively on MacOS you could use [launchd](https://www.launchd.info/). An install script to set up automation with launchd is [on the list](https://github.com/hughrun/ephemetoot/issues/5) of things to be done.
+
 # Bugs and suggestions
 
-Please log an **issue** with as much detail as possible (but don't include your access token!). If you want to suggest any changes or improvements, log an issue or have a chat to me on Mastodon before lodging a pull request.
+Please check existing [issues](https://github.com/hughrun/ephemetoot/issues) and if your issue is not already listed, create a new one with as much detail as possible (but don't include your access token!).
+
+# Contributing
+
+Contributions are very welcome, but if you want to suggest any changes or improvements, please log an issue or have a chat to [me on Mastodon](https://ausglam.space/@hugh) _before_ lodging a pull request.
 
 # License
 
