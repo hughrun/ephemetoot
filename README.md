@@ -3,7 +3,7 @@ Based partially on [tweet-deleting script](https://gist.github.com/flesueur/bcb2
 
 # Usage
 
-You can use this script to delete [Mastodon](https://github.com/tootsuite/mastodon) toots that are older than a certain number of days. By default it will keep any pinned toots, but you can change that in `config.py` if you want them to be deleted. You can also make a list toots that you want to save, by adding the ID numbers to the `toots_to_save` list in `config.py` (see point 9 below). The ID of a toot is the last part of its individual URL. e.g. for https://ausglam.space/@hugh/101294246770105799 the id is `101294246770105799`
+You can use this script to delete [Mastodon](https://github.com/tootsuite/mastodon) toots that are older than a certain number of days. By default it will keep any pinned toots, but you can change `save_pinned` to `False` in `config.py` if you want them to be deleted. You can also make a list toots that you want to save, by adding the ID numbers to the `toots_to_save` list in `config.py` (see point 9 below). The ID of a toot is the last part of its individual URL. e.g. for https://ausglam.space/@hugh/101294246770105799 the id is `101294246770105799`
 
 This script requires Python3, the `mastodon.py` package and an API access token.
 
@@ -42,8 +42,6 @@ Run the script with no flags: `python3 ephemetoot.py`.
 
 Depending on how many toots you have and how long you want to keep them, it may take a minute or two before you see any results.
 
-Note that the Mastodon API limits toot deletions to 30 deletes per 30 minutes. If you are running `ephemetoot` for the first time and have a lot of toots to delete, it may take a while as the script will pause for 30 minutes when it reaches a multiple of 30 deletions.
-
 ## Scheduling
 
 Deleting old toots daily is the best approach to keeping your timeline clean and avoiding problems wiht the API rate limit.
@@ -53,6 +51,10 @@ To run automatically every day you could try using crontab:
   2. `@daily python3 ~/ephemetoot/ephemetoot.py`
 
 Alternatively on MacOS you could use [launchd](https://www.launchd.info/). An install script to set up automation with launchd is [on the list](https://github.com/hughrun/ephemetoot/issues/5) of things to be done.
+
+## Rate limits
+
+As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `mastodon.py` automatically handles this. If you are running `ephemetoot` for the first time and/or have a lot of toots to delete, it may take a while as the script will pause when it hits a rate limit, until the required time has expired.
 
 # Bugs and suggestions
 
