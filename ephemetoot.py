@@ -38,7 +38,11 @@ if options.test:
 
 print("Fetching account details...")
 
-mastodon = Mastodon(access_token=config.access_token, api_base_url=config.base_url, ratelimit_method="wait")
+mastodon = Mastodon(
+    access_token=config.access_token,
+    api_base_url=config.base_url,
+    ratelimit_method="wait",
+)
 
 cutoff_date = datetime.now(timezone.utc) - timedelta(days=config.days_to_keep)
 user_id = mastodon.account_verify_credentials().id
@@ -72,19 +76,21 @@ def checkToots(timeline, deleted_count=0):
                         + toot.created_at.strftime("%d %b %Y")
                     )
                     deleted_count += 1
-                    time.sleep(2) # wait 2 secs between deletes to be a bit nicer to the server
+                    time.sleep(
+                        2
+                    )  # wait 2 secs between deletes to be a bit nicer to the server
                     if not options.test:
                         mastodon.status_delete(toot)
         except MastodonError as e:
             print("🛑 ERROR deleting toot - " + str(toot.id) + " - " + e.args[3])
             print("Waiting 1 minute before re-trying...")
-            time.sleep(
-                60
-            )
+            time.sleep(60)
             try:
                 print("Attempting delete again")
                 mastodon.status_delete(toot)
-                time.sleep(2) # wait 2 secs between deletes to be a bit nicer to the server
+                time.sleep(
+                    2
+                )  # wait 2 secs between deletes to be a bit nicer to the server
             except Exception as e:
                 print("🛑 ERROR deleting toot - " + str(toot.id))
                 print(e)
@@ -94,8 +100,8 @@ def checkToots(timeline, deleted_count=0):
             print("Operation aborted.")
             break
         except Exception as e:
-          print("🛑 Unknown ERROR deleting toot - " + str(toot.id))
-          print(e)
+            print("🛑 Unknown ERROR deleting toot - " + str(toot.id))
+            print(e)
 
     # the account_statuses call is paginated with a 40-toot limit
     # get the id of the last toot to include as 'max_id' in the next API call.
