@@ -79,6 +79,8 @@ def checkToots(timeline, deleted_count=0):
                     time.sleep(
                         2
                     )  # wait 2 secs between deletes to be a bit nicer to the server
+                    if mastodon.ratelimit_remaining == 0:
+                        print("Rate limit reached. Waiting for a rate limit reset...")
                     if not options.test:
                         mastodon.status_delete(toot)
         except MastodonError as e:
