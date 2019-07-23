@@ -60,7 +60,7 @@ As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `
 
 ## ASCII / utf-8 errors
 
-Prior to Python 3.7, running a Python script on come BSD and Linux systems may throw an error. This can be resolved by setting a _locale_ that encodes utf-8, by using the environment setting `PYTHONIOENCODING=utf-8` when running the script, or by simply upgrading your Python version to 3.7 or higher. See [Issue 11](https://github.com/hughrun/ephemetoot/issues/11) for more information.  
+Prior to Python 3.7, running a Python script on some BSD and Linux systems may throw an error. This can be resolved by setting a _locale_ that encodes utf-8, by using the environment setting `PYTHONIOENCODING=utf-8` when running the script, or by simply upgrading your Python version to 3.7 or higher. See [Issue 11](https://github.com/hughrun/ephemetoot/issues/11) for more information.  
 
 # Bugs and suggestions
 
