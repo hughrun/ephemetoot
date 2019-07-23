@@ -1,9 +1,10 @@
 A script for deleting old toots.
+
 Based partially on [tweet-deleting script](https://gist.github.com/flesueur/bcb2d9185b64c5191915d860ad19f23f) by [@flesueur](https://github.com/flesueur)
 
 # Usage
 
-You can use this script to delete [Mastodon](https://github.com/tootsuite/mastodon) toots that are older than a certain number of days. By default it will keep any pinned toots, but you can change `save_pinned` to `False` in `config.py` if you want them to be deleted. You can also make a list toots that you want to save, by adding the ID numbers to the `toots_to_save` list in `config.py` (see point 9 below). The ID of a toot is the last part of its individual URL. e.g. for https://ausglam.space/@hugh/101294246770105799 the id is `101294246770105799`
+You can use this script to delete [Mastodon](https://github.com/tootsuite/mastodon) toots that are older than a certain number of days. By default it will keep any pinned toots, but you can change `save_pinned` to `False` in `config.py` if you want them to be deleted. You can also make a list toots that you want to save, by adding the ID numbers to the `toots_to_save` list in `config.py` (see point 9 below). The ID of a toot is the last part of its individual URL. e.g. for [https://ausglam.space/@hugh/101294246770105799](https://ausglam.space/@hugh/101294246770105799) the id is `101294246770105799`
 
 This script requires Python3, the `mastodon.py` package and an API access token.
 
@@ -47,6 +48,7 @@ Depending on how many toots you have and how long you want to keep them, it may 
 Deleting old toots daily is the best approach to keeping your timeline clean and avoiding problems wiht the API rate limit.
 
 To run automatically every day you could try using crontab:
+
   1. `crontab -e`
   2. `@daily python3 ~/ephemetoot/ephemetoot.py`
 
@@ -55,6 +57,10 @@ Alternatively on MacOS you could use [launchd](https://www.launchd.info/). An in
 ## Rate limits
 
 As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `mastodon.py` automatically handles this. If you are running `ephemetoot` for the first time and/or have a lot of toots to delete, it may take a while as the script will pause when it hits a rate limit, until the required time has expired.
+
+## ASCII / utf-8 errors
+
+Prior to Python 3.7, running a Python script on come BSD and Linux systems may throw an error. This can be resolved by setting a _locale_ that encodes utf-8, by using the environment setting `PYTHONIOENCODING=utf-8` when running the script, or by simply upgrading your Python version to 3.7 or higher. See [Issue 11](ttps://github.com/hughrun/ephemetoot/issues/11) for more information.  
 
 # Bugs and suggestions
 
