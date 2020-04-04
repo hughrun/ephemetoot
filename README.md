@@ -28,6 +28,10 @@ This script requires Python3, the `mastodon.py` package and an API access token.
 9. If there are any other toots you want to keep, put the ID numbers (without quotes) in the `toots_to_save` list, separated by commas. For example:
 
    `toots_to_save = [100029521330725397, 100013562864734780, 100044187305250752]`
+10. You can keep toots with particular visibility (e.g. direct messages) by including that visibility in `visibility_to_keep`. For example the following would only delete public toots:
+```python
+visibility_to_keep = ['unlisted', 'private', 'direct']
+```
 
 # Running the script
 
