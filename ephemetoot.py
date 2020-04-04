@@ -52,10 +52,12 @@ timeline = mastodon.account_statuses(user_id, limit=40)
 def checkToots(timeline, deleted_count=0):
     for toot in timeline:
         try:
-            if config.save_pinned and hasattr(toot, "pinned") and toot.pinned:
+            if config.keep_pinned and hasattr(toot, "pinned") and toot.pinned:
                 print("📌 skipping pinned toot - " + str(toot.id))
-            elif toot.id in config.toots_to_save:
+            elif toot.id in config.toots_to_keep:
                 print("💾 skipping saved toot - " + str(toot.id))
+            elif toot.visibility in config.visibility_to_keep:
+                print("👀 skipping " + toot.visibility + " toot - " + str(toot.id))
             elif cutoff_date > toot.created_at:
                 if hasattr(toot, "reblog") and toot.reblog:
                     print(
@@ -122,7 +124,7 @@ def checkToots(timeline, deleted_count=0):
         else:
             if options.test:
                 print(
-                    "Test run. This would have removed "
+                    "Test run completed. This would have removed "
                     + str(deleted_count)
                     + " toots."
                 )
