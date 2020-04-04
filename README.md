@@ -43,7 +43,7 @@ visibility_to_keep = ['unlisted', 'private', 'direct']
 ## Test mode
 
 To do a test-run without actually deleting anything, run the script with the `--test` flag:
-```python
+```shell
 python3 ephemetoot.py --test
 ```
 Depending on how many toots you have and how long you want to keep them, it may take a minute or two before you see any results.
@@ -51,7 +51,7 @@ Depending on how many toots you have and how long you want to keep them, it may 
 ## Live mode
 
 Run the script with no flags:
-```python
+```shell
 python3 ephemetoot.py
 ```
 
