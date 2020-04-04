@@ -22,12 +22,13 @@ This script requires Python3, the `mastodon.py` package and an API access token.
     6. Click on the name of the new app
     7. Copy the 'access token' string
 5. Replace `YOUR_ACCESS_TOKEN_HERE` in config.py with the access token string
-6. Set the base_url to match your mastodon server
+6. Set the `base_url` to match your mastodon server
 7. Set the `days_to_keep` to the number of days you want to keep toots before deleting them
 8. If you do **not** wish to keep all pinned toots regardless of age, change `save_pinned` to `False`
 9. If there are any other toots you want to keep, put the ID numbers (without quotes) in the `toots_to_keep` list, separated by commas. For example:
-
-   `toots_to_keep = [100029521330725397, 100013562864734780, 100044187305250752]`
+```python
+toots_to_keep = [100029521330725397, 100013562864734780, 100044187305250752]
+```
 10. If you want to keep toots with a particular hashtag, list each hashtag in the `hashtags_to_keep` set (omitting the `#`):
 ```python
 hashtags_to_keep = {'introduction', 'announcement'}
@@ -41,13 +42,18 @@ visibility_to_keep = ['unlisted', 'private', 'direct']
 
 ## Test mode
 
-To do a test-run without actually deleting anything, run the script with the '--test' flag: `python3 ephemetoot.py --test`
-
+To do a test-run without actually deleting anything, run the script with the `--test` flag:
+```python
+python3 ephemetoot.py --test
+```
 Depending on how many toots you have and how long you want to keep them, it may take a minute or two before you see any results.
 
 ## Live mode
 
-Run the script with no flags: `python3 ephemetoot.py`.
+Run the script with no flags:
+```python
+python3 ephemetoot.py
+```
 
 Depending on how many toots you have and how long you want to keep them, it may take a minute or two before you see any results.
 
@@ -60,7 +66,7 @@ To run automatically every day you could try using crontab:
   1. `crontab -e`
   2. `@daily python3 ~/ephemetoot/ephemetoot.py`
 
-Alternatively on MacOS you could use [launchd](https://www.launchd.info/). An install script to set up automation with launchd is [on the list](https://github.com/hughrun/ephemetoot/issues/5) of things to be done.
+Alternatively on MacOS you could use [launchd](https://www.launchd.info/) or Automator.
 
 ## Rate limits
 
@@ -68,7 +74,9 @@ As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `
 
 ## ASCII / utf-8 errors
 
-Prior to Python 3.7, running a Python script on some BSD and Linux systems may throw an error. This can be resolved by setting a _locale_ that encodes utf-8, by using the environment setting `PYTHONIOENCODING=utf-8` when running the script, or by simply upgrading your Python version to 3.7 or higher. See [Issue 11](https://github.com/hughrun/ephemetoot/issues/11) for more information.  
+Prior to Python 3.7, running a Python script on some BSD and Linux systems may throw an error. This can be resolved by:
+* setting a _locale_ that encodes utf-8, by using the environment setting `PYTHONIOENCODING=utf-8` when running the script, or 
+* upgrading your Python version to 3.7 or higher. See [Issue 11](https://github.com/hughrun/ephemetoot/issues/11) for more information.  
 
 # Bugs and suggestions
 
