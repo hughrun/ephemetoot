@@ -4,7 +4,7 @@ Based partially on [tweet-deleting script](https://gist.github.com/flesueur/bcb2
 
 # Usage
 
-You can use this script to delete [Mastodon](https://github.com/tootsuite/mastodon) toots that are older than a certain number of days. By default it will keep any pinned toots, but you can change `save_pinned` to `False` in `config.py` if you want them to be deleted. You can also make a list toots that you want to save, by adding the ID numbers to the `toots_to_save` list in `config.py` (see point 9 below). The ID of a toot is the last part of its individual URL. e.g. for [https://ausglam.space/@hugh/101294246770105799](https://ausglam.space/@hugh/101294246770105799) the id is `101294246770105799`
+You can use this script to delete [Mastodon](https://github.com/tootsuite/mastodon) toots that are older than a certain number of days. By default it will keep any pinned toots, but if you want them to be deleted as well you can change `keep_pinned` to `False` in `config.py`. You can also make a list toots that you want to keep, by adding the ID numbers to the `toots_to_keep` list in `config.py` (see point 9 below). The ID of a toot is the last part of its individual URL. e.g. for [https://ausglam.space/@hugh/101294246770105799](https://ausglam.space/@hugh/101294246770105799) the id is `101294246770105799`
 
 This script requires Python3, the `mastodon.py` package and an API access token.
 
