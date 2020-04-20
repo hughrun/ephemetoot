@@ -13,6 +13,8 @@ You can use `ephemetoot` to delete [Mastodon](https://github.com/tootsuite/masto
 * they have certain visibility; or
 * they are individually listed to be kept
 
+As of version 2, `ephemetoot` can be used for multiple accounts. If you have several 'alts', this can be useful. If you don't have your own server, your friend can now add you to their `ephemetoot` config and it will take care of your old potentially embarrassing toots as well as theirs. However, note [the warning below](#obtain-an-access-token).
+
 # Setup
 
 ## Install Python 3
@@ -50,11 +52,13 @@ Now you've installed `ephemetoot`, in order to actually use it you will need an 
 6. Click on the name of the new app, which should be a link
 7. Copy the `Your access token` string
 
+**NOTE**: Anyone who has your access token and the domain name of your Mastodon server will be able to read all your private and direct toots, publish toots and DMs, and delete everything in your account. **Do not share your access token with anyone you do not 100% trust**.
+
 ## Configuration file
 
 As of version 2, you can use a single `ephemetoot` installation to delete toots from multiple accounts. Configuration for each user is set up in the `config.yaml` file. This uses [yaml syntax](https://yaml.org/spec/1.2/spec.html) and can be updated at any time without having to reload `ephemetoot`.
 
-Copy `example-config.yaml` to a new file called `config.yml`:
+Copy `example-config.yaml` to a new file called `config.yaml`:
 ```shell
 cp example-config.yam config.yaml
 ```
@@ -68,14 +72,8 @@ You can now enter the configuration details for each user:
 | days_to_keep | Number of days to keep toots e.g. `30`|
 | keep_pinned | Either `True` or `False` - if `True`, any pinned toots will be kept regardless of age |
 | toots_to_keep | A list of toot ids indicating toots to be kept regardless of other settings. The ID of a toot is the last part of its individual URL. e.g. for [https://ausglam.space/@hugh/101294246770105799](https://ausglam.space/@hugh/101294246770105799) the id is `101294246770105799` |
-| hashtags_to_keep | a Set of hashtags, where any toots with any of these hashtags will be kept regardless of age. Do not include the '#' symbol, and remember the [rules for hashtags](https://docs.joinmastodon.org/user/posting/#hashtags) |
-| visibility_to_keep | Any toots with visibility settings in this list will be kept regardless of age. Options are: `public`, `unlisted`, `private`, `direct`. For example the following would only delete public toots:
-```yaml
-- unlisted
-- private
-- direct
-```
-|
+| hashtags_to_keep | A Set of hashtags, where any toots with any of these hashtags will be kept regardless of age. Do not include the '#' symbol. Do remember the [rules for hashtags](https://docs.joinmastodon.org/user/posting/#hashtags) |
+| visibility_to_keep | Toots with any of the visibility settings in this list will be kept regardless of age. Options are: `public`, `unlisted`, `private`, `direct`. |
 
 If you want to use `ephemetoot` for multiple accounts, separate the config for each user with a single dash (`-`), as shown in the example file.
 
@@ -83,7 +81,7 @@ If you want to use `ephemetoot` for multiple accounts, separate the config for e
 
 It is **strongly recommended** that you do a [test run](#running-in-test-mode) before using `ephemetoot` live.
 
-To call the script you can simply enter:
+To call the script you enter:
 ```shell
 ephemetoot
 ```
@@ -92,10 +90,10 @@ Depending on how many toots you have and how long you want to keep them, it may 
 
 ## Specifying the config location
 
-By default ephemetoot expects there to be a config file called `config.yaml` in the directory from where you run the `ephemetoot` command. If you want to call it from elsewhere (e.g. from `cron`), you need to specify where your config file is:
+By default ephemetoot expects there to be a config file called `config.yaml` in the directory from where you run the `ephemetoot` command. If you want to call it from elsewhere (e.g. with `cron`), you need to specify where your config file is:
 
 ```shell
-ephemetoot --config 'directory/config.yaml'
+ephemetoot --config '~/directory/subdirectory/config.yaml'
 ```
 
 ## Running in test mode
