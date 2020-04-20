@@ -1,68 +1,38 @@
-#  #####################################################################
-#     Ephemetoot - A script to delete your old toots
-#     Copyright (C) 2018, 2020 Hugh Rundle, 2019 Hugh Rundle & Mark Eaton
-#     Based partially on tweet-deleting script by @flesueur
-#     (https://gist.github.com/flesueur/bcb2d9185b64c5191915d860ad19f23f)
-#
-#     This program is free software: you can redistribute it and/or modify
-#     it under the terms of the GNU General Public License as published by
-#     the Free Software Foundation, either version 3 of the License, or
-#     (at your option) any later version.
-
-#     This program is distributed in the hope that it will be useful,
-#     but WITHOUT ANY WARRANTY; without even the implied warranty of
-#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#     GNU General Public License for more details.
-
-#     You should have received a copy of the GNU General Public License
-#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#     You can contact Hugh on Mastodon @hugh@ausglam.space
-#     or email hugh [at] hughrundle [dot] net
-#  #####################################################################
-
-from argparse import ArgumentParser
-import config
 import json
 from mastodon import Mastodon, MastodonError
 from datetime import datetime, timedelta, timezone
 import time
 
-parser = ArgumentParser()
-parser.add_argument(
-    "--test", action="store_true", help="do a test run without deleting any toots"
-)
-options = parser.parse_args()
-if options.test:
-    print("This is a test run...")
+def checkToots(config, options, deleted_count=0):
+    if options.test:
+      print("This is a test run...")
+    print("Fetching account details for @" + config['username'] + "@" + config['base_url'] + "...")
+    mastodon = Mastodon(
+        access_token=config['access_token'],
+        api_base_url="https://" + config['base_url'],
+        ratelimit_method="wait",
+    )
 
-print("Fetching account details...")
+    cutoff_date = datetime.now(timezone.utc) - timedelta(days=config['days_to_keep'])
+    user_id = mastodon.account_verify_credentials().id
+    account = mastodon.account(user_id)
+    timeline = mastodon.account_statuses(user_id, limit=40)
 
-mastodon = Mastodon(
-    access_token=config.access_token,
-    api_base_url=config.base_url,
-    ratelimit_method="wait",
-)
+    print("Checking " + str(account.statuses_count) + " toots...")
 
-cutoff_date = datetime.now(timezone.utc) - timedelta(days=config.days_to_keep)
-user_id = mastodon.account_verify_credentials().id
-timeline = mastodon.account_statuses(user_id, limit=40)
-
-
-def checkToots(timeline, deleted_count=0):
     for toot in timeline:
 
         toot_tags = set()
         for tag in toot.tags:
             toot_tags.add(tag.name)
         try:
-            if config.keep_pinned and hasattr(toot, "pinned") and toot.pinned:
+            if config['keep_pinned'] and hasattr(toot, "pinned") and toot.pinned:
                 print("📌 skipping pinned toot - " + str(toot.id))
-            elif toot.id in config.toots_to_keep:
+            elif toot.id in config['toots_to_keep']:
                 print("💾 skipping saved toot - " + str(toot.id))
-            elif toot.visibility in config.visibility_to_keep:
+            elif toot.visibility in config['visibility_to_keep']:
                 print("👀 skipping " + toot.visibility + " toot - " + str(toot.id))
-            elif len(config.hashtags_to_keep.intersection(toot_tags)) > 0:
+            elif len(config['hashtags_to_keep'].intersection(toot_tags)) > 0:
                 print("#️⃣  skipping toot with hashtag - " + str(toot.id))
             elif cutoff_date > toot.created_at:
                 if hasattr(toot, "reblog") and toot.reblog:
@@ -138,10 +108,3 @@ def checkToots(timeline, deleted_count=0):
                 print("Removed " + str(deleted_count) + " toots.")
     except IndexError:
         print("No toots found!")
-
-
-# trigger from here
-if __name__ == "__main__":
-    account = mastodon.account(user_id)
-    print("Checking " + str(account.statuses_count) + " toots...")
-    checkToots(timeline)

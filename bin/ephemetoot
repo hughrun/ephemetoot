@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+
+#  #####################################################################
+#     Ephemetoot - A script to delete your old toots
+#     Copyright (C) 2018 Hugh Rundle, 2019-2020 Hugh Rundle & Mark Eaton
+#     Initial work based on tweet-deleting script by @flesueur
+#     (https://gist.github.com/flesueur/bcb2d9185b64c5191915d860ad19f23f)
+#
+#     This program is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+
+#     This program is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#     You can contact Hugh on Mastodon @hugh@ausglam.space
+#     or email hugh [at] hughrundle [dot] net
+#  #####################################################################
+
+# import
+import yaml
+
+# from standard library
+from argparse import ArgumentParser
+import os
+
+# local files
+from lib import ephemetoot
+
+parser = ArgumentParser()
+parser.add_argument(
+    "--config", action="store", metavar="'filepath'", default="config.yaml", help="filepath of your config file, relative to the current directory. If no --config path is provided, ephemetoot will use 'config.yaml'."
+)
+parser.add_argument(
+    "--test", action="store_true", help="do a test run without deleting any toots"
+)
+
+options = parser.parse_args()
+if options.config[0] == '~':
+    config_file = os.path.expanduser(options.config)
+elif options.config[0] == '/':
+    config_file = options.config
+else: 
+    config_file = os.path.join( os.getcwd(), options.config )
+
+if __name__ == "__main__":
+    with open(config_file) as config:
+        for accounts in yaml.safe_load_all(config):
+            for user in accounts:
+                ephemetoot.checkToots(user, options)
