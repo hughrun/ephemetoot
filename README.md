@@ -13,7 +13,7 @@ You can use `ephemetoot` to delete [Mastodon](https://github.com/tootsuite/masto
 * they have certain visibility; or
 * they are individually listed to be kept
 
-As of version 2, `ephemetoot` can be used for multiple accounts. If you have several 'alts', this can be useful. If you don't have your own server, your friend can now add you to their `ephemetoot` config and it will take care of your old potentially embarrassing toots as well as theirs. However, note [the warning below](#obtain-an-access-token).
+As of version 2, `ephemetoot` can be used for multiple accounts. If you have several 'alts', this can be useful. If you don't have your own server or Mac computer, your friend can now add you to their `ephemetoot` config and it will take care of your old potentially embarrassing toots as well as theirs. However, note [the warning below](#obtain-an-access-token).
 
 # Setup
 
@@ -26,6 +26,8 @@ You need to [install Python 3](https://wiki.python.org/moin/BeginnersGuide/Downl
 If you already have `git` installed on the machine where you're running ephemetoot, you can download the latest release with:
 ```shell
 git clone https://github.com/hughrun/ephemetoot.git
+git fetch --tags
+git checkout [tagname]
 ```
 ### get code by downloading zip file 
 If you don't have `git` or don't want to use it, you can download the zip file by clicking the green `Clone or download` button above and selecting `Download ZIP`. You will then need to unzip  the file into a new directory where you want to run it.
@@ -52,7 +54,9 @@ Now you've installed `ephemetoot`, in order to actually use it you will need an 
 6. Click on the name of the new app, which should be a link
 7. Copy the `Your access token` string
 
-**NOTE**: Anyone who has your access token and the domain name of your Mastodon server will be able to read all your private and direct toots, publish toots and DMs, and delete everything in your account. **Do not share your access token with anyone you do not 100% trust**.
+<div style="border: 3px solid red">
+<strong>NOTE</strong>: Anyone who has your access token and the domain name of your Mastodon server will be able to read all your private and direct toots, publish toots and DMs, and delete everything in your account. **Do not share your access token with anyone you do not 100% trust**.
+</div>
 
 ## Configuration file
 
@@ -88,10 +92,6 @@ ephemetoot
 
 Depending on how many toots you have and how long you want to keep them, it may take a minute or two before you see any results.
 
-## --schedule
-
-For setting up scheduling on MacOS - see [Scheduling](#scheduling).
-
 ## Specifying the config location
 
 By default ephemetoot expects there to be a config file called `config.yaml` in the directory from where you run the `ephemetoot` command. If you want to call it from elsewhere (e.g. with `cron`), you need to specify where your config file is:
@@ -107,7 +107,7 @@ To do a test-run without actually deleting anything, run the script with the `--
 ephemetoot --test
 ```
 
-## Other flag options
+## Combining flag options
 
 You can use both flags together:
 ```shell
@@ -122,13 +122,9 @@ Instead of coming back to this page when you forget the flags, you can just use 
 ephemetoot --help
 ```
 
-## Rate limits
-
-As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `mastodon.py` automatically handles this. If you are running `ephemetoot` for the first time and/or have a lot of toots to delete, it may take a while as the script will pause when it hits a rate limit, until the required time has expired. Note that the rate limit is per access token, so using ephemetoot for multiple accounts on the same server shouldn't be a big problem, however one new user may delay action on subsequent accounts in the config file.
-
 ## Scheduling
 
-Deleting old toots daily is the best approach to keeping your timeline clean and avoiding problems wiht the API rate limit.
+Deleting old toots daily is the best approach to keeping your timeline clean and avoiding problems with the API rate limit.
 
 ### Linux and FreeBSD/Unix
 
@@ -150,7 +146,8 @@ ephemetoot --schedule
 ```shell
 ephemetoot --schedule directory
 ``` 
-where `directory` is where you installed `ephemetoot`. For example if `ephemetoot` is saved to `/User/hugh/python/ephemetoot`:
+where `directory` is where you installed `ephemetoot`. 
+For example if `ephemetoot` is saved to `/User/hugh/python/ephemetoot`:
 ```shell
 ephemetoot --schedule /User/hugh/python/ephemetoot
 ```
@@ -163,6 +160,10 @@ For example to run at 2.25pm every day:
 ```shell
 ephemetoot --schedule --time 14 25
 ``` 
+
+## Rate limits
+
+As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `mastodon.py` automatically handles this. If you are running `ephemetoot` for the first time and/or have a lot of toots to delete, it may take a while as the script will pause when it hits a rate limit, until the required time has expired. Note that the rate limit is per access token, so using ephemetoot for multiple accounts on the same server shouldn't be a big problem, however one new user may delay action on subsequent accounts in the config file.
 
 # ASCII / utf-8 errors
 
