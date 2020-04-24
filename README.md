@@ -54,9 +54,13 @@ Now you've installed `ephemetoot`, in order to actually use it you will need an 
 6. Click on the name of the new app, which should be a link
 7. Copy the `Your access token` string
 
-<div style="border: 3px solid red">
-<strong>NOTE</strong>: Anyone who has your access token and the domain name of your Mastodon server will be able to read all your private and direct toots, publish toots and DMs, and delete everything in your account. **Do not share your access token with anyone you do not 100% trust**.
-</div>
+
+**NOTE**: Anyone who has your access token and the domain name of your Mastodon server will be able to:
+* read all your private and direct toots, 
+* publish toots and DMs, and 
+* delete everything in your account.  
+
+**Do not share your access token with anyone you do not 100% trust**.
 
 ## Configuration file
 
@@ -146,7 +150,7 @@ ephemetoot --schedule
 ```shell
 ephemetoot --schedule directory
 ``` 
-where `directory` is where you installed `ephemetoot`. 
+where `directory` is where you installed `ephemetoot`.  
 For example if `ephemetoot` is saved to `/User/hugh/python/ephemetoot`:
 ```shell
 ephemetoot --schedule /User/hugh/python/ephemetoot
