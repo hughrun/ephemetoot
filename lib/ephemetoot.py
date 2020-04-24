@@ -1,10 +1,52 @@
+from datetime import datetime, timedelta, timezone
 import json
 from mastodon import Mastodon, MastodonError, MastodonAPIError, MastodonNetworkError
-from datetime import datetime, timedelta, timezone
-import time
+import os
 import requests
+import subprocess
+import sys
+import time
 
-def checkToots(config, options, deleted_count=0):
+def schedule(options):
+    try:
+        with open(options.schedule + '/ephemetoot.scheduler.plist', 'r') as file:
+            lines = file.readlines()
+            if options.schedule == ".":
+                working_dir = os.getcwd()
+            else:
+                working_dir = options.schedule
+            lines[7] = "		<string>" + working_dir + "</string>\n"
+            lines[10] = "			<string>" + sys.argv[0] + "</string>\n"
+            lines[12] = "			<string>" + working_dir + "/config.yaml</string>\n"
+        if options.time:
+            lines[21] = "			<integer>" + options.time[0] + "</integer>\n"
+            lines[23] = "			<integer>" + options.time[1] + "</integer>\n"
+        with open('ephemetoot.scheduler.plist', 'w') as file:
+            file.writelines(lines)
+
+        sys.tracebacklimit = 0 # suppress Tracebacks
+        # save the plist file into ~/Library/LaunchAgents
+        subprocess.run(
+            ["cp " + options.schedule + "/ephemetoot.scheduler.plist" + " ~/Library/LaunchAgents/"],
+            shell=True
+        )
+        # unload any existing file (i.e. if this is an update to the file) and suppress any errors
+        subprocess.run(
+            ["launchctl unload ~/Library/LaunchAgents/ephemetoot.scheduler.plist"], 
+            stdout=subprocess.DEVNULL, 
+            stderr=subprocess.DEVNULL,
+            shell=True
+        )
+        # load the new file and suppress any errors
+        subprocess.run(
+            ["launchctl load ~/Library/LaunchAgents/ephemetoot.scheduler.plist"],
+            shell=True
+        )
+        print('⏰ Scheduled!')
+    except Exception:
+        print('🙁 Scheduling failed.')
+
+def checkToots(config, options, deleted_count=0, retry_count=0):
     if options.test:
         print("This is a test run...")
     print("Fetching account details for @" + config['username'] + "@" + config['base_url'] + "...")
@@ -108,6 +150,12 @@ def checkToots(config, options, deleted_count=0):
                     )
                 else:
                     print("Removed " + str(deleted_count) + " toots.")
+
+            print('')
+            print('---------------------------------------')
+            print('🥳 ==> 🧼 ==> 😇 User cleanup complete!')
+            print('---------------------------------------')
+
         except IndexError:
             print("No toots found!")
             
@@ -115,6 +163,11 @@ def checkToots(config, options, deleted_count=0):
         print('User and/or access token does not exist or has been deleted')
     except MastodonNetworkError:
         print('ephemetoot cannot connect to the server - are you online?')
-    finally:
-        print('🥳 ==> 🧼 ==> 😇 User cleanup complete!')
-        print('---------------------------------------')
+        if retry_count < 4:
+            print('Waiting 1 minute before trying again')
+            time.sleep(60)
+            retry_count += 1
+            print( 'Attempt ' + str(retry_count + 1) )
+            checkToots(config, options, 0, retry_count)
+        else:
+            print('Gave up waiting for network')

@@ -28,6 +28,7 @@ import yaml
 
 # from standard library
 from argparse import ArgumentParser
+from datetime import datetime
 import os
 
 # local files
@@ -40,6 +41,12 @@ parser.add_argument(
 parser.add_argument(
     "--test", action="store_true", help="do a test run without deleting any toots"
 )
+parser.add_argument(
+    "--schedule", action="store", metavar="'filepath'", nargs="?", const=".", help="save and load plist file on MacOS"
+)
+parser.add_argument(
+    "--time", action="store", metavar="'hours minutes'", nargs="*", help="hour and minute to schedule: e.g. 9 30 for 9.30am"
+)
 
 options = parser.parse_args()
 if options.config[0] == '~':
@@ -50,7 +57,15 @@ else:
     config_file = os.path.join( os.getcwd(), options.config )
 
 if __name__ == "__main__":
-    with open(config_file) as config:
-        for accounts in yaml.safe_load_all(config):
-            for user in accounts:
-                ephemetoot.checkToots(user, options)
+    if options.schedule:
+        ephemetoot.schedule(options)
+    else:
+        print('')
+        print('=========== EPHEMETOOT ================')
+        print('Running at ' + str(datetime.now() ))
+        print('=======================================')
+        print('')
+        with open(config_file) as config:
+            for accounts in yaml.safe_load_all(config):
+                for user in accounts:
+                    ephemetoot.checkToots(user, options)

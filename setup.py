@@ -1,12 +1,12 @@
 from setuptools import setup, find_packages
 
 setup(name='ephemetoot',
-      version='2.0.0',
+      version='2.1.0',
       url='https://github.com/hughrun/ephemetoot',
       license='GPL-3.0-or-later',
       packages=find_packages(),
       scripts=['bin/ephemetoot'],
-      install_requires=['Mastodon.py', 'pyyaml'],
+      install_requires=['Mastodon.py', 'pyyaml', 'requests'],
       zip_safe=False,
       author='Hugh Rundle',
       author_email='hugh@hughrundle.net',

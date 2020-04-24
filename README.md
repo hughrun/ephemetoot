@@ -88,6 +88,10 @@ ephemetoot
 
 Depending on how many toots you have and how long you want to keep them, it may take a minute or two before you see any results.
 
+## --schedule
+
+For setting up scheduling on MacOS - see [Scheduling](#scheduling).
+
 ## Specifying the config location
 
 By default ephemetoot expects there to be a config file called `config.yaml` in the directory from where you run the `ephemetoot` command. If you want to call it from elsewhere (e.g. with `cron`), you need to specify where your config file is:
@@ -126,12 +130,39 @@ As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `
 
 Deleting old toots daily is the best approach to keeping your timeline clean and avoiding problems wiht the API rate limit.
 
+### Linux and FreeBSD/Unix
+
 To run automatically every day on a n*x server you could try using crontab:
 
   1. `crontab -e`
-  2. `@daily ephemetoot`
+  2. enter a new line: `@daily ephemetoot --config /path/to/ephemetoot/config.yaml`
+  3. exit with `:qw` (Vi/Vim) or `Ctrl + x` (nano)
 
-Alternatively on MacOS you could use [launchd](https://www.launchd.info/). Some further work on an example setup for launchd is coming soonish.
+### MacOS
+
+On **MacOS** you can use the `--schedule` flag to schedule a daily job with [launchd](https://www.launchd.info/). Note that this feature has not been widely tested so **please log an issue if you notice anything go wrong**.
+
+Run from within your `ephemetoot` directory:
+```shell
+ephemetoot --schedule
+``` 
+ or from anywhere else run: 
+```shell
+ephemetoot --schedule directory
+``` 
+where `directory` is where you installed `ephemetoot`. For example if `ephemetoot` is saved to `/User/hugh/python/ephemetoot`:
+```shell
+ephemetoot --schedule /User/hugh/python/ephemetoot
+```
+
+By default, `ephemetoot` will run at 9am every day (as long as your machine is logged in and connected to the internet). You can change the time it is scheduled to run, using the `--time` flag with `--schedule`:
+```shell
+ephemetoot --schedule [directory] --time hour minute
+``` 
+For example to run at 2.25pm every day:
+```shell
+ephemetoot --schedule --time 14 25
+``` 
 
 # ASCII / utf-8 errors
 
@@ -142,8 +173,14 @@ Prior to Python 3.7, running a Python script on some BSD and Linux systems may t
 # Uninstalling
 
 Uninstall using pip;
-```
+```shell
 pip uninstall ephemetoot
+```
+
+If you scheduled a `launchd` job on MacOS using `--schedule`, you will also need to unload and remove the scheduling file:
+```shell
+launchctl unload ~/Library/LaunchAgents/ephemetoot.scheduler.plist
+rm ~/Library/LaunchAgents/ephemetoot.scheduler.plist
 ```
 
 # Bugs and suggestions
