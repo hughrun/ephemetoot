@@ -65,6 +65,9 @@ if __name__ == "__main__":
         print('Running at ' + str(datetime.now() ))
         print('=======================================')
         print('')
+        if options.test:
+            print("This is a test run...")
+            print('')
         with open(config_file) as config:
             for accounts in yaml.safe_load_all(config):
                 for user in accounts:
