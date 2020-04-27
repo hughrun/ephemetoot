@@ -27,7 +27,6 @@ If you already have `git` installed on the machine where you're running ephemeto
 ```shell
 git clone https://github.com/hughrun/ephemetoot.git
 cd ephemetoot
-git fetch --tags
 git checkout [tagname]
 ```
 ### get code by downloading zip file 
@@ -41,6 +40,10 @@ pip install .
 With some Python 3 installations (e.g on MacOS with Homebrew) you may need to use:
 ```shell
 pip3 install .
+```
+If you do not have permission to install python modules, you may need to use the `--user` flag:
+```shell
+pip3 install . --user
 ```
 
 ## Obtain an access token
@@ -175,6 +178,15 @@ As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `
 Prior to Python 3.7, running a Python script on some BSD and Linux systems may throw an error. This can be resolved by:
 * setting a _locale_ that encodes utf-8, by using the environment setting `PYTHONIOENCODING=utf-8` when running the script, or 
 * upgrading your Python version to 3.7 or higher. See [Issue 11](https://github.com/hughrun/ephemetoot/issues/11) for more information.  
+
+# Upgrading
+To upgrade to a new version, run the following from inside the `ephemetoot` directory:
+
+```shell
+git fetch --tags
+git checkout [tagname]
+pip3 install .
+```
 
 # Uninstalling
 
