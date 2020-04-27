@@ -26,6 +26,7 @@ You need to [install Python 3](https://wiki.python.org/moin/BeginnersGuide/Downl
 If you already have `git` installed on the machine where you're running ephemetoot, you can download the latest release with:
 ```shell
 git clone https://github.com/hughrun/ephemetoot.git
+cd ephemetoot
 git fetch --tags
 git checkout [tagname]
 ```
