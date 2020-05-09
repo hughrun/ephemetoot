@@ -48,22 +48,48 @@ def schedule(options):
 
 def checkToots(config, options, retry_count=0):
 
-    print("Fetching account details for @" + config['username'] + "@" + config['base_url'] + "...")
+    keep_pinned = 'keep_pinned' in config and config['keep_pinned']
+    toots_to_keep = config['toots_to_keep'] if 'toots_to_keep' in config else []
+    visibility_to_keep = config['visibility_to_keep'] if 'visibility_to_keep' in config else []
+    hashtags_to_keep = set(config['hashtags_to_keep']) if 'hashtags_to_keep' in config else set()
+    days_to_keep = config['days_to_keep'] if 'days_to_keep' in config else 365
+
     try:
+        print(
+            "Fetching account details for @" 
+            + config['username'] 
+            + "@" 
+            + config['base_url']
+        )
+
         def checkBatch(timeline, deleted_count=0):
             for toot in timeline:
                 toot_tags = set()
                 for tag in toot.tags:
                     toot_tags.add(tag.name)
                 try:
-                    if config['keep_pinned'] and hasattr(toot, "pinned") and toot.pinned:
-                        print("📌 skipping pinned toot - " + str(toot.id))
-                    elif toot.id in config['toots_to_keep']:
-                        print("💾 skipping saved toot - " + str(toot.id))
-                    elif toot.visibility in config['visibility_to_keep']:
-                        print("👀 skipping " + toot.visibility + " toot - " + str(toot.id))
-                    elif len(config['hashtags_to_keep'].intersection(toot_tags)) > 0:
-                        print("#️⃣  skipping toot with hashtag - " + str(toot.id))
+                    if keep_pinned and hasattr(toot, "pinned") and toot.pinned:
+                        print(
+                            "📌 skipping pinned toot - " 
+                            + str(toot.id)
+                        )
+                    elif toot.id in toots_to_keep:
+                        print(
+                            "💾 skipping saved toot - " 
+                            + str(toot.id)
+                        )
+                    elif toot.visibility in visibility_to_keep:
+                        print(
+                            "👀 skipping " 
+                            + toot.visibility 
+                            + " toot - " 
+                            + str(toot.id)
+                        )
+                    elif len(hashtags_to_keep.intersection(toot_tags)) > 0:
+                        print(
+                            "#️⃣  skipping toot with hashtag - " 
+                            + str(toot.id)
+                        )
                     elif cutoff_date > toot.created_at:
                         if hasattr(toot, "reblog") and toot.reblog:
                             print(
@@ -77,7 +103,7 @@ def checkToots(config, options, retry_count=0):
                             if not options.test:
                                 if mastodon.ratelimit_remaining == 0:
                                     print(
-                                        "Rate limit reached. Waiting for a rate limit reset..."
+                                        "Rate limit reached. Waiting for a rate limit reset"
                                     )
                                 mastodon.status_unreblog(toot.reblog)
                         else:
@@ -94,12 +120,17 @@ def checkToots(config, options, retry_count=0):
                             if not options.test:
                                 if mastodon.ratelimit_remaining == 0:
                                     print(
-                                        "Rate limit reached. Waiting for a rate limit reset..."
+                                        "Rate limit reached. Waiting for a rate limit reset"
                                     )
                                 mastodon.status_delete(toot)
                 except MastodonError as e:
-                    print("🛑 ERROR deleting toot - " + str(toot.id) + " - " + e.args[3])
-                    print("Waiting 1 minute before re-trying...")
+                    print(
+                        "🛑 ERROR deleting toot - " 
+                        + str(toot.id) 
+                        + " - " 
+                        + e.args[3]
+                    )
+                    print("Waiting 1 minute before re-trying")
                     time.sleep(60)
                     try:
                         print("Attempting delete again")
@@ -108,16 +139,36 @@ def checkToots(config, options, retry_count=0):
                             2
                         )  # wait 2 secs between deletes to be a bit nicer to the server
                     except Exception as e:
-                        print("🛑 ERROR deleting toot - " + str(toot.id))
+                        print(
+                            "🛑 ERROR deleting toot - " 
+                            + str(toot.id)
+                        )
                         print(e)
                         print("Exiting due to error.")
                         break
                 except KeyboardInterrupt:
                     print("Operation aborted.")
                     break
-                except Exception as e:
-                    print("🛑 Unknown ERROR deleting toot - " + str(toot.id))
-                    print(e)
+                except KeyError as e:
+                    print(
+                        "⚠️  There is an error in your config.yaml file. Please add a value for " 
+                        + str(e) 
+                        + " and try again."
+                    )
+                    break
+                except:
+                    e = sys.exc_info()
+
+                    print(
+                        "🛑 Unknown ERROR deleting toot - " 
+                        + str(toot.id)
+                    )
+                    
+                    print("ERROR: "
+                        + str(e[0]) 
+                        + " - " 
+                        + str(e[1])
+                     )
 
             # the account_statuses call is paginated with a 40-toot limit
             # get the id of the last toot to include as 'max_id' in the next API call.
@@ -130,12 +181,16 @@ def checkToots(config, options, retry_count=0):
                 else:
                     if options.test:
                         print(
-                            "Test run completed. This would have removed "
+                            "\nTest run completed. This would have removed "
                             + str(deleted_count)
                             + " toots."
                         )
                     else:
-                        print("Removed " + str(deleted_count) + " toots.")
+                        print(
+                            "Removed " 
+                            + str(deleted_count) 
+                            + " toots."
+                        )
 
                     print('')
                     print('---------------------------------------')
@@ -144,26 +199,37 @@ def checkToots(config, options, retry_count=0):
 
             except IndexError:
                 print("No toots found!")
-        
+
         mastodon = Mastodon(
             access_token=config['access_token'],
             api_base_url="https://" + config['base_url'],
             ratelimit_method="wait",
         )
-
-        cutoff_date = datetime.now(timezone.utc) - timedelta(days=config['days_to_keep'])
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
         user_id = mastodon.account_verify_credentials().id
         account = mastodon.account(user_id)
         timeline = mastodon.account_statuses(user_id, limit=40)
 
-        print("Checking " + str(account.statuses_count) + " toots...")
+        print(
+            "Checking " 
+            + str(account.statuses_count) 
+            + " toots"
+        )
 
         checkBatch(timeline)
 
+    except KeyError as val:
+        print('\n⚠️  error with in your config.yaml file!')
+        print(
+            'Please ensure there is a value for '
+            + str(val)
+            + '\n'
+        )
+
     except MastodonAPIError:
-        print('User and/or access token does not exist or has been deleted')
+        print('\n🙅  User and/or access token does not exist or has been deleted')
     except MastodonNetworkError:
-        print('ephemetoot cannot connect to the server - are you online?')
+        print('\n📡  ephemetoot cannot connect to the server - are you online?')
         if retry_count < 4:
             print('Waiting 1 minute before trying again')
             time.sleep(60)

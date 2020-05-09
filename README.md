@@ -7,7 +7,7 @@ The initial `ephemetoot` script was based on [this tweet-deleting script](https:
 
 # Usage
 
-You can use `ephemetoot` to delete [Mastodon](https://github.com/tootsuite/mastodon) toots that are older than a certain number of days. Toots can optionally be saved from deletion if:
+You can use `ephemetoot` to delete [Mastodon](https://github.com/tootsuite/mastodon) toots that are older than a certain number of days (default is 365). Toots can optionally be saved from deletion if:
 * they are pinned;
 * they include certain hashtags;
 * they have certain visibility; or
@@ -78,14 +78,23 @@ You can now enter the configuration details for each user:
 
 | setting | description   |
 | ---:  |   :---        |
-| access_token | The alphanumeric access token string from the app you created in Mastodon |
-| username | Your username without the '@' or server domain. e.g. `hugh`|
-| base_url | The base url of your Mastodon server, without the 'https://'. e.g. `ausglam.space`|
-| days_to_keep | Number of days to keep toots e.g. `30`|
-| keep_pinned | Either `True` or `False` - if `True`, any pinned toots will be kept regardless of age |
+| access_token | **required** - The alphanumeric access token string from the app you created in Mastodon |
+| username | **required** - Your username without the '@' or server domain. e.g. `hugh`|
+| base_url | **required** - The base url of your Mastodon server, without the 'https://'. e.g. `ausglam.space`|
+| days_to_keep | Number of days to keep toots e.g. `30`. If not value is provided the default number is 365 |
+| keep_pinned | Either `true` or `false` - if `true`, any pinned toots will be kept regardless of age |
 | toots_to_keep | A list of toot ids indicating toots to be kept regardless of other settings. The ID of a toot is the last part of its individual URL. e.g. for [https://ausglam.space/@hugh/101294246770105799](https://ausglam.space/@hugh/101294246770105799) the id is `101294246770105799` |
-| hashtags_to_keep | A Set of hashtags, where any toots with any of these hashtags will be kept regardless of age. Do not include the '#' symbol. Do remember the [rules for hashtags](https://docs.joinmastodon.org/user/posting/#hashtags) |
+| hashtags_to_keep | A list of hashtags, where any toots with any of these hashtags will be kept regardless of age. Do not include the '#' symbol. Do remember the [rules for hashtags](https://docs.joinmastodon.org/user/posting/#hashtags) |
 | visibility_to_keep | Toots with any of the visibility settings in this list will be kept regardless of age. Options are: `public`, `unlisted`, `private`, `direct`. |
+
+All values other than `access_token`, `username` and `base_url` are optional, however if you include `toots_to_keep`, `hashtags_to_keep`, or `visibility_to_keep` you must make each a list, even if it is empty:
+
+```yaml
+toots_to_keep: # this is not a list, it will throw an error
+hashtags_to_keep: 
+  - # this empty list is ok
+visibility_to_keep: [ ] # this empty list is also ok
+```
 
 If you want to use `ephemetoot` for multiple accounts, separate the config for each user with a single dash (`-`), as shown in the example file.
 
@@ -188,9 +197,11 @@ git checkout [tagname]
 pip3 install .
 ```
 
+Alternatively download and unzip the zip file into your `ephemetoot` directory over the top of your existing installation, and then run `pip3 install .`.
+
 # Uninstalling
 
-Uninstall using pip;
+Uninstall using pip:
 ```shell
 pip uninstall ephemetoot
 ```
