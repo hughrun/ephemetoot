@@ -28,7 +28,7 @@ import yaml
 
 # from standard library
 from argparse import ArgumentParser
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 
 # local files
@@ -39,10 +39,13 @@ parser.add_argument(
     "--config", action="store", metavar="'filepath'", default="config.yaml", help="filepath of your config file, relative to the current directory. If no --config path is provided, ephemetoot will use 'config.yaml'."
 )
 parser.add_argument(
-    "--test", action="store_true", help="do a test run without deleting any toots"
+    "--datestamp", action="store_true", help="include a datetime stamp for every action (e.g. deleting a toot)"
 )
 parser.add_argument(
     "--schedule", action="store", metavar="'filepath'", nargs="?", const=".", help="save and load plist file on MacOS"
+)
+parser.add_argument(
+    "--test", action="store_true", help="do a test run without deleting any toots"
 )
 parser.add_argument(
     "--time", action="store", metavar="'hours minutes'", nargs="*", help="hour and minute to schedule: e.g. 9 30 for 9.30am"
@@ -61,9 +64,9 @@ if __name__ == "__main__":
         ephemetoot.schedule(options)
     else:
         print('')
-        print('=========== EPHEMETOOT ================')
-        print('Running at ' + str(datetime.now() ))
-        print('=======================================')
+        print('============= EPHEMETOOT ================')
+        print('Running at ' + str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ))
+        print('=========================================')
         print('')
         if options.test:
             print("This is a test run...")
