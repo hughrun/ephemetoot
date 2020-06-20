@@ -69,39 +69,43 @@ def checkToots(config, options, retry_count=0):
                     toot_tags.add(tag.name)
                 try:
                     if keep_pinned and hasattr(toot, "pinned") and toot.pinned:
-                        if options.datestamp:
-                            print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
+                        if not options.hide_skipped:
+                            if options.datestamp:
+                                print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
 
-                        print(
-                            "📌 skipping pinned toot - " 
-                            + str(toot.id)
-                        )
+                            print(
+                                "📌 skipping pinned toot - " 
+                                + str(toot.id)
+                            )
                     elif toot.id in toots_to_keep:
-                        if options.datestamp:
-                            print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
-                            
-                        print(
-                            "💾 skipping saved toot - " 
-                            + str(toot.id)
-                        )
+                        if not options.hide_skipped:
+                            if options.datestamp:
+                                print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
+                                
+                            print(
+                                "💾 skipping saved toot - " 
+                                + str(toot.id)
+                            )
                     elif toot.visibility in visibility_to_keep:
-                        if options.datestamp:
-                            print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
-                            
-                        print(
-                            "👀 skipping " 
-                            + toot.visibility 
-                            + " toot - " 
-                            + str(toot.id)
-                        )
+                        if not options.hide_skipped:
+                            if options.datestamp:
+                                print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
+                                
+                            print(
+                                "👀 skipping " 
+                                + toot.visibility 
+                                + " toot - " 
+                                + str(toot.id)
+                            )
                     elif len(hashtags_to_keep.intersection(toot_tags)) > 0:
-                        if options.datestamp:
-                            print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
-                            
-                        print(
-                            "#️⃣  skipping toot with hashtag - " 
-                            + str(toot.id)
-                        )
+                        if not options.hide_skipped:
+                            if options.datestamp:
+                                print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
+                                
+                            print(
+                                "#️⃣  skipping toot with hashtag - " 
+                                + str(toot.id)
+                            )
                     elif cutoff_date > toot.created_at:
                         if hasattr(toot, "reblog") and toot.reblog:
                             if options.datestamp:
