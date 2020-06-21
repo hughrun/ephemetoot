@@ -43,8 +43,9 @@ pip3 install .
 ```
 If you do not have permission to install python modules, you may need to use the `--user` flag:
 ```shell
-pip3 install . --user
+pip install . --user
 ```
+Note that you will need to run the script with the same user.
 
 ## Obtain an access token
 
@@ -64,7 +65,7 @@ Now you've installed `ephemetoot`, in order to actually use it you will need an 
 * publish toots and DMs, and 
 * delete everything in your account.  
 
-**Do not share your access token with anyone you do not 100% trust**.
+**Do not share your access token with anyone you do not 100% trust!!!**.
 
 ## Configuration file
 
@@ -123,16 +124,27 @@ To do a test-run without actually deleting anything, run the script with the `--
 ```shell
 ephemetoot --test
 ```
+## Slow down deletes to match API limit
+
+With the `--pace` flag, delete actions are slowed so that the API limit is never reached, using [`Mastodon.py`'s 'pace' method](https://mastodonpy.readthedocs.io/en/stable/index.html?highlight=pace#mastodon.Mastodon.__init__). This is recommended for your first run, as unless you have tooted fewer than 30 times you are guaranteed to hit the API limit for deletions the first time you run `ephemetoot`. If you do not toot very often on most days, it is probably more efficient to use the default behaviour for daily runs after the first time, but you can use `--pace` every time if you prefer.
+
+## Hide skipped items
+
+If you skip a lot of items (e.g. you skip direct messages) it may clutter your log file to list these every time you run the script. You can suppress them from the output by using the `--hide_skipped` flag.
+
+## Include datestamp with every action
+
+If you want to know exactly when each delete action occured, you can use the `--datestamp` flag to add a datestamp to the log output. This is useful when using `--pace` so you can see the rate you have been slowed down to.
 
 ## Combining flag options
 
-You can use both flags together:
+You can use several flags together:
 ```shell
-ephemetoot --config 'directory/config.yaml' --test
+ephemetoot --config 'directory/config.yaml' --test --hide_skipped
 ```
 Use them in any order:
 ```shell
-ephemetoot --test --config 'directory/config.yaml'
+ephemetoot --pace --datestamp --config 'directory/config.yaml'
 ```
 Instead of coming back to this page when you forget the flags, you can just use the help option:
 ```shell
@@ -180,7 +192,9 @@ ephemetoot --schedule --time 14 25
 
 ## Rate limits
 
-As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `mastodon.py` automatically handles this. If you are running `ephemetoot` for the first time and/or have a lot of toots to delete, it may take a while as the script will pause when it hits a rate limit, until the required time has expired. Note that the rate limit is per access token, so using ephemetoot for multiple accounts on the same server shouldn't be a big problem, however one new user may delay action on subsequent accounts in the config file.
+As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `mastodon.py` automatically handles this. If you are running `ephemetoot` for the first time and/or have a lot of toots to delete, it may take a while as the script will pause when it hits a rate limit, until the required time has expired. You can use the `--pace` flag to slow down ephemetoot so that it never hits the limit - this is recommended on your first run. It will not speed up the process but will smooth it out.
+
+Note that the rate limit is per access token, so using ephemetoot for multiple accounts on the same server shouldn't be a big problem, however one new user may delay action on subsequent accounts in the config file.
 
 # ASCII / utf-8 errors
 
@@ -189,15 +203,15 @@ Prior to Python 3.7, running a Python script on some BSD and Linux systems may t
 * upgrading your Python version to 3.7 or higher. See [Issue 11](https://github.com/hughrun/ephemetoot/issues/11) for more information.  
 
 # Upgrading
-To upgrade to a new version, run the following from inside the `ephemetoot` directory:
+To upgrade to a new version using git, run the following from inside the `ephemetoot` directory:
 
 ```shell
 git fetch --tags
 git checkout [tagname]
-pip3 install .
+pip install .
 ```
 
-Alternatively download and unzip the zip file into your `ephemetoot` directory over the top of your existing installation, and then run `pip3 install .`.
+Alternatively download and unzip the zip file into your `ephemetoot` directory over the top of your existing installation, and then run `pip install .`.
 
 # Uninstalling
 
