@@ -30,9 +30,13 @@ import yaml
 from argparse import ArgumentParser
 from datetime import datetime, timezone
 import os
+import pkg_resources 
 
 # local files
 from lib import ephemetoot
+
+# version number from setup.py
+vnum = pkg_resources.require("ephemetoot")[0].version
 
 parser = ArgumentParser()
 parser.add_argument(
@@ -56,6 +60,9 @@ parser.add_argument(
 parser.add_argument(
     "--time", action="store", metavar="'hours minutes'", nargs="*", help="Hour and minute to schedule: e.g. 9 30 for 9.30am"
 )
+parser.add_argument(
+    "--version", action="store_true", help="Display the version number"
+)
 
 options = parser.parse_args()
 if options.config[0] == '~':
@@ -66,13 +73,15 @@ else:
     config_file = os.path.join( os.getcwd(), options.config )
 
 if __name__ == "__main__":
-    if options.schedule:
+    if options.version:
+        ephemetoot.version(vnum)
+    elif options.schedule:
         ephemetoot.schedule(options)
     else:
         print('')
-        print('============= EPHEMETOOT ================')
+        print('============= EPHEMETOOT v' + vnum + ' ================')
         print('Running at ' + str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ))
-        print('=========================================')
+        print('================================================')
         print('')
         if options.test:
             print("This is a test run...")

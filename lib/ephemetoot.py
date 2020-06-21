@@ -7,6 +7,18 @@ import subprocess
 import sys
 import time
 
+def version(vnum):
+    try:
+        latest = requests.get('https://api.github.com/repos/hughrun/ephemetoot/releases/latest')
+        res = latest.json()
+        latest_version = res['name']
+        print('\nYou are using ephemetoot Version ' + vnum)
+        print('The latest release is ' + latest_version + '\n')
+    
+    except Exception as e:
+        print('Something went wrong:')
+        print(e)
+
 def schedule(options):
     try:
         with open(options.schedule + '/ephemetoot.scheduler.plist', 'r') as file:
