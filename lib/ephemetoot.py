@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 import json
-from mastodon import Mastodon, MastodonError, MastodonAPIError, MastodonNetworkError
+from mastodon import Mastodon, MastodonError, MastodonAPIError, MastodonNetworkError, MastodonRatelimitError
 import os
 import requests
 import subprocess
@@ -11,16 +11,21 @@ def schedule(options):
     try:
         with open(options.schedule + '/ephemetoot.scheduler.plist', 'r') as file:
             lines = file.readlines()
+
             if options.schedule == ".":
                 working_dir = os.getcwd()
+
             else:
                 working_dir = options.schedule
+
             lines[7] = "		<string>" + working_dir + "</string>\n"
             lines[10] = "			<string>" + sys.argv[0] + "</string>\n"
             lines[12] = "			<string>" + working_dir + "/config.yaml</string>\n"
+
         if options.time:
             lines[21] = "			<integer>" + options.time[0] + "</integer>\n"
             lines[23] = "			<integer>" + options.time[1] + "</integer>\n"
+
         with open('ephemetoot.scheduler.plist', 'w') as file:
             file.writelines(lines)
 
@@ -141,16 +146,41 @@ def checkToots(config, options, retry_count=0):
                             )  # wait 2 secs between deletes to be a bit nicer to the server
                             if not options.test:
                                 if mastodon.ratelimit_remaining == 0:
+
+                                    now = time.time()
+                                    diff = mastodon.ratelimit_reset - now
+
                                     print(
-                                        "Rate limit reached. Waiting for a rate limit reset"
+                                        "\nRate limit reached at " + 
+                                        str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ) + 
+                                        ' - next reset due in ' + 
+                                        str(format(diff / 60, '.0f')) + 
+                                        ' minutes.\n'
                                     )
+
                                 mastodon.status_delete(toot)
+
+                except MastodonRatelimitError:
+
+                    now = time.time()
+                    diff = mastodon.ratelimit_reset - now
+
+                    print(
+                        "\nRate limit reached at " + 
+                        str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ) + 
+                        ' - waiting for next reset due in ' + 
+                        str(format(diff / 60, '.0f')) + 
+                        ' minutes.\n'
+                    )
+
+                    time.sleep(diff + 1) # wait for rate limit to reset
+
                 except MastodonError as e:
                     print(
                         "🛑 ERROR deleting toot - " 
                         + str(toot.id) 
                         + " - " 
-                        + e.args[3]
+                        + str(e.args)
                     )
                     print("Waiting 1 minute before re-trying")
                     time.sleep(60)
@@ -228,11 +258,21 @@ def checkToots(config, options, retry_count=0):
             except IndexError:
                 print("No toots found!")
 
-        mastodon = Mastodon(
-            access_token=config['access_token'],
-            api_base_url="https://" + config['base_url'],
-            ratelimit_method="wait",
-        )
+        if options.pace:
+            mastodon = Mastodon(
+                access_token=config['access_token'],
+                api_base_url="https://" + config['base_url'],
+                ratelimit_method="pace",
+            )
+
+        else:
+
+            mastodon = Mastodon(
+                access_token=config['access_token'],
+                api_base_url="https://" + config['base_url'],
+                ratelimit_method="wait",
+            )
+
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
         user_id = mastodon.account_verify_credentials().id
         account = mastodon.account(user_id)

@@ -45,6 +45,9 @@ parser.add_argument(
     "--hide_skipped", action="store_true", help="do not write to log when skipping saved toots"
 )
 parser.add_argument(
+    "--pace", action="store_true", help="Slow deletion actions to match API rate limit to avoid pausing"
+)
+parser.add_argument(
     "--schedule", action="store", metavar="'filepath'", nargs="?", const=".", help="save and load plist file on MacOS"
 )
 parser.add_argument(
