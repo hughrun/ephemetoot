@@ -87,6 +87,7 @@ You can now enter the configuration details for each user:
 | toots_to_keep | A list of toot ids indicating toots to be kept regardless of other settings. The ID of a toot is the last part of its individual URL. e.g. for [https://ausglam.space/@hugh/101294246770105799](https://ausglam.space/@hugh/101294246770105799) the id is `101294246770105799` |
 | hashtags_to_keep | A list of hashtags, where any toots with any of these hashtags will be kept regardless of age. Do not include the '#' symbol. Do remember the [rules for hashtags](https://docs.joinmastodon.org/user/posting/#hashtags) |
 | visibility_to_keep | Toots with any of the visibility settings in this list will be kept regardless of age. Options are: `public`, `unlisted`, `private`, `direct`. |
+| archive | The full toot is archived into individual files named by the Toot's `id` in this writeable directory. |
 
 All values other than `access_token`, `username` and `base_url` are optional, however if you include `toots_to_keep`, `hashtags_to_keep`, or `visibility_to_keep` you must make each a list, even if it is empty:
 
