@@ -82,10 +82,10 @@ def checkToots(config, options, retry_count=0):
         def jsondefault(obj):
             if isinstance(obj, (date, datetime)):
                 return obj.isoformat()
+
         def checkBatch(timeline, deleted_count=0):
             for toot in timeline:
                 if 'id' in toot and 'archive' in config:
-                    print(toot)
                     filename = os.path.join(config['archive'], str(toot['id']) + '.json')
                     with open(filename, "w") as f:
                         f.write(json.dumps(toot, indent=4, default=jsondefault))
