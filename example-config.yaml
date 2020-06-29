@@ -6,6 +6,7 @@
 # toots_to_keep : a list of toot ids indicating toots to be kept regardless of other settings
 # hashtags_to_keep : a list of hashtags, where any toots with any of these hashtags will be kept. Do not include the '#' symbol
 # visibility_to_keep : any toots with visibility settings in this list will be kept. Options are: 'public', 'unlisted', 'private', 'direct'
+# archive : path to a writeable directory into which toots are "archived" as JSON files
 
 # you can list only one user, or multiple users
 # each user account should be preceded by a single dash, and indented, as per below

@@ -79,8 +79,17 @@ def checkToots(config, options, retry_count=0):
             + config['base_url']
         )
 
+        def jsondefault(obj):
+            if isinstance(obj, (date, datetime)):
+                return obj.isoformat()
         def checkBatch(timeline, deleted_count=0):
             for toot in timeline:
+                if 'id' in toot and 'archive' in config:
+                    print(toot)
+                    filename = os.path.join(config['archive'], str(toot['id']) + '.json')
+                    with open(filename, "w") as f:
+                        f.write(json.dumps(toot, indent=4, default=jsondefault))
+                        f.close()
                 toot_tags = set()
                 for tag in toot.tags:
                     toot_tags.add(tag.name)
