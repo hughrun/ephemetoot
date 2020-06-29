@@ -82,6 +82,7 @@ def checkToots(config, options, retry_count=0):
         def jsondefault(obj):
             if isinstance(obj, (date, datetime)):
                 return obj.isoformat()
+
         def checkBatch(timeline, deleted_count=0):
             for toot in timeline:
                 if 'id' in toot and 'archive' in config:
