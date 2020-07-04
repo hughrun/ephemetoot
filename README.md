@@ -1,4 +1,5 @@
-A tool for deleting old toots, written in Python 3.
+# 🥳 ==> 🧼 ==> 😇
+**ephemetoot** is a Python command line tool for deleting old toots.
 
 # Prior work
 The initial `ephemetoot` script was based on [this tweet-deleting script](https://gist.github.com/flesueur/bcb2d9185b64c5191915d860ad19f23f) by [@flesueur](https://github.com/flesueur)
@@ -8,29 +9,29 @@ The initial `ephemetoot` script was based on [this tweet-deleting script](https:
 # Usage
 
 You can use `ephemetoot` to delete [Mastodon](https://github.com/tootsuite/mastodon) toots that are older than a certain number of days (default is 365). Toots can optionally be saved from deletion if:
-* they are pinned;
-* they include certain hashtags;
+* they are pinned; or
+* they include certain hashtags; or
 * they have certain visibility; or
 * they are individually listed to be kept
 
-As of version 2, `ephemetoot` can be used for multiple accounts. If you have several 'alts', this can be useful. If you don't have your own server or Mac computer, your friend can now add you to their `ephemetoot` config and it will take care of your old potentially embarrassing toots as well as theirs. However, note [the warning below](#obtain-an-access-token).
+As of version 2, `ephemetoot` can be used for multiple accounts. If you have several 'alts', this can be useful. If you don't have your own server or Mac computer, your friend can now add you to their `ephemetoot` config and it will take care of your old toots as well as theirs. However, **note [the warning below](#obtain-an-access-token)**.
 
-# Setup
+# Setup & Installation
 
-## Install Python 3
+## Install Python 3 and pip
 
-You need to [install Python 3](https://wiki.python.org/moin/BeginnersGuide/Download) to use `ephemetoot`. Python 2 is now end-of-life, however it continued to be installed as the default Python on MacOS until very recently, and may also be installed on your server. 
+You need to [install Python 3](https://wiki.python.org/moin/BeginnersGuide/Download) to use `ephemetoot`. Python 2 is now end-of-life, however it continued to be installed as the default Python on MacOS and many Linux distributions until very recently, so you should check. You will also need to check that `pip` is installed and pointing to Python3 (not Python2). On some systems this will mean using the command `pip3`.
 
 ## Install ephemetoot
-### get code with git
+### Option 1 - get code with git
 If you already have `git` installed on the machine where you're running ephemetoot, you can download the latest release with:
 ```shell
 git clone https://github.com/hughrun/ephemetoot.git
 cd ephemetoot
 git checkout [tagname]
 ```
-### get code by downloading zip file 
-If you don't have `git` or don't want to use it, you can download the zip file by clicking the green `Clone or download` button above and selecting `Download ZIP`. You will then need to unzip  the file into a new directory where you want to run it.
+### Option 2 - get the code by downloading the zip file 
+If you don't have `git` or don't want to use it, you can download the zip file by clicking the green button above and selecting `Download ZIP`. You will then need to unzip the file into a new directory where you want to run it.
 
 ### install using pip
 From a command line, move into the main `ephemetoot` directory (i.e. where the README file is) and run:
@@ -45,7 +46,7 @@ If you do not have permission to install python modules, you may need to use the
 ```shell
 pip install . --user
 ```
-Note that you will need to run the script with the same user.
+Note that you will need to run the script with the same user as ephemetoot will only be installed for that user and not globally.
 
 ## Obtain an access token
 
@@ -87,7 +88,7 @@ You can now enter the configuration details for each user:
 | toots_to_keep | A list of toot ids indicating toots to be kept regardless of other settings. The ID of a toot is the last part of its individual URL. e.g. for [https://ausglam.space/@hugh/101294246770105799](https://ausglam.space/@hugh/101294246770105799) the id is `101294246770105799` |
 | hashtags_to_keep | A list of hashtags, where any toots with any of these hashtags will be kept regardless of age. Do not include the '#' symbol. Do remember the [rules for hashtags](https://docs.joinmastodon.org/user/posting/#hashtags) |
 | visibility_to_keep | Toots with any of the visibility settings in this list will be kept regardless of age. Options are: `public`, `unlisted`, `private`, `direct`. |
-| archive | The full toot is archived into individual files named by the Toot's `id` in this writeable directory. |
+| archive | A string. The full toot is archived into individual files named by the toot's `id` in this writeable directory. |
 
 All values other than `access_token`, `username` and `base_url` are optional, however if you include `toots_to_keep`, `hashtags_to_keep`, or `visibility_to_keep` you must make each a list, even if it is empty:
 
@@ -102,9 +103,18 @@ If you want to use `ephemetoot` for multiple accounts, separate the config for e
 
 # Running the script
 
-It is **strongly recommended** that you do a [test run](#running-in-test-mode) before using `ephemetoot` live.
+It is **strongly recommended** that you do a test run before using `ephemetoot` live. There is no "undo"!
 
-To call the script you enter:
+## Running in test mode
+
+To do a test-run without actually deleting anything, run the script with the `--test` flag:
+```shell
+ephemetoot --test
+```
+
+## Running in "live" mode
+
+To call the script call ephemetoot with no arguments:
 ```shell
 ephemetoot
 ```
@@ -119,12 +129,6 @@ By default ephemetoot expects there to be a config file called `config.yaml` in 
 ephemetoot --config '~/directory/subdirectory/config.yaml'
 ```
 
-## Running in test mode
-
-To do a test-run without actually deleting anything, run the script with the `--test` flag:
-```shell
-ephemetoot --test
-```
 ## Slow down deletes to match API limit
 
 With the `--pace` flag, delete actions are slowed so that the API limit is never reached, using [`Mastodon.py`'s 'pace' method](https://mastodonpy.readthedocs.io/en/stable/index.html?highlight=pace#mastodon.Mastodon.__init__). This is recommended for your first run, as unless you have tooted fewer than 30 times you are guaranteed to hit the API limit for deletions the first time you run `ephemetoot`. If you do not toot very often on most days, it is probably more efficient to use the default behaviour for daily runs after the first time, but you can use `--pace` every time if you prefer.
@@ -161,7 +165,7 @@ Deleting old toots daily is the best approach to keeping your timeline clean and
 To run automatically every day on a n*x server you could try using crontab:
 
   1. `crontab -e`
-  2. enter a new line: `@daily ephemetoot --config /path/to/ephemetoot/config.yaml`
+  2. enter a new line: `@daily /path/to/ephemetoot --config /path/to/ephemetoot/config.yaml`
   3. exit with `:qw` (Vi/Vim) or `Ctrl + x` (nano)
 
 ### MacOS
@@ -204,6 +208,8 @@ Prior to Python 3.7, running a Python script on some BSD and Linux systems may t
 * upgrading your Python version to 3.7 or higher. See [Issue 11](https://github.com/hughrun/ephemetoot/issues/11) for more information.  
 
 # Upgrading
+
+## Upgrading with git
 To upgrade to a new version using git, run the following from inside the `ephemetoot` directory:
 
 ```shell
@@ -212,7 +218,13 @@ git checkout [tagname]
 pip install .
 ```
 
-Alternatively download and unzip the zip file into your `ephemetoot` directory over the top of your existing installation, and then run `pip install .`.
+## Upgrading with a ZIP file
+To upgrade without using git:
+
+* put your config file somewhere safe
+* download and unzip the zip file into your `ephemetoot` directory over the top of your existing installation
+* move your config file back in to the ephemetoot directory
+* run `pip install .` from within the directory
 
 # Uninstalling
 
@@ -227,14 +239,10 @@ launchctl unload ~/Library/LaunchAgents/ephemetoot.scheduler.plist
 rm ~/Library/LaunchAgents/ephemetoot.scheduler.plist
 ```
 
-# Bugs and suggestions
-
-Please check existing [issues](https://github.com/hughrun/ephemetoot/issues) and if your issue is not already listed, create a new one with as much detail as possible (but don't include your access token!).
-
 # Contributing
 
-Contributions are very welcome, but if you want to suggest any changes or improvements, please log an issue or have a chat to [me on Mastodon](https://ausglam.space/@hugh) _before_ making a pull request.
+For all bugs, suggestions, pull requests or other contributions, please check the [contributing guide](./CONTRIBUTING.md).
 
 # License
 
-GPL 3.0+
+This project is [licensed](./LICENSE) under the GPL 3.0 or future version
