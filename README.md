@@ -1,5 +1,6 @@
 # 🥳 ==> 🧼 ==> 😇
 **ephemetoot** is a Python command line tool for deleting old toots.
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) 
 
 # Prior work
 The initial `ephemetoot` script was based on [this tweet-deleting script](https://gist.github.com/flesueur/bcb2d9185b64c5191915d860ad19f23f) by [@flesueur](https://github.com/flesueur)
