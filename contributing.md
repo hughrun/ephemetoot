@@ -30,7 +30,7 @@ Each issue should refer to a single bug or enhancement. Don't include multiple s
 - "Ephemetoot may die when encountering utf8 encoded toots" ([bug](https://github.com/hughrun/ephemetoot/issues/11))
 - "Optionally include datetime stamp with every action" ([enhancement](https://github.com/hughrun/ephemetoot/issues/23))
 
-**Commit messages** should start with an [imperative verb](https://www.grammarly.com/blog/imperative-verbs/). Simple commits such as documentation fixes may only need a brief sentence. Something bigger like an enhancement should usually have a commit heading briefly describing the outcome of the commit, with a longer explanation underneath. Past examples of good commit titles are:
+**Commit and pull request messages** should start with an [imperative verb](https://www.grammarly.com/blog/imperative-verbs/). Simple commits such as documentation fixes may only need a brief sentence. Something bigger like an enhancement should usually have a heading briefly describing the outcome of the commit, with a longer explanation underneath. Past examples of good commit titles are:
 
 - "handle IndexError when there are no toots in the timeline" ([bugfix](https://github.com/hughrun/ephemetoot/commit/92643271d53e00089a10bacd1795cfd50e030413))
 - "add support for archiving toots into JSON files" ([new feature](https://github.com/hughrun/ephemetoot/commit/c0d680258ff0fe141fbabcf14a60eee8994e8d18))
