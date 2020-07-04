@@ -1,27 +1,37 @@
 from datetime import date, datetime, timedelta, timezone
 import json
-from mastodon import Mastodon, MastodonError, MastodonAPIError, MastodonNetworkError, MastodonRatelimitError
+from mastodon import (
+    Mastodon,
+    MastodonError,
+    MastodonAPIError,
+    MastodonNetworkError,
+    MastodonRatelimitError,
+)
 import os
 import requests
 import subprocess
 import sys
 import time
 
+
 def version(vnum):
     try:
-        latest = requests.get('https://api.github.com/repos/hughrun/ephemetoot/releases/latest')
+        latest = requests.get(
+            "https://api.github.com/repos/hughrun/ephemetoot/releases/latest"
+        )
         res = latest.json()
-        latest_version = res['name']
-        print('\nYou are using ephemetoot Version ' + vnum)
-        print('The latest release is ' + latest_version + '\n')
-    
+        latest_version = res["name"]
+        print("\nYou are using ephemetoot Version " + vnum)
+        print("The latest release is " + latest_version + "\n")
+
     except Exception as e:
-        print('Something went wrong:')
+        print("Something went wrong:")
         print(e)
+
 
 def schedule(options):
     try:
-        with open(options.schedule + '/ephemetoot.scheduler.plist', 'r') as file:
+        with open(options.schedule + "/ephemetoot.scheduler.plist", "r") as file:
             lines = file.readlines()
 
             if options.schedule == ".":
@@ -38,45 +48,55 @@ def schedule(options):
             lines[21] = "			<integer>" + options.time[0] + "</integer>\n"
             lines[23] = "			<integer>" + options.time[1] + "</integer>\n"
 
-        with open('ephemetoot.scheduler.plist', 'w') as file:
+        with open("ephemetoot.scheduler.plist", "w") as file:
             file.writelines(lines)
 
-        sys.tracebacklimit = 0 # suppress Tracebacks
+        sys.tracebacklimit = 0  # suppress Tracebacks
         # save the plist file into ~/Library/LaunchAgents
         subprocess.run(
-            ["cp " + options.schedule + "/ephemetoot.scheduler.plist" + " ~/Library/LaunchAgents/"],
-            shell=True
+            [
+                "cp "
+                + options.schedule
+                + "/ephemetoot.scheduler.plist"
+                + " ~/Library/LaunchAgents/"
+            ],
+            shell=True,
         )
         # unload any existing file (i.e. if this is an update to the file) and suppress any errors
         subprocess.run(
-            ["launchctl unload ~/Library/LaunchAgents/ephemetoot.scheduler.plist"], 
-            stdout=subprocess.DEVNULL, 
+            ["launchctl unload ~/Library/LaunchAgents/ephemetoot.scheduler.plist"],
+            stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            shell=True
+            shell=True,
         )
         # load the new file and suppress any errors
         subprocess.run(
             ["launchctl load ~/Library/LaunchAgents/ephemetoot.scheduler.plist"],
-            shell=True
+            shell=True,
         )
-        print('⏰ Scheduled!')
+        print("⏰ Scheduled!")
     except Exception:
-        print('🙁 Scheduling failed.')
+        print("🙁 Scheduling failed.")
+
 
 def checkToots(config, options, retry_count=0):
 
-    keep_pinned = 'keep_pinned' in config and config['keep_pinned']
-    toots_to_keep = config['toots_to_keep'] if 'toots_to_keep' in config else []
-    visibility_to_keep = config['visibility_to_keep'] if 'visibility_to_keep' in config else []
-    hashtags_to_keep = set(config['hashtags_to_keep']) if 'hashtags_to_keep' in config else set()
-    days_to_keep = config['days_to_keep'] if 'days_to_keep' in config else 365
+    keep_pinned = "keep_pinned" in config and config["keep_pinned"]
+    toots_to_keep = config["toots_to_keep"] if "toots_to_keep" in config else []
+    visibility_to_keep = (
+        config["visibility_to_keep"] if "visibility_to_keep" in config else []
+    )
+    hashtags_to_keep = (
+        set(config["hashtags_to_keep"]) if "hashtags_to_keep" in config else set()
+    )
+    days_to_keep = config["days_to_keep"] if "days_to_keep" in config else 365
 
     try:
         print(
-            "Fetching account details for @" 
-            + config['username'] 
-            + "@" 
-            + config['base_url']
+            "Fetching account details for @"
+            + config["username"]
+            + "@"
+            + config["base_url"]
         )
 
         def jsondefault(obj):
@@ -85,8 +105,10 @@ def checkToots(config, options, retry_count=0):
 
         def checkBatch(timeline, deleted_count=0):
             for toot in timeline:
-                if 'id' in toot and 'archive' in config:
-                    filename = os.path.join(config['archive'], str(toot['id']) + '.json')
+                if "id" in toot and "archive" in config:
+                    filename = os.path.join(
+                        config["archive"], str(toot["id"]) + ".json"
+                    )
                     with open(filename, "w") as f:
                         f.write(json.dumps(toot, indent=4, default=jsondefault))
                         f.close()
@@ -97,45 +119,71 @@ def checkToots(config, options, retry_count=0):
                     if keep_pinned and hasattr(toot, "pinned") and toot.pinned:
                         if not options.hide_skipped:
                             if options.datestamp:
-                                print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
+                                print(
+                                    str(
+                                        datetime.now(timezone.utc).strftime(
+                                            "%a %d %b %Y %H:%M:%S %z"
+                                        )
+                                    ),
+                                    end=" : ",
+                                )
 
-                            print(
-                                "📌 skipping pinned toot - " 
-                                + str(toot.id)
-                            )
+                            print("📌 skipping pinned toot - " + str(toot.id))
                     elif toot.id in toots_to_keep:
                         if not options.hide_skipped:
                             if options.datestamp:
-                                print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
-                                
-                            print(
-                                "💾 skipping saved toot - " 
-                                + str(toot.id)
-                            )
+                                print(
+                                    str(
+                                        datetime.now(timezone.utc).strftime(
+                                            "%a %d %b %Y %H:%M:%S %z"
+                                        )
+                                    ),
+                                    end=" : ",
+                                )
+
+                            print("💾 skipping saved toot - " + str(toot.id))
                     elif toot.visibility in visibility_to_keep:
                         if not options.hide_skipped:
                             if options.datestamp:
-                                print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
-                                
+                                print(
+                                    str(
+                                        datetime.now(timezone.utc).strftime(
+                                            "%a %d %b %Y %H:%M:%S %z"
+                                        )
+                                    ),
+                                    end=" : ",
+                                )
+
                             print(
-                                "👀 skipping " 
-                                + toot.visibility 
-                                + " toot - " 
+                                "👀 skipping "
+                                + toot.visibility
+                                + " toot - "
                                 + str(toot.id)
                             )
                     elif len(hashtags_to_keep.intersection(toot_tags)) > 0:
                         if not options.hide_skipped:
                             if options.datestamp:
-                                print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
-                                
-                            print(
-                                "#️⃣  skipping toot with hashtag - " 
-                                + str(toot.id)
-                            )
+                                print(
+                                    str(
+                                        datetime.now(timezone.utc).strftime(
+                                            "%a %d %b %Y %H:%M:%S %z"
+                                        )
+                                    ),
+                                    end=" : ",
+                                )
+
+                            print("#️⃣  skipping toot with hashtag - " + str(toot.id))
                     elif cutoff_date > toot.created_at:
                         if hasattr(toot, "reblog") and toot.reblog:
                             if options.datestamp:
-                                print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
+                                print(
+                                    str(
+                                        datetime.now(timezone.utc).strftime(
+                                            "%a %d %b %Y %H:%M:%S %z"
+                                        )
+                                    ),
+                                    end=" : ",
+                                )
 
                             print(
                                 "👎 unboosting toot "
@@ -153,7 +201,14 @@ def checkToots(config, options, retry_count=0):
                                 mastodon.status_unreblog(toot.reblog)
                         else:
                             if options.datestamp:
-                                print(str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
+                                print(
+                                    str(
+                                        datetime.now(timezone.utc).strftime(
+                                            "%a %d %b %Y %H:%M:%S %z"
+                                        )
+                                    ),
+                                    end=" : ",
+                                )
 
                             print(
                                 "❌ deleting toot "
@@ -172,11 +227,15 @@ def checkToots(config, options, retry_count=0):
                                     diff = mastodon.ratelimit_reset - now
 
                                     print(
-                                        "\nRate limit reached at " + 
-                                        str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ) + 
-                                        ' - next reset due in ' + 
-                                        str(format(diff / 60, '.0f')) + 
-                                        ' minutes.\n'
+                                        "\nRate limit reached at "
+                                        + str(
+                                            datetime.now(timezone.utc).strftime(
+                                                "%a %d %b %Y %H:%M:%S %z"
+                                            )
+                                        )
+                                        + " - next reset due in "
+                                        + str(format(diff / 60, ".0f"))
+                                        + " minutes.\n"
                                     )
 
                                 mastodon.status_delete(toot)
@@ -187,21 +246,22 @@ def checkToots(config, options, retry_count=0):
                     diff = mastodon.ratelimit_reset - now
 
                     print(
-                        "\nRate limit reached at " + 
-                        str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ) + 
-                        ' - waiting for next reset due in ' + 
-                        str(format(diff / 60, '.0f')) + 
-                        ' minutes.\n'
+                        "\nRate limit reached at "
+                        + str(
+                            datetime.now(timezone.utc).strftime(
+                                "%a %d %b %Y %H:%M:%S %z"
+                            )
+                        )
+                        + " - waiting for next reset due in "
+                        + str(format(diff / 60, ".0f"))
+                        + " minutes.\n"
                     )
 
-                    time.sleep(diff + 1) # wait for rate limit to reset
+                    time.sleep(diff + 1)  # wait for rate limit to reset
 
                 except MastodonError as e:
                     print(
-                        "🛑 ERROR deleting toot - " 
-                        + str(toot.id) 
-                        + " - " 
-                        + str(e.args)
+                        "🛑 ERROR deleting toot - " + str(toot.id) + " - " + str(e.args)
                     )
                     print("Waiting 1 minute before re-trying")
                     time.sleep(60)
@@ -212,10 +272,7 @@ def checkToots(config, options, retry_count=0):
                             2
                         )  # wait 2 secs between deletes to be a bit nicer to the server
                     except Exception as e:
-                        print(
-                            "🛑 ERROR deleting toot - " 
-                            + str(toot.id)
-                        )
+                        print("🛑 ERROR deleting toot - " + str(toot.id))
                         print(e)
                         print("Exiting due to error.")
                         break
@@ -224,24 +281,17 @@ def checkToots(config, options, retry_count=0):
                     break
                 except KeyError as e:
                     print(
-                        "⚠️  There is an error in your config.yaml file. Please add a value for " 
-                        + str(e) 
+                        "⚠️  There is an error in your config.yaml file. Please add a value for "
+                        + str(e)
                         + " and try again."
                     )
                     break
                 except:
                     e = sys.exc_info()
 
-                    print(
-                        "🛑 Unknown ERROR deleting toot - " 
-                        + str(toot.id)
-                    )
-                    
-                    print("ERROR: "
-                        + str(e[0]) 
-                        + " - " 
-                        + str(e[1])
-                     )
+                    print("🛑 Unknown ERROR deleting toot - " + str(toot.id))
+
+                    print("ERROR: " + str(e[0]) + " - " + str(e[1]))
 
             # the account_statuses call is paginated with a 40-toot limit
             # get the id of the last toot to include as 'max_id' in the next API call.
@@ -254,7 +304,15 @@ def checkToots(config, options, retry_count=0):
                 else:
                     if options.test:
                         if options.datestamp:
-                            print('\n\n' + str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
+                            print(
+                                "\n\n"
+                                + str(
+                                    datetime.now(timezone.utc).strftime(
+                                        "%a %d %b %Y %H:%M:%S %z"
+                                    )
+                                ),
+                                end=" : ",
+                            )
 
                         print(
                             "Test run completed. This would have removed "
@@ -263,34 +321,38 @@ def checkToots(config, options, retry_count=0):
                         )
                     else:
                         if options.datestamp:
-                            print('\n\n' + str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ), end=' : ')
+                            print(
+                                "\n\n"
+                                + str(
+                                    datetime.now(timezone.utc).strftime(
+                                        "%a %d %b %Y %H:%M:%S %z"
+                                    )
+                                ),
+                                end=" : ",
+                            )
 
-                        print(
-                            "Removed " 
-                            + str(deleted_count) 
-                            + " toots."
-                        )
+                        print("Removed " + str(deleted_count) + " toots.")
 
-                    print('')
-                    print('---------------------------------------')
-                    print('🥳 ==> 🧼 ==> 😇 User cleanup complete!')
-                    print('---------------------------------------\n')
+                    print("")
+                    print("---------------------------------------")
+                    print("🥳 ==> 🧼 ==> 😇 User cleanup complete!")
+                    print("---------------------------------------\n")
 
             except IndexError:
                 print("No toots found!")
 
         if options.pace:
             mastodon = Mastodon(
-                access_token=config['access_token'],
-                api_base_url="https://" + config['base_url'],
+                access_token=config["access_token"],
+                api_base_url="https://" + config["base_url"],
                 ratelimit_method="pace",
             )
 
         else:
 
             mastodon = Mastodon(
-                access_token=config['access_token'],
-                api_base_url="https://" + config['base_url'],
+                access_token=config["access_token"],
+                api_base_url="https://" + config["base_url"],
                 ratelimit_method="wait",
             )
 
@@ -299,31 +361,23 @@ def checkToots(config, options, retry_count=0):
         account = mastodon.account(user_id)
         timeline = mastodon.account_statuses(user_id, limit=40)
 
-        print(
-            "Checking " 
-            + str(account.statuses_count) 
-            + " toots"
-        )
+        print("Checking " + str(account.statuses_count) + " toots")
 
         checkBatch(timeline)
 
     except KeyError as val:
-        print('\n⚠️  error with in your config.yaml file!')
-        print(
-            'Please ensure there is a value for '
-            + str(val)
-            + '\n'
-        )
+        print("\n⚠️  error with in your config.yaml file!")
+        print("Please ensure there is a value for " + str(val) + "\n")
 
     except MastodonAPIError:
-        print('\n🙅  User and/or access token does not exist or has been deleted')
+        print("\n🙅  User and/or access token does not exist or has been deleted")
     except MastodonNetworkError:
-        print('\n📡  ephemetoot cannot connect to the server - are you online?')
+        print("\n📡  ephemetoot cannot connect to the server - are you online?")
         if retry_count < 4:
-            print('Waiting 1 minute before trying again')
+            print("Waiting 1 minute before trying again")
             time.sleep(60)
             retry_count += 1
-            print( 'Attempt ' + str(retry_count + 1) )
+            print("Attempt " + str(retry_count + 1))
             checkToots(config, options, retry_count)
         else:
-            print('Gave up waiting for network')
+            print("Gave up waiting for network")

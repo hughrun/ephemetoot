@@ -1,11 +1,11 @@
 # access_token : the access token from the app you created in Mastodon at Settings - Development
-# username : your username without the '@' or server domain.
-# base_url : the base url of your Mastodon server, without the 'https://'
+# username : your username without the "@" or server domain.
+# base_url : the base url of your Mastodon server, without the "https://"
 # days_to_keep : number of days to keep toots. Defaults to 365
 # keep_pinned : either true or false - if true, any pinned toots will be kept (default false)
 # toots_to_keep : a list of toot ids indicating toots to be kept regardless of other settings
-# hashtags_to_keep : a list of hashtags, where any toots with any of these hashtags will be kept. Do not include the '#' symbol
-# visibility_to_keep : any toots with visibility settings in this list will be kept. Options are: 'public', 'unlisted', 'private', 'direct'
+# hashtags_to_keep : a list of hashtags, where any toots with any of these hashtags will be kept. Do not include the "#" symbol
+# visibility_to_keep : any toots with visibility settings in this list will be kept. Options are: "public", "unlisted", "private", "direct"
 # archive : path to a writeable directory into which toots are "archived" as JSON files
 
 # you can list only one user, or multiple users
@@ -27,6 +27,7 @@
   visibility_to_keep :
     - direct
     - private
+  archive : ~/toots_archive/
 -
 # aus.social account
 # values other than access_token, username, and base_url are all optional
