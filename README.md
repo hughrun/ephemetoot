@@ -90,7 +90,7 @@ You can now enter the configuration details for each user:
 | toots_to_keep | A list of toot ids indicating toots to be kept regardless of other settings. The ID of a toot is the last part of its individual URL. e.g. for [https://ausglam.space/@hugh/101294246770105799](https://ausglam.space/@hugh/101294246770105799) the id is `101294246770105799` |
 | hashtags_to_keep | A list of hashtags, where any toots with any of these hashtags will be kept regardless of age. Do not include the '#' symbol. Do remember the [rules for hashtags](https://docs.joinmastodon.org/user/posting/#hashtags) |
 | visibility_to_keep | Toots with any of the visibility settings in this list will be kept regardless of age. Options are: `public`, `unlisted`, `private`, `direct`. |
-| archive | A string. The full toot is archived into individual files named by the toot's `id` in this writeable directory. |
+| archive | A string representing the filepath to your toot archive. If this is provided, for every toot checked, the full toot is archived into individual files named by the toot's `id` in this writeable directory. Note that the default is for **all** toots to be archived, not just those that are being deleted. It is generally best to use an absolute file path - relative paths will not work if you call `ephemetoot` from another directory. |
 
 All values other than `access_token`, `username` and `base_url` are optional, however if you include `toots_to_keep`, `hashtags_to_keep`, or `visibility_to_keep` you must make each a list, even if it is empty:
 
@@ -105,9 +105,11 @@ If you want to use `ephemetoot` for multiple accounts, separate the config for e
 
 # Running the script
 
+For a short description of all available options, run `ephemetoot --help` from the command line.
+
 It is **strongly recommended** that you do a test run before using `ephemetoot` live. There is no "undo"!
 
-## Running in test mode
+## Running in test mode (--test)
 
 To do a test-run without actually deleting anything, run the script with the `--test` flag:
 ```shell
@@ -123,7 +125,7 @@ ephemetoot
 
 Depending on how many toots you have and how long you want to keep them, it may take a minute or two before you see any results.
 
-## Specifying the config location
+## Specifying the config location (--config)
 
 By default ephemetoot expects there to be a config file called `config.yaml` in the directory from where you run the `ephemetoot` command. If you want to call it from elsewhere (e.g. with `cron`), you need to specify where your config file is:
 
@@ -131,23 +133,37 @@ By default ephemetoot expects there to be a config file called `config.yaml` in 
 ephemetoot --config '~/directory/subdirectory/config.yaml'
 ```
 
-## Slow down deletes to match API limit
+## Slow down deletes to match API limit (--pace)
 
 With the `--pace` flag, delete actions are slowed so that the API limit is never reached, using [`Mastodon.py`'s 'pace' method](https://mastodonpy.readthedocs.io/en/stable/index.html?highlight=pace#mastodon.Mastodon.__init__). This is recommended for your first run, as unless you have tooted fewer than 30 times you are guaranteed to hit the API limit for deletions the first time you run `ephemetoot`. If you do not toot very often on most days, it is probably more efficient to use the default behaviour for daily runs after the first time, but you can use `--pace` every time if you prefer.
 
-## Hide skipped items
+## Do more
 
-If you skip a lot of items (e.g. you skip direct messages) it may clutter your log file to list these every time you run the script. You can suppress them from the output by using the `--hide_skipped` flag.
-
-## Include datestamp with every action
+### Include datestamp with every action (--datestamp)
 
 If you want to know exactly when each delete action occured, you can use the `--datestamp` flag to add a datestamp to the log output. This is useful when using `--pace` so you can see the rate you have been slowed down to.
+
+## Do less
+
+### Hide skipped items (--hide-skipped)
+
+If you skip a lot of items (e.g. you skip direct messages) it may clutter your log file to list these every time you run the script. You can suppress them from the output by using the `--hide-skipped` flag.
+
+### Hide everything (--quiet)
+
+Use the `--quiet` flag to suppress all logging except for the account name being checked and the number of toots deleted. Exception messages will not be suppressed.
+
+### Only archive deleted toots (--archive-deleted)
+
+If you provide a value for `archive` in your config file, the default is that all toots will be archived in that location, regardless of whether or not it is being deleted. i.e. it will create a local archive of your entire toot history. If you run ephemetoot with the `--test` flag, this allows you to use create an archive without even deleting anything.
+
+You can use the `--archive-deleted` flag to only archive deleted toots instead.
 
 ## Combining flag options
 
 You can use several flags together:
 ```shell
-ephemetoot --config 'directory/config.yaml' --test --hide_skipped
+ephemetoot --config 'directory/config.yaml' --test --hide-skipped
 ```
 Use them in any order:
 ```shell

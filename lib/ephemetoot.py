@@ -106,18 +106,31 @@ def checkToots(config, options, retry_count=0):
         def checkBatch(timeline, deleted_count=0):
             for toot in timeline:
                 if "id" in toot and "archive" in config:
-                    filename = os.path.join(
-                        config["archive"], str(toot["id"]) + ".json"
-                    )
-                    with open(filename, "w") as f:
-                        f.write(json.dumps(toot, indent=4, default=jsondefault))
-                        f.close()
+                    
+                    # define archive path
+                    if config["archive"][0] == '~':
+                        archive_path = os.path.expanduser(config["archive"])
+                    elif config["archive"][0] == '/':
+                        archive_path = config["archive"]
+                    else:
+                        archive_path = os.path.join( os.getcwd(), config["archive"] )
+                    if archive_path[-1] != '/':
+                        archive_path += '/'
+
+                    filename = os.path.join(archive_path, str(toot["id"]) + ".json")
+                    
+                    if not options.archive_deleted:
+                        # write toot to archive
+                        with open(filename, "w") as f:
+                            f.write(json.dumps(toot, indent=4, default=jsondefault))
+                            f.close()
+
                 toot_tags = set()
                 for tag in toot.tags:
                     toot_tags.add(tag.name)
                 try:
                     if keep_pinned and hasattr(toot, "pinned") and toot.pinned:
-                        if not options.hide_skipped:
+                        if not (options.hide_skipped or options.quiet):
                             if options.datestamp:
                                 print(
                                     str(
@@ -130,7 +143,7 @@ def checkToots(config, options, retry_count=0):
 
                             print("📌 skipping pinned toot - " + str(toot.id))
                     elif toot.id in toots_to_keep:
-                        if not options.hide_skipped:
+                        if not (options.hide_skipped or options.quiet):
                             if options.datestamp:
                                 print(
                                     str(
@@ -143,7 +156,7 @@ def checkToots(config, options, retry_count=0):
 
                             print("💾 skipping saved toot - " + str(toot.id))
                     elif toot.visibility in visibility_to_keep:
-                        if not options.hide_skipped:
+                        if not (options.hide_skipped or options.quiet):
                             if options.datestamp:
                                 print(
                                     str(
@@ -161,7 +174,7 @@ def checkToots(config, options, retry_count=0):
                                 + str(toot.id)
                             )
                     elif len(hashtags_to_keep.intersection(toot_tags)) > 0:
-                        if not options.hide_skipped:
+                        if not (options.hide_skipped or options.quiet):
                             if options.datestamp:
                                 print(
                                     str(
@@ -175,53 +188,62 @@ def checkToots(config, options, retry_count=0):
                             print("#️⃣  skipping toot with hashtag - " + str(toot.id))
                     elif cutoff_date > toot.created_at:
                         if hasattr(toot, "reblog") and toot.reblog:
-                            if options.datestamp:
-                                print(
-                                    str(
-                                        datetime.now(timezone.utc).strftime(
-                                            "%a %d %b %Y %H:%M:%S %z"
-                                        )
-                                    ),
-                                    end=" : ",
-                                )
+                            if not options.quiet:
+                                if options.datestamp:
+                                    print(
+                                        str(
+                                            datetime.now(timezone.utc).strftime(
+                                                "%a %d %b %Y %H:%M:%S %z"
+                                            )
+                                        ),
+                                        end=" : ",
+                                    )
 
-                            print(
-                                "👎 unboosting toot "
-                                + str(toot.id)
-                                + " boosted "
-                                + toot.created_at.strftime("%d %b %Y")
-                            )
+                                print(
+                                    "👎 unboosting toot "
+                                    + str(toot.id)
+                                    + " boosted "
+                                    + toot.created_at.strftime("%d %b %Y")
+                                )
                             deleted_count += 1
                             # unreblog the original toot (their toot), not the toot created by boosting (your toot)
                             if not options.test:
                                 if mastodon.ratelimit_remaining == 0:
-                                    print(
-                                        "Rate limit reached. Waiting for a rate limit reset"
-                                    )
+                                    if not options.quiet:
+                                        print(
+                                            "Rate limit reached. Waiting for a rate limit reset"
+                                        )
+                                # check for --archive-deleted
+                                if options.archive_deleted and "id" in toot and "archive" in config:
+                                    # write toot to archive
+                                    with open(filename, "w") as f:
+                                        f.write(json.dumps(toot, indent=4, default=jsondefault))
+                                        f.close()
                                 mastodon.status_unreblog(toot.reblog)
                         else:
-                            if options.datestamp:
-                                print(
-                                    str(
-                                        datetime.now(timezone.utc).strftime(
-                                            "%a %d %b %Y %H:%M:%S %z"
-                                        )
-                                    ),
-                                    end=" : ",
-                                )
+                            if not options.quiet:
+                                if options.datestamp:
+                                    print(
+                                        str(
+                                            datetime.now(timezone.utc).strftime(
+                                                "%a %d %b %Y %H:%M:%S %z"
+                                            )
+                                        ),
+                                        end=" : ",
+                                    )
 
-                            print(
-                                "❌ deleting toot "
-                                + str(toot.id)
-                                + " tooted "
-                                + toot.created_at.strftime("%d %b %Y")
-                            )
+                                print(
+                                    "❌ deleting toot "
+                                    + str(toot.id)
+                                    + " tooted "
+                                    + toot.created_at.strftime("%d %b %Y")
+                                )
                             deleted_count += 1
                             time.sleep(
                                 2
                             )  # wait 2 secs between deletes to be a bit nicer to the server
                             if not options.test:
-                                if mastodon.ratelimit_remaining == 0:
+                                if mastodon.ratelimit_remaining == 0 and not options.quiet:
 
                                     now = time.time()
                                     diff = mastodon.ratelimit_reset - now
@@ -237,6 +259,12 @@ def checkToots(config, options, retry_count=0):
                                         + str(format(diff / 60, ".0f"))
                                         + " minutes.\n"
                                     )
+                                # check for --archive-deleted
+                                if options.archive_deleted and "id" in toot and "archive" in config:
+                                    # write toot to archive
+                                    with open(filename, "w") as f:
+                                        f.write(json.dumps(toot, indent=4, default=jsondefault))
+                                        f.close()
 
                                 mastodon.status_delete(toot)
 
@@ -333,10 +361,10 @@ def checkToots(config, options, retry_count=0):
 
                         print("Removed " + str(deleted_count) + " toots.")
 
-                    print("")
-                    print("---------------------------------------")
-                    print("🥳 ==> 🧼 ==> 😇 User cleanup complete!")
-                    print("---------------------------------------\n")
+                    if not options.quiet:
+                        print("\n---------------------------------------")
+                        print("🥳 ==> 🧼 ==> 😇 User cleanup complete!")
+                        print("---------------------------------------\n")
 
             except IndexError:
                 print("No toots found!")
@@ -361,7 +389,8 @@ def checkToots(config, options, retry_count=0):
         account = mastodon.account(user_id)
         timeline = mastodon.account_statuses(user_id, limit=40)
 
-        print("Checking " + str(account.statuses_count) + " toots")
+        if not options.quiet:
+            print("Checking " + str(account.statuses_count) + " toots")
 
         checkBatch(timeline)
 

@@ -40,25 +40,31 @@ vnum = pkg_resources.require("ephemetoot")[0].version
 
 parser = ArgumentParser()
 parser.add_argument(
-    "--config", action="store", metavar="'filepath'", default="config.yaml", help="Filepath of your config file, relative to the current directory. If no --config path is provided, ephemetoot will use 'config.yaml'."
+    "--archive-deleted", action="store_true", help="Only archive toots that are being deleted"
+)
+parser.add_argument(
+    "--config", action="store", metavar="filepath", default="config.yaml", help="Filepath of your config file, absolute or relative to the current directory. If no --config path is provided, ephemetoot will use 'config.yaml'."
 )
 parser.add_argument(
     "--datestamp", action="store_true", help="Include a datetime stamp for every action (e.g. deleting a toot)"
 )
 parser.add_argument(
-    "--hide_skipped", action="store_true", help="Do not write to log when skipping saved toots"
+    "--hide-skipped", "--hide_skipped", action="store_true", help="Do not write to log when skipping saved toots"
 )
 parser.add_argument(
     "--pace", action="store_true", help="Slow deletion actions to match API rate limit to avoid pausing"
 )
 parser.add_argument(
-    "--schedule", action="store", metavar="'filepath'", nargs="?", const=".", help="Save and load plist file on MacOS"
+    "--quiet", action="store_true", help="Suppress most logging"
+)
+parser.add_argument(
+    "--schedule", action="store", metavar="filepath", nargs="?", const=".", help="Save and load plist file on MacOS"
 )
 parser.add_argument(
     "--test", action="store_true", help="Do a test run without deleting any toots"
 )
 parser.add_argument(
-    "--time", action="store", metavar="'hours minutes'", nargs="*", help="Hour and minute to schedule: e.g. 9 30 for 9.30am"
+    "--time", action="store", metavar=('hour', 'minute'), nargs="*", help="Hour and minute to schedule: e.g. 9 30 for 9.30am"
 )
 parser.add_argument(
     "--version", action="store_true", help="Display the version number"
@@ -78,14 +84,14 @@ if __name__ == "__main__":
     elif options.schedule:
         ephemetoot.schedule(options)
     else:
-        print('')
-        print('============= EPHEMETOOT v' + vnum + ' ================')
-        print('Running at ' + str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ))
-        print('================================================')
-        print('')
-        if options.test:
-            print("This is a test run...")
+        if not options.quiet:
             print('')
+            print('============= EPHEMETOOT v' + vnum + ' ================')
+            print('Running at ' + str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ))
+            print('================================================')
+            print('')
+        if options.test:
+            print("This is a test run...\n")
         with open(config_file) as config:
             for accounts in yaml.safe_load_all(config):
                 for user in accounts:
