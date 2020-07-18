@@ -116,13 +116,14 @@ def checkToots(config, options, retry_count=0):
                         archive_path = os.path.join( os.getcwd(), config["archive"] )
                     if archive_path[-1] != '/':
                         archive_path += '/'
-                    print(archive_path)
+
                     filename = os.path.join(archive_path, str(toot["id"]) + ".json")
                     
-                    # write toot to archive
-                    with open(filename, "w") as f:
-                        f.write(json.dumps(toot, indent=4, default=jsondefault))
-                        f.close()
+                    if not options.archive_deleted:
+                        # write toot to archive
+                        with open(filename, "w") as f:
+                            f.write(json.dumps(toot, indent=4, default=jsondefault))
+                            f.close()
 
                 toot_tags = set()
                 for tag in toot.tags:
@@ -210,6 +211,12 @@ def checkToots(config, options, retry_count=0):
                                     print(
                                         "Rate limit reached. Waiting for a rate limit reset"
                                     )
+                                # check for --archive-deleted
+                                if options.archive_deleted and "id" in toot and "archive" in config:
+                                    # write toot to archive
+                                    with open(filename, "w") as f:
+                                        f.write(json.dumps(toot, indent=4, default=jsondefault))
+                                        f.close()
                                 mastodon.status_unreblog(toot.reblog)
                         else:
                             if options.datestamp:
@@ -249,7 +256,13 @@ def checkToots(config, options, retry_count=0):
                                         + str(format(diff / 60, ".0f"))
                                         + " minutes.\n"
                                     )
-
+                                # check for --archive-deleted
+                                if options.archive_deleted and "id" in toot and "archive" in config:
+                                    # write toot to archive
+                                    with open(filename, "w") as f:
+                                        f.write(json.dumps(toot, indent=4, default=jsondefault))
+                                        f.close()
+                                        
                                 mastodon.status_delete(toot)
 
                 except MastodonRatelimitError:

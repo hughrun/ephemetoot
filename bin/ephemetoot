@@ -40,13 +40,16 @@ vnum = pkg_resources.require("ephemetoot")[0].version
 
 parser = ArgumentParser()
 parser.add_argument(
+    "--archive-deleted", action="store_true", help="Only archive toots that are being deleted"
+)
+parser.add_argument(
     "--config", action="store", metavar="filepath", default="config.yaml", help="Filepath of your config file, absolute or relative to the current directory. If no --config path is provided, ephemetoot will use 'config.yaml'."
 )
 parser.add_argument(
     "--datestamp", action="store_true", help="Include a datetime stamp for every action (e.g. deleting a toot)"
 )
 parser.add_argument(
-    "--hide_skipped", action="store_true", help="Do not write to log when skipping saved toots"
+    "--hide-skipped", "--hide_skipped", action="store_true", help="Do not write to log when skipping saved toots"
 )
 parser.add_argument(
     "--pace", action="store_true", help="Slow deletion actions to match API rate limit to avoid pausing"
@@ -84,8 +87,7 @@ if __name__ == "__main__":
         print('================================================')
         print('')
         if options.test:
-            print("This is a test run...")
-            print('')
+            print("This is a test run...\n")
         with open(config_file) as config:
             for accounts in yaml.safe_load_all(config):
                 for user in accounts:
