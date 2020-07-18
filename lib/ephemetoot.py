@@ -106,12 +106,24 @@ def checkToots(config, options, retry_count=0):
         def checkBatch(timeline, deleted_count=0):
             for toot in timeline:
                 if "id" in toot and "archive" in config:
-                    filename = os.path.join(
-                        config["archive"], str(toot["id"]) + ".json"
-                    )
+                    
+                    # define archive path
+                    if config["archive"][0] == '~':
+                        archive_path = os.path.expanduser(config["archive"])
+                    elif config["archive"][0] == '/':
+                        archive_path = config["archive"]
+                    else:
+                        archive_path = os.path.join( os.getcwd(), config["archive"] )
+                    if archive_path[-1] != '/':
+                        archive_path += '/'
+                    print(archive_path)
+                    filename = os.path.join(archive_path, str(toot["id"]) + ".json")
+                    
+                    # write toot to archive
                     with open(filename, "w") as f:
                         f.write(json.dumps(toot, indent=4, default=jsondefault))
                         f.close()
+
                 toot_tags = set()
                 for tag in toot.tags:
                     toot_tags.add(tag.name)

@@ -11,7 +11,7 @@
 # you can list only one user, or multiple users
 # each user account should be preceded by a single dash, and indented, as per below
 -
-# ausglam.space account
+# full example
   access_token : ZA-Yj3aBD8U8Cm7lKUp-lm9O9BmDgdhHzDeqsY8tlL0
   username : alice
   base_url : ausglam.space
@@ -27,9 +27,9 @@
   visibility_to_keep :
     - direct
     - private
-  archive : ~/toots_archive/
+  archive : Users/alice/toots_archive/ausglam/
 -
-# aus.social account
+# minimal example
 # values other than access_token, username, and base_url are all optional
   access_token : AZ-Yj3aBD8U8Cm7lKUp-lm9O9BmDgdhHzDeqsY8tlL9
   username : bob

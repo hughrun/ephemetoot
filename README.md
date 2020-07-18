@@ -90,7 +90,7 @@ You can now enter the configuration details for each user:
 | toots_to_keep | A list of toot ids indicating toots to be kept regardless of other settings. The ID of a toot is the last part of its individual URL. e.g. for [https://ausglam.space/@hugh/101294246770105799](https://ausglam.space/@hugh/101294246770105799) the id is `101294246770105799` |
 | hashtags_to_keep | A list of hashtags, where any toots with any of these hashtags will be kept regardless of age. Do not include the '#' symbol. Do remember the [rules for hashtags](https://docs.joinmastodon.org/user/posting/#hashtags) |
 | visibility_to_keep | Toots with any of the visibility settings in this list will be kept regardless of age. Options are: `public`, `unlisted`, `private`, `direct`. |
-| archive | A string. The full toot is archived into individual files named by the toot's `id` in this writeable directory. |
+| archive | A string representing the filepath to your toot archive. The full toot is archived into individual files named by the toot's `id` in this writeable directory. It is generally best to use an absolute file path - relative paths will not work if you call `ephemetoot` from another directory. |
 
 All values other than `access_token`, `username` and `base_url` are optional, however if you include `toots_to_keep`, `hashtags_to_keep`, or `visibility_to_keep` you must make each a list, even if it is empty:
 
@@ -104,6 +104,8 @@ visibility_to_keep: [ ] # this empty list is also ok
 If you want to use `ephemetoot` for multiple accounts, separate the config for each user with a single dash (`-`), as shown in the example file.
 
 # Running the script
+
+For a short description of all available options, run `ephemetoot --help` from the command line.
 
 It is **strongly recommended** that you do a test run before using `ephemetoot` live. There is no "undo"!
 
