@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ephemetoot",
-    version="2.3.1",
+    version="2.5",
     url="https://github.com/hughrun/ephemetoot",
     license="GPL-3.0-or-later",
     packages=find_packages(),
