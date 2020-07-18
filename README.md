@@ -145,9 +145,9 @@ If you want to know exactly when each delete action occured, you can use the `--
 
 ## Do less
 
-### Hide skipped items (--hide_skipped)
+### Hide skipped items (--hide-skipped)
 
-If you skip a lot of items (e.g. you skip direct messages) it may clutter your log file to list these every time you run the script. You can suppress them from the output by using the `--hide_skipped` flag.
+If you skip a lot of items (e.g. you skip direct messages) it may clutter your log file to list these every time you run the script. You can suppress them from the output by using the `--hide-skipped` flag.
 
 ### Hide everything (--quiet)
 
@@ -163,7 +163,7 @@ You can use the `--archive-deleted` flag to only archive deleted toots instead.
 
 You can use several flags together:
 ```shell
-ephemetoot --config 'directory/config.yaml' --test --hide_skipped
+ephemetoot --config 'directory/config.yaml' --test --hide-skipped
 ```
 Use them in any order:
 ```shell
