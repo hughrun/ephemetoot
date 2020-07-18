@@ -137,15 +137,23 @@ ephemetoot --config '~/directory/subdirectory/config.yaml'
 
 With the `--pace` flag, delete actions are slowed so that the API limit is never reached, using [`Mastodon.py`'s 'pace' method](https://mastodonpy.readthedocs.io/en/stable/index.html?highlight=pace#mastodon.Mastodon.__init__). This is recommended for your first run, as unless you have tooted fewer than 30 times you are guaranteed to hit the API limit for deletions the first time you run `ephemetoot`. If you do not toot very often on most days, it is probably more efficient to use the default behaviour for daily runs after the first time, but you can use `--pace` every time if you prefer.
 
-## Hide skipped items (--hide_skipped)
+## Do more
 
-If you skip a lot of items (e.g. you skip direct messages) it may clutter your log file to list these every time you run the script. You can suppress them from the output by using the `--hide_skipped` flag.
-
-## Include datestamp with every action (--datestamp)
+### Include datestamp with every action (--datestamp)
 
 If you want to know exactly when each delete action occured, you can use the `--datestamp` flag to add a datestamp to the log output. This is useful when using `--pace` so you can see the rate you have been slowed down to.
 
-## Only archive deleted toots (--archive-deleted)
+## Do less
+
+### Hide skipped items (--hide_skipped)
+
+If you skip a lot of items (e.g. you skip direct messages) it may clutter your log file to list these every time you run the script. You can suppress them from the output by using the `--hide_skipped` flag.
+
+### Hide everything (--quiet)
+
+Use the `--quiet` flag to suppress all logging except for the account name being checked and the number of toots deleted. Exception messages will not be suppressed.
+
+### Only archive deleted toots (--archive-deleted)
 
 If you provide a value for `archive` in your config file, the default is that all toots will be archived in that location, regardless of whether or not it is being deleted. i.e. it will create a local archive of your entire toot history. If you run ephemetoot with the `--test` flag, this allows you to use create an archive without even deleting anything.
 
