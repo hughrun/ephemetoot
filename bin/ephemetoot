@@ -40,7 +40,7 @@ vnum = pkg_resources.require("ephemetoot")[0].version
 
 parser = ArgumentParser()
 parser.add_argument(
-    "--config", action="store", metavar="'filepath'", default="config.yaml", help="Filepath of your config file, relative to the current directory. If no --config path is provided, ephemetoot will use 'config.yaml'."
+    "--config", action="store", metavar="filepath", default="config.yaml", help="Filepath of your config file, absolute or relative to the current directory. If no --config path is provided, ephemetoot will use 'config.yaml'."
 )
 parser.add_argument(
     "--datestamp", action="store_true", help="Include a datetime stamp for every action (e.g. deleting a toot)"
@@ -52,13 +52,13 @@ parser.add_argument(
     "--pace", action="store_true", help="Slow deletion actions to match API rate limit to avoid pausing"
 )
 parser.add_argument(
-    "--schedule", action="store", metavar="'filepath'", nargs="?", const=".", help="Save and load plist file on MacOS"
+    "--schedule", action="store", metavar="filepath", nargs="?", const=".", help="Save and load plist file on MacOS"
 )
 parser.add_argument(
     "--test", action="store_true", help="Do a test run without deleting any toots"
 )
 parser.add_argument(
-    "--time", action="store", metavar="'hours minutes'", nargs="*", help="Hour and minute to schedule: e.g. 9 30 for 9.30am"
+    "--time", action="store", metavar=('hour', 'minute'), nargs="*", help="Hour and minute to schedule: e.g. 9 30 for 9.30am"
 )
 parser.add_argument(
     "--version", action="store_true", help="Display the version number"
