@@ -55,6 +55,9 @@ parser.add_argument(
     "--pace", action="store_true", help="Slow deletion actions to match API rate limit to avoid pausing"
 )
 parser.add_argument(
+    "--quiet", action="store_true", help="Suppress most logging"
+)
+parser.add_argument(
     "--schedule", action="store", metavar="filepath", nargs="?", const=".", help="Save and load plist file on MacOS"
 )
 parser.add_argument(
@@ -81,11 +84,12 @@ if __name__ == "__main__":
     elif options.schedule:
         ephemetoot.schedule(options)
     else:
-        print('')
-        print('============= EPHEMETOOT v' + vnum + ' ================')
-        print('Running at ' + str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ))
-        print('================================================')
-        print('')
+        if not options.quiet:
+            print('')
+            print('============= EPHEMETOOT v' + vnum + ' ================')
+            print('Running at ' + str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ))
+            print('================================================')
+            print('')
         if options.test:
             print("This is a test run...\n")
         with open(config_file) as config:
