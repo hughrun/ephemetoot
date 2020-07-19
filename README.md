@@ -76,7 +76,7 @@ As of version 2, you can use a single `ephemetoot` installation to delete toots 
 
 Copy `example-config.yaml` to a new file called `config.yaml`:
 ```shell
-cp example-config.yam config.yaml
+cp example-config.yaml config.yaml
 ```
 You can now enter the configuration details for each user:
 
