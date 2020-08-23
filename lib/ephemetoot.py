@@ -106,19 +106,19 @@ def checkToots(config, options, retry_count=0):
         def checkBatch(timeline, deleted_count=0):
             for toot in timeline:
                 if "id" in toot and "archive" in config:
-                    
+
                     # define archive path
-                    if config["archive"][0] == '~':
+                    if config["archive"][0] == "~":
                         archive_path = os.path.expanduser(config["archive"])
-                    elif config["archive"][0] == '/':
+                    elif config["archive"][0] == "/":
                         archive_path = config["archive"]
                     else:
-                        archive_path = os.path.join( os.getcwd(), config["archive"] )
-                    if archive_path[-1] != '/':
-                        archive_path += '/'
+                        archive_path = os.path.join(os.getcwd(), config["archive"])
+                    if archive_path[-1] != "/":
+                        archive_path += "/"
 
                     filename = os.path.join(archive_path, str(toot["id"]) + ".json")
-                    
+
                     if not options.archive_deleted:
                         # write toot to archive
                         with open(filename, "w") as f:
@@ -214,10 +214,18 @@ def checkToots(config, options, retry_count=0):
                                             "Rate limit reached. Waiting for a rate limit reset"
                                         )
                                 # check for --archive-deleted
-                                if options.archive_deleted and "id" in toot and "archive" in config:
+                                if (
+                                    options.archive_deleted
+                                    and "id" in toot
+                                    and "archive" in config
+                                ):
                                     # write toot to archive
                                     with open(filename, "w") as f:
-                                        f.write(json.dumps(toot, indent=4, default=jsondefault))
+                                        f.write(
+                                            json.dumps(
+                                                toot, indent=4, default=jsondefault
+                                            )
+                                        )
                                         f.close()
                                 mastodon.status_unreblog(toot.reblog)
                         else:
@@ -243,7 +251,10 @@ def checkToots(config, options, retry_count=0):
                                 2
                             )  # wait 2 secs between deletes to be a bit nicer to the server
                             if not options.test:
-                                if mastodon.ratelimit_remaining == 0 and not options.quiet:
+                                if (
+                                    mastodon.ratelimit_remaining == 0
+                                    and not options.quiet
+                                ):
 
                                     now = time.time()
                                     diff = mastodon.ratelimit_reset - now
@@ -260,10 +271,18 @@ def checkToots(config, options, retry_count=0):
                                         + " minutes.\n"
                                     )
                                 # check for --archive-deleted
-                                if options.archive_deleted and "id" in toot and "archive" in config:
+                                if (
+                                    options.archive_deleted
+                                    and "id" in toot
+                                    and "archive" in config
+                                ):
                                     # write toot to archive
                                     with open(filename, "w") as f:
-                                        f.write(json.dumps(toot, indent=4, default=jsondefault))
+                                        f.write(
+                                            json.dumps(
+                                                toot, indent=4, default=jsondefault
+                                            )
+                                        )
                                         f.close()
 
                                 mastodon.status_delete(toot)
@@ -288,22 +307,50 @@ def checkToots(config, options, retry_count=0):
                     time.sleep(diff + 1)  # wait for rate limit to reset
 
                 except MastodonError as e:
+
+                    def retry_on_error(attempts):
+
+                        if attempts < 6:
+                            try:
+                                if not options.quiet:
+                                    print(
+                                        "Attempt "
+                                        + str(attempts)
+                                        + " at "
+                                        + str(
+                                            datetime.now(timezone.utc).strftime(
+                                                "%a %d %b %Y %H:%M:%S %z"
+                                            )
+                                        )
+                                    )
+                                mastodon.status_delete(toot)
+                                time.sleep(
+                                    2
+                                )  # wait 2 secs between deletes to be a bit nicer to the server
+                            except:
+                                attempts += 1
+                                time.sleep(60 * options.retry_mins)
+                                retry_on_error(attempts)
+                        else:
+                            raise TimeoutError("Gave up after 5 attempts")
+
                     print(
-                        "🛑 ERROR deleting toot - " + str(toot.id) + " - " + str(e.args)
+                        "🛑 ERROR deleting toot - "
+                        + str(toot.id)
+                        + " - "
+                        + str(e.args[0])
+                        + " - "
+                        + str(e.args[3])
                     )
-                    print("Waiting 1 minute before re-trying")
-                    time.sleep(60)
-                    try:
-                        print("Attempting delete again")
-                        mastodon.status_delete(toot)
-                        time.sleep(
-                            2
-                        )  # wait 2 secs between deletes to be a bit nicer to the server
-                    except Exception as e:
-                        print("🛑 ERROR deleting toot - " + str(toot.id))
-                        print(e)
-                        print("Exiting due to error.")
-                        break
+                    if not options.quiet:
+                        print(
+                            "Waiting "
+                            + str(options.retry_mins)
+                            + " minutes before re-trying"
+                        )
+                    time.sleep(60 * options.retry_mins)
+                    retry_on_error(attempts=2)
+
                 except KeyboardInterrupt:
                     print("Operation aborted.")
                     break
@@ -369,6 +416,9 @@ def checkToots(config, options, retry_count=0):
             except IndexError:
                 print("No toots found!")
 
+            except Exception as e:
+                print("ERROR: " + str(e.args[0]))
+
         if options.pace:
             mastodon = Mastodon(
                 access_token=config["access_token"],
@@ -384,6 +434,7 @@ def checkToots(config, options, retry_count=0):
                 ratelimit_method="wait",
             )
 
+        # STARTS HERE
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
         user_id = mastodon.account_verify_credentials().id
         account = mastodon.account(user_id)
@@ -398,13 +449,24 @@ def checkToots(config, options, retry_count=0):
         print("\n⚠️  error with in your config.yaml file!")
         print("Please ensure there is a value for " + str(val) + "\n")
 
-    except MastodonAPIError:
-        print("\n🙅  User and/or access token does not exist or has been deleted")
+    except MastodonAPIError as e:
+        if e.args[1] == 401:
+            print("\n🙅  User and/or access token does not exist or has been deleted (401)")
+        elif e.args[1] == 404:
+            print("\n🔭  Can't find that server (404)")
+        else:
+            print("\n😕  Server has returned an error (5xx)")
+
     except MastodonNetworkError:
-        print("\n📡  ephemetoot cannot connect to the server - are you online?")
+        if retry_count == 0:
+            print("\n📡  ephemetoot cannot connect to the server - are you online?")
         if retry_count < 4:
-            print("Waiting 1 minute before trying again")
-            time.sleep(60)
+            print(
+                "Waiting "
+                + str(options.retry_mins)
+                + " minutes before trying again"
+            )
+            time.sleep(60 * options.retry_mins)
             retry_count += 1
             print("Attempt " + str(retry_count + 1))
             checkToots(config, options, retry_count)
