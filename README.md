@@ -20,8 +20,6 @@ You can use `ephemetoot` to delete [Mastodon](https://github.com/tootsuite/masto
 * they have certain visibility; or
 * they are individually listed to be kept
 
-As of version 2, `ephemetoot` can be used for multiple accounts. If you have several 'alts', this can be useful. If you don't have your own server or Mac computer, your friend can now add you to their `ephemetoot` config and it will take care of your old toots as well as theirs. However, **note [the warning about sharing tokens](./install.md#obtain-an-access-token)**.
-
 ## Rate limits
 
 As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `mastodon.py` automatically handles this. If you are running `ephemetoot` for the first time and/or have a lot of toots to delete, it may take a while as the script will pause when it hits a rate limit, until the required time has expired. You can use the `--pace` flag to slow down ephemetoot so that it never hits the limit - this is recommended on your first run. It will not speed up the process but will smooth it out.
