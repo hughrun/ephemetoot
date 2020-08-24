@@ -22,7 +22,7 @@ You can use `ephemetoot` to delete [Mastodon](https://github.com/tootsuite/masto
 
 ## Rate limits
 
-As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `mastodon.py` automatically handles this. If you are running `ephemetoot` for the first time and/or have a lot of toots to delete, it may take a while as the script will pause when it hits a rate limit, until the required time has expired. You can use the `--pace` flag to slow down ephemetoot so that it never hits the limit - this is recommended on your first run. It will not speed up the process but will smooth it out.
+As of Mastodon v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `mastodon.py` automatically handles this. If you are running `ephemetoot` for the first time and/or have a lot of toots to delete, it may take a while as the script will pause when it hits a rate limit, until the required time has expired. You can use the `--pace` flag to slow down ephemetoot so that it never hits the limit - this is recommended on your first run. It will not speed up the process but will smooth it out.
 
 Note that the rate limit is per access token, so using ephemetoot for multiple accounts on the same server shouldn't be a big problem, however one new user may delay action on subsequent accounts in the config file.
 
@@ -34,7 +34,7 @@ Prior to Python 3.7, running a Python script on some BSD and Linux systems may t
 
 ## Contributing
 
-For all bugs, suggestions, pull requests or other contributions, please check the [contributing guide](./contributing.md).
+For all bugs, suggestions, pull requests or other contributions, please check the [contributing guide](./docs/contributing.md).
 
 ## License
 
