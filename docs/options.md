@@ -4,37 +4,42 @@ For a short description of all available options, run `ephemetoot --help` from t
 
 It is **strongly recommended** that you do a test run before using `ephemetoot` live. There is no "undo"!
 
-## Running in test mode (--test)
+## Run in test mode (--test)
 
 To do a test-run without actually deleting anything, run the script with the `--test` flag:
 ```shell
 ephemetoot --test
 ```
 
-## Running in "live" mode
+## Run in "live" mode
 
-To call the script call ephemetoot with no arguments:
+To call the script use the command `ephemetoot` without any other arguments:
 ```shell
 ephemetoot
 ```
 
 Depending on how many toots you have and how long you want to keep them, it may take a minute or two before you see any results.
 
-## Specifying the config location (--config)
+## Specify the config location (--config)
 
 By default ephemetoot expects there to be a config file called `config.yaml` in the directory from where you run the `ephemetoot` command. If you want to call it from elsewhere (e.g. with `cron`), you need to specify where your config file is:
 
 ```shell
 ephemetoot --config '~/directory/subdirectory/config.yaml'
 ```
+## Manage timing
 
-## Slow down deletes to match API limit (--pace)
+### Slow down deletes to match API limit (--pace)
 
-With the `--pace` flag, delete actions are slowed so that the API limit is never reached, using [`Mastodon.py`'s 'pace' method](https://mastodonpy.readthedocs.io/en/stable/index.html?highlight=pace#mastodon.Mastodon.__init__). This is recommended for your first run, as unless you have tooted fewer than 30 times you are guaranteed to hit the API limit for deletions the first time you run `ephemetoot`. If you do not toot very often on most days, it is probably more efficient to use the default behaviour for daily runs after the first time, but you can use `--pace` every time if you prefer.
+With the `--pace` flag, delete actions are slowed so that the API limit is never reached, essentially borrowing the 'pace' method from the [`Mastodon.py`](https://mastodonpy.readthedocs.io/en/stable/index.html?highlight=pace#mastodon.Mastodon.__init__) module. This is **recommended for your first run**, as unless you have tooted fewer than 30 times you are guaranteed to hit the API limit for deletions the first time you run `ephemetoot`. If you do not toot very often on most days, it is probably more efficient to use the default behaviour for daily runs after the first time, but you can use `--pace` every time if you prefer.
 
-## Increase the time between retry attempts when encountering errors (--retry-mins)
+### Increase the time between retry attempts when encountering errors (--retry-mins)
 
-Use `--retry-mins` to increase the period between attempts to retry deletion after an error. The default value is one (1) minute, but you can make it anything you like. This is useful if your mastodon server is unreliable or frequently in "maintenance mode".
+Use `--retry-mins` to increase the period between attempts to retry deletion after an error. The default value is one (1) minute, but you can make it anything you like. This is useful if your mastodon server is unreliable or frequently in "maintenance mode". `ephemetoot` will make four additional attempts if it encounters an error, so the following command, for example, would wait 20 minutes between each retry, allowing the script to continue if there is an outage of 79 minutes or fewer:
+
+```shell
+ephemetoot --retry-mins 20
+```
 
 ## Do more
 
@@ -66,11 +71,7 @@ ephemetoot --config 'directory/config.yaml' --test --hide-skipped
 ```
 Use them in any order:
 ```shell
-ephemetoot --pace --datestamp --config 'directory/config.yaml'
-```
-Instead of coming back to this page when you forget the flags, you can just use the help option:
-```shell
-ephemetoot --help
+ephemetoot --pace  --retry-mins 5 --datestamp --config 'directory/config.yaml'
 ```
 
 ## Scheduling
@@ -85,7 +86,7 @@ To run automatically every day on a n*x server you could try using crontab:
   2. enter a new line: `@daily /path/to/ephemetoot --config /path/to/ephemetoot/config.yaml`
   3. exit with `:qw` (Vi/Vim) or `Ctrl + x` (nano)
 
-### MacOS
+### MacOS (--schedule)
 
 On **MacOS** you can use the `--schedule` flag to schedule a daily job with [launchd](https://www.launchd.info/). Note that this feature has not been widely tested so **please log an issue if you notice anything go wrong**.
 
@@ -112,6 +113,7 @@ For example to run at 2.25pm every day:
 ephemetoot --schedule --time 14 25
 ```
 ---
-
+* [Home](/)
 * [Installation](./install.md)
 * [Upgrading and uninstalling](./upgrade.md)
+* [Contributing](./contributing.md)

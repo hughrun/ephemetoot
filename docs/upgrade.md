@@ -2,17 +2,24 @@
 
 ## Upgrading
 
+### Upgrading with pypi
+To upgrade to a new version, the easiest way is to use pip to download the latest version from pypi (remembering that for your machine you may need to substitute `pip3` for `pip`):
+
+```shell
+pip install --upgrade ephemetoot
+```
+
 ### Upgrading with git
 To upgrade to a new version using git, run the following from inside the `ephemetoot` directory:
 
 ```shell
 git fetch --tags
-git checkout [tagname]
+git checkout [latest-tagname]
 pip install .
 ```
 
 ### Upgrading with a ZIP file
-To upgrade without using git:
+To upgrade without using git or pypi:
 
 * put your config file somewhere safe
 * download and unzip the zip file into your `ephemetoot` directory over the top of your existing installation
@@ -32,6 +39,7 @@ launchctl unload ~/Library/LaunchAgents/ephemetoot.scheduler.plist
 rm ~/Library/LaunchAgents/ephemetoot.scheduler.plist
 ```
 ---
-
+* [Home](/)
 * [Installation](./install.md)
 * [Options](./options.md)
+* [Contributing](./contributing.md)

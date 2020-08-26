@@ -2,33 +2,20 @@
 
 ## Install Python 3 and pip
 
-You need to [install Python 3](https://wiki.python.org/moin/BeginnersGuide/Download) to use `ephemetoot`. Python 2 is now end-of-life, however it continued to be installed as the default Python on MacOS and many Linux distributions until very recently, so you should check. You will also need to check that `pip` is installed and pointing to Python3 (not Python2). On some systems this will mean using the command `pip3`.
+You need to [install Python 3](https://wiki.python.org/moin/BeginnersGuide/Download) to use `ephemetoot`. Python 2 is now end-of-life, however it continued to be installed as the default Python on MacOS and many Linux distributions until very recently, so you should check. 
 
-## Install ephemetoot
-### Option 1 - get code with git
-If you already have `git` installed on the machine where you're running ephemetoot, you can download the latest release with:
-```shell
-git clone https://github.com/hughrun/ephemetoot.git
-cd ephemetoot
-git checkout [tagname]
-```
-### Option 2 - get the code by downloading the zip file 
-If you don't have `git` or don't want to use it, you can download the zip file by clicking the green button above and selecting `Download ZIP`. You will then need to unzip the file into a new directory where you want to run it.
+These instructions use the command `pip` but note that on many systems you may need to use `pip3`, as pip will be pointing to Python 2.
 
-### Complete install with pip
-From a command line, move into the main `ephemetoot` directory (i.e. where the README file is) and run:
+## Install ephemetoot from pypi
+
 ```shell
-pip install .
+pip install ephemetoot
 ```
-With some Python 3 installations (e.g on MacOS with Homebrew) you may need to use:
-```shell
-pip3 install .
-```
-If you do not have permission to install python modules, you may need to use the `--user` flag:
+If you do not have permission to install python modules, you may need to use the `--user` flag. Generally this is not advisable, since you will need to run the script with the same user as ephemetoot will only be installed for that user and not globally:
+
 ```shell
 pip install . --user
 ```
-Note that you will need to run the script with the same user as ephemetoot will only be installed for that user and not globally.
 
 ## Obtain an access token
 
@@ -55,7 +42,7 @@ As of version 2, you can use a single `ephemetoot` installation to delete toots 
 
 Copy `example-config.yaml` to a new file called `config.yaml`:
 ```shell
-cp example-config.yam config.yaml
+cp example-config.yaml config.yaml
 ```
 You can now enter the configuration details for each user:
 
@@ -83,6 +70,7 @@ visibility_to_keep: [ ] # this empty list is also ok
 If you want to use `ephemetoot` for multiple accounts, separate the config for each user with a single dash (`-`), as shown in the example file.
 
 ---
-
+* [Home](/)
 * [Options](./options.md)
 * [Upgrading and uninstalling](./upgrade.md)
+* [Contributing](./contributing.md)
