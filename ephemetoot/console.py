@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 #  #####################################################################
-#     Ephemetoot - A script to delete your old toots
-#     Copyright (C) 2018 Hugh Rundle, 2019-2020 Hugh Rundle & Mark Eaton
+#     Ephemetoot - A command line tool to delete your old toots
+#     Copyright (C) 2018 Hugh Rundle, 2019-2020 Hugh Rundle & others
 #     Initial work based on tweet-deleting script by @flesueur
 #     (https://gist.github.com/flesueur/bcb2d9185b64c5191915d860ad19f23f)
 #
@@ -19,8 +19,8 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#     You can contact Hugh on Mastodon @hugh@ausglam.space
-#     or email hugh [at] hughrundle [dot] net
+#     You can contact Hugh on Mastodon: @hugh@ausglam.space
+#     or email: ephemetoot@hugh.run
 #  #####################################################################
 
 # import
@@ -32,10 +32,10 @@ from datetime import datetime, timezone
 import os
 import pkg_resources 
 
-# local files
-from lib import ephemetoot
+# import funtions
+from ephemetoot import ephemetoot as func
 
-# version number from setup.py
+# version number from package info
 vnum = pkg_resources.require("ephemetoot")[0].version
 
 parser = ArgumentParser()
@@ -81,11 +81,11 @@ elif options.config[0] == '/':
 else: 
     config_file = os.path.join( os.getcwd(), options.config )
 
-if __name__ == "__main__":
+def main():
     if options.version:
-        ephemetoot.version(vnum)
+        func.version(vnum)
     elif options.schedule:
-        ephemetoot.schedule(options)
+        func.schedule(options)
     else:
         if not options.quiet:
             print('')
@@ -98,4 +98,7 @@ if __name__ == "__main__":
         with open(config_file) as config:
             for accounts in yaml.safe_load_all(config):
                 for user in accounts:
-                    ephemetoot.checkToots(user, options)
+                    func.checkToots(user, options)
+
+if __name__ == '__main__':
+    main()

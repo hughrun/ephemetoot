@@ -13,8 +13,6 @@ import subprocess
 import sys
 import time
 
-def config():
-    # TODO: this function should run through the config options and then create a config file
 
 def version(vnum):
     try:
@@ -34,7 +32,6 @@ def version(vnum):
 
 
 def schedule(options):
-    # TODO: change this so it just writes out the entire file from here direct to the ~/Library
     try:
         with open(options.schedule + "/ephemetoot.scheduler.plist", "r") as file:
             lines = file.readlines()
