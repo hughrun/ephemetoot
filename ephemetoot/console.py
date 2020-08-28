@@ -43,7 +43,7 @@ parser.add_argument(
     "--archive-deleted", action="store_true", help="Only archive toots that are being deleted"
 )
 parser.add_argument(
-    "--config", action="store", metavar="filepath", default="config.yaml", help="Filepath of your config file, absolute or relative to the current directory. If no --config path is provided, ephemetoot will use 'config.yaml'."
+    "--config", action="store", metavar="filepath", default="config.yaml", help="Filepath of your config file, absolute or relative to the current directory. If no --config path is provided, ephemetoot will use 'config.yaml'in the current directory"
 )
 parser.add_argument(
     "--datestamp", action="store_true", help="Include a datetime stamp for every action (e.g. deleting a toot)"
@@ -52,7 +52,7 @@ parser.add_argument(
     "--hide-skipped", "--hide_skipped", action="store_true", help="Do not write to log when skipping saved toots"
 )
 parser.add_argument(
-    "--init", action="store_true", help="Initialise creation of a config file saved in the current directory."
+    "--init", action="store_true", help="Create a config file that is saved in the current directory"
 )
 parser.add_argument(
     "--pace", action="store_true", help="Slow deletion actions to match API rate limit to avoid pausing"
@@ -73,7 +73,7 @@ parser.add_argument(
     "--time", action="store", metavar=('hour', 'minute'), nargs="*", help="Hour and minute to schedule: e.g. 9 30 for 9.30am"
 )
 parser.add_argument(
-    "--version", action="store_true", help="Display the version number"
+    "--version", action="store_true", help="Display the version numbers of the installed and latest versions"
 )
 
 options = parser.parse_args()
@@ -85,25 +85,31 @@ else:
     config_file = os.path.join( os.getcwd(), options.config )
 
 def main():
-    if options.init:
-        func.init()
-    elif options.version:
-        func.version(vnum)
-    elif options.schedule:
-        func.schedule(options)
-    else:
-        if not options.quiet:
-            print('')
-            print('============= EPHEMETOOT v' + vnum + ' ================')
-            print('Running at ' + str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ))
-            print('================================================')
-            print('')
-        if options.test:
-            print("This is a test run...\n")
-        with open(config_file) as config:
-            for accounts in yaml.safe_load_all(config):
-                for user in accounts:
-                    func.checkToots(user, options)
+    try:
+
+        if options.init:
+            func.init()
+        elif options.version:
+            func.version(vnum)
+        elif options.schedule:
+            func.schedule(options)
+        else:
+            if not options.quiet:
+                print('')
+                print('============= EPHEMETOOT v' + vnum + ' ================')
+                print('Running at ' + str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ))
+                print('================================================')
+                print('')
+            if options.test:
+                print("This is a test run...\n")
+            with open(config_file) as config:
+                for accounts in yaml.safe_load_all(config):
+                    for user in accounts:
+                        func.checkToots(user, options)
+
+    except FileNotFoundError as err:
+        print("🕵️  Missing config file")
+        print("Run \033[92mephemetoot --init\033[0m to create a new one\n")
 
 if __name__ == '__main__':
     main()
