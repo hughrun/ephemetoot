@@ -4,12 +4,13 @@
 
 ### Note for users upgrading from Version 2 to Version 3
 
-To upgrade from Version 2.x to Version 3.x you should be able to simply follow the _Upgrading with pypi_ instructions below. However the safest procedure is:
+To upgrade from Version 2.x to Version 3.x you will need to remove your existing install.
 
 1. save a copy of your `config.yaml` file somewhere safe
 2. run `pip uninstall ephemetoot`
 3. run `pip install ephemetoot`
-4. do a test run with `ephemetoot --test`
+4. check your config file is in the current directory
+5. do a test run with `ephemetoot --test`
 
 ### Upgrading with pypi
 To upgrade to a new version, the easiest way is to use pip to download the latest version from pypi (remembering that for your machine you may need to substitute `pip` for `pip3`):
