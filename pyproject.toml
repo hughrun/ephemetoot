@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "ephemetoot"
-version = "2.6.2"
+version = "3.0.0-alpha.0"
 description = "A command line tool to delete your old toots"
 authors = ["Hugh Rundle <ephemetoot@hugh.run>"]
-license = "OSI Approved :: GNU General Public License v3 or later (GPLv3+)"
+license = "GPL-3.0-or-later"
 readme = "pypi-readme.md"
 homepage = "https://ephemetoot.hugh.run"
 repository = "https://github.com/hughrun/ephemetoot"
