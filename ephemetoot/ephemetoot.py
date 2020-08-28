@@ -1,5 +1,12 @@
+# standard library
 from datetime import date, datetime, timedelta, timezone
 import json
+import os
+import subprocess
+import sys
+import time
+
+# third party
 from mastodon import (
     Mastodon,
     MastodonError,
@@ -7,12 +14,127 @@ from mastodon import (
     MastodonNetworkError,
     MastodonRatelimitError,
 )
-import os
 import requests
-import subprocess
-import sys
-import time
 
+# local
+from ephemetoot import plist
+
+def init():
+
+    init_start = "\033[96m"
+    init_end = "\033[0m"
+    init_eg = "\033[2m"
+
+    conf_token = ""
+    while len(conf_token) < 1:
+        conf_token = input(init_start + "Access token: " + init_end)
+
+    conf_user = ""
+    while len(conf_user) < 1:
+        conf_user = input(
+          init_start
+          + "Username"
+          + init_eg
+          + "(without the '@' - e.g. alice):"
+          + init_end
+        )
+
+    conf_url = ""
+    while len(conf_url) < 1:
+        conf_url = input(
+          init_start
+          + "Base URL"
+          + init_eg
+          + "(e.g. example.social):"
+          + init_end
+        )
+
+    conf_days = ""
+    while conf_days.isdigit() == False:
+        conf_days = input(
+          init_start
+          + "Days to keep"
+          + init_eg
+          + "(default 365):"
+          + init_end
+        )
+
+    conf_keep_pinned = ""
+    while conf_keep_pinned not in ["y", "n"]:
+        conf_keep_pinned = input(
+            init_start 
+            + "Keep pinned toots?"
+            + init_eg 
+            + "(y or n):"
+            + init_end
+        )
+
+    conf_pinned = "true" if conf_keep_pinned == "y" else "false"
+
+    conf_keep_toots = input(
+        init_start 
+        + "Toots to keep"
+        + init_eg 
+        + " (optional list of IDs separated by commas):"
+        + init_end
+      )
+
+    conf_keep_hashtags = input(
+        init_start 
+        + "Hashtags to keep"
+        + init_eg 
+        + " (optional list separated by commas):"
+        + init_end
+      )
+
+    conf_keep_visibility = input(
+        init_start 
+        + "Visibility to keep"
+        + init_eg 
+        + " (optional list separated by commas):" 
+        + init_end
+      )
+
+    conf_archive = input(
+        init_start 
+        + "Archive path"
+        + init_eg 
+        + " (optional filepath for archive):"
+        + init_end
+      )
+
+    # write out the config file
+    with open("config.yaml", "w") as configfile:
+
+        configfile.write("-")
+        configfile.write("\n  access_token: " + conf_token)
+        configfile.write("\n  username: " + conf_user)
+        configfile.write("\n  base_url: " + conf_url)
+        configfile.write("\n  days_to_keep: " + conf_days)
+        configfile.write("\n  keep_pinned: " + conf_pinned)
+
+        if len(conf_keep_toots) > 0:
+            keep_list = conf_keep_toots.split(',')
+            configfile.write("\n  toots_to_keep:")
+            for toot in keep_list:
+              configfile.write("\n    - " + toot.strip())
+
+        if len(conf_keep_hashtags) > 0:
+            tag_list = conf_keep_hashtags.split(',')
+            configfile.write("\n  hashtags_to_keep:") 
+            for tag in tag_list:
+              configfile.write("\n    - " + tag.strip())
+
+        if len(conf_keep_visibility) > 0:
+            viz_list = conf_keep_visibility.split(',')
+            configfile.write("\n  visibility_to_keep:") 
+            for mode in viz_list:
+              configfile.write("\n    - " + mode.strip())
+
+        if len(conf_archive) > 0:
+            configfile.write("\n  archive: " + conf_archive)
+
+        configfile.close()
 
 def version(vnum):
     try:
@@ -21,61 +143,57 @@ def version(vnum):
         )
         res = latest.json()
         latest_version = res["name"]
-        print("\nYou are using ephemetoot Version " + vnum)
-        print("The latest release is " + latest_version + "\n")
+        print("\nephemetoot ==> 🥳 ==> 🧼 ==> 😇")
+        print("-------------------------------")
+        print("Using:  \033[92mVersion " + vnum + "\033[0m")
+        print("Latest: \033[92m" + latest_version + "\033[0m")
+        print("To upgrade to the most recent version run \033[92mpip3 install --update ephemetoot\033[0m")
 
     except Exception as e:
         print("Something went wrong:")
-        print(e)
-
 
 def schedule(options):
     try:
-        with open(options.schedule + "/ephemetoot.scheduler.plist", "r") as file:
-            lines = file.readlines()
 
-            if options.schedule == ".":
-                working_dir = os.getcwd()
+        if options.schedule == ".":
+            working_dir = os.getcwd()
+        else:
+            working_dir = options.schedule
 
-            else:
-                working_dir = options.schedule
-
-            lines[7] = "		<string>" + working_dir + "</string>\n"
-            lines[10] = "			<string>" + sys.argv[0] + "</string>\n"
-            lines[12] = "			<string>" + working_dir + "/config.yaml</string>\n"
+        lines = plist.default_file.splitlines()
+        lines[7] = "  <string>" + working_dir + "</string>"
+        lines[10] = "    <string>" + sys.argv[0] + "</string>"
+        lines[12] = "    <string>" + working_dir + "/config.yaml</string>"
+        lines[15] = "  <string>" + working_dir + "/ephemetoot.log</string>"
+        lines[17] = "  <string>" + working_dir + "/ephemetoot.error.log</string>"
 
         if options.time:
-            lines[21] = "			<integer>" + options.time[0] + "</integer>\n"
-            lines[23] = "			<integer>" + options.time[1] + "</integer>\n"
+            lines[21] = "    <integer>" + options.time[0] + "</integer>"
+            lines[23] = "    <integer>" + options.time[1] + "</integer>"
 
-        with open("ephemetoot.scheduler.plist", "w") as file:
-            file.writelines(lines)
-
+        # write out file directly to ~/Library/LaunchAgents
+        f = open(os.path.expanduser("~/Library/LaunchAgents/") + "ephemetoot.scheduler.plist", mode="w")
+        for line in lines:
+            if line == lines[-1]:
+                f.write(line)
+            else:
+                f.write(line + "\n")
+        f.close()
         sys.tracebacklimit = 0  # suppress Tracebacks
-        # save the plist file into ~/Library/LaunchAgents
-        subprocess.run(
-            [
-                "cp "
-                + options.schedule
-                + "/ephemetoot.scheduler.plist"
-                + " ~/Library/LaunchAgents/"
-            ],
-            shell=True,
-        )
         # unload any existing file (i.e. if this is an update to the file) and suppress any errors
         subprocess.run(
             ["launchctl unload ~/Library/LaunchAgents/ephemetoot.scheduler.plist"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            shell=True,
+            shell=True
         )
-        # load the new file and suppress any errors
+        # load the new file
         subprocess.run(
             ["launchctl load ~/Library/LaunchAgents/ephemetoot.scheduler.plist"],
-            shell=True,
+            shell=True
         )
         print("⏰ Scheduled!")
-    except Exception:
+    except Exception as e:
         print("🙁 Scheduling failed.")
 
 

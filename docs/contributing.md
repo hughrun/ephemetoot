@@ -7,16 +7,16 @@ You can contribute in many ways - improving the documentation, reporting bugs, s
 # Expectations
 
 ## Adhere to the Code of Conduct 🤗
-All contributors must adhere to the [Code of Conduct](./CODE_OF_CONDUCT.md) for this project. If you do not wish to follow this Code of Conduct, feel free to direct your energies towards a different project.
+All contributors must adhere to the [Code of Conduct](https://github.com/hughrun/ephemetoot/blob/poetry/CODE_OF_CONDUCT.md) for this project. If you do not wish to follow this Code of Conduct, feel free to direct your energies towards a different project.
 
 ## Do not log security problems as public issues
-If you have identified a security flaw in **ephemetoot**, please email `ephemetoot AT ausglam DOT space` to discuss this confidentially.
+If you have identified a security flaw in **ephemetoot**, please email `ephemetoot@hugh.run` to discuss this confidentially.
 
 ## Check existing issues 🧐
-Your bug or enhancement might already be listed in the [issues](./issues). It's a good idea to check existing issues before you log your own. If you like someone else's enhancement suggestion, please "upvote" it with a 👍 reaction. If you have also experienced the same bug as someone else, you can add any useful additional context to the existing issue.
+Your bug or enhancement might already be listed in the [issues](https://github.com/hughrun/ephemetoot/issues). It's a good idea to check existing issues before you log your own. If you like someone else's enhancement suggestion, please "upvote" it with a 👍 reaction. If you have also experienced the same bug as someone else, you can add any useful additional context to the existing issue.
 
 ## Always log an issue 📝
-If you would like to contribute code or documentation changes that do not already have an issue listed, you should always [log an issue](./issues) first. Please **do not add pull requests without prior discussion**. Whilst pull requests are very welcome and encouraged, if you don't log an issue for discussion first, you may end up wasting your time if someone else is already working on the same feature, or maintainers decide it isn't a good fit. This also allows for your proposed feature to be scoped before you get too deep in the weeds coding it.
+If you would like to contribute code or documentation changes that do not already have an issue listed, you should always [log an issue](https://github.com/hughrun/ephemetoot/issues) first. Please **do not add pull requests without prior discussion**. Whilst pull requests are very welcome and encouraged, if you don't log an issue for discussion first, you may end up wasting your time if someone else is already working on the same feature, or maintainers decide it isn't a good fit. This also allows for your proposed feature to be scoped before you get too deep in the weeds coding it.
 
 Regardless of whether is is a bug report, feature request or code proposal, provide as much detail as possible in your issue, and give it a clear name. 
 
@@ -64,3 +64,9 @@ This is a pretty small project so there usually won't be a lot of issues waiting
 # Help
 
 You can get in touch with Hugh at [@hugh@ausglam.space](https://ausglam.space/@hugh) if you need help contributing or want to discuss something about **ephemetoot**.
+
+---
+* [Home](/)
+* [Installation](./install.md)
+* [Options](./options.md)
+* [Upgrading and uninstalling](./upgrade.md)

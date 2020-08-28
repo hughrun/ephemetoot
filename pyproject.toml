@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "ephemetoot"
+version = "3.0.0-alpha.0"
+description = "A command line tool to delete your old toots"
+authors = ["Hugh Rundle <ephemetoot@hugh.run>"]
+license = "GPL-3.0-or-later"
+readme = "pypi-readme.md"
+homepage = "https://ephemetoot.hugh.run"
+repository = "https://github.com/hughrun/ephemetoot"
+keywords = ["mastodon", "api", "microblogging"]
+classifiers = [
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Topic :: Communications"
+]
+include = [
+    "LICENSE",
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+requests = "^2.22.0"
+"mastodon.py" = "^1.4.3"
+pyyaml = "^5.0"
+
+[tool.poetry.dev-dependencies]
+# TODO - tests!
+
+[tool.poetry.scripts]
+ephemetoot = 'ephemetoot.console:main'
+
+[build-system]
+requires = ["poetry-core>=1.0.0a5"]
+build-backend = "poetry.core.masonry.api"

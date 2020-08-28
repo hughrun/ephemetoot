@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 #  #####################################################################
-#     Ephemetoot - A script to delete your old toots
-#     Copyright (C) 2018 Hugh Rundle, 2019-2020 Hugh Rundle & Mark Eaton
+#     Ephemetoot - A command line tool to delete your old toots
+#     Copyright (C) 2018 Hugh Rundle, 2019-2020 Hugh Rundle & others
 #     Initial work based on tweet-deleting script by @flesueur
 #     (https://gist.github.com/flesueur/bcb2d9185b64c5191915d860ad19f23f)
 #
@@ -19,8 +19,8 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#     You can contact Hugh on Mastodon @hugh@ausglam.space
-#     or email hugh [at] hughrundle [dot] net
+#     You can contact Hugh on Mastodon: @hugh@ausglam.space
+#     or email: ephemetoot@hugh.run
 #  #####################################################################
 
 # import
@@ -32,10 +32,10 @@ from datetime import datetime, timezone
 import os
 import pkg_resources 
 
-# local files
-from lib import ephemetoot
+# import funtions
+from ephemetoot import ephemetoot as func
 
-# version number from setup.py
+# version number from package info
 vnum = pkg_resources.require("ephemetoot")[0].version
 
 parser = ArgumentParser()
@@ -50,6 +50,9 @@ parser.add_argument(
 )
 parser.add_argument(
     "--hide-skipped", "--hide_skipped", action="store_true", help="Do not write to log when skipping saved toots"
+)
+parser.add_argument(
+    "--init", action="store_true", help="Initialise creation of a config file saved in the current directory."
 )
 parser.add_argument(
     "--pace", action="store_true", help="Slow deletion actions to match API rate limit to avoid pausing"
@@ -81,11 +84,13 @@ elif options.config[0] == '/':
 else: 
     config_file = os.path.join( os.getcwd(), options.config )
 
-if __name__ == "__main__":
-    if options.version:
-        ephemetoot.version(vnum)
+def main():
+    if options.init:
+        func.init()
+    elif options.version:
+        func.version(vnum)
     elif options.schedule:
-        ephemetoot.schedule(options)
+        func.schedule(options)
     else:
         if not options.quiet:
             print('')
@@ -98,4 +103,7 @@ if __name__ == "__main__":
         with open(config_file) as config:
             for accounts in yaml.safe_load_all(config):
                 for user in accounts:
-                    ephemetoot.checkToots(user, options)
+                    func.checkToots(user, options)
+
+if __name__ == '__main__':
+    main()

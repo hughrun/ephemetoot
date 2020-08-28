@@ -1,8 +1,9 @@
 # 🥳 ==> 🧼 ==> 😇
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) 
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)  
 
 **ephemetoot** is a Python command line tool for deleting old toots.
 
+## Documentation
 * [Installation](./docs/install.md)
 * [Options](./docs/options.md)
 * [Upgrading and uninstalling](./docs/upgrade.md)
@@ -13,29 +14,14 @@ The initial `ephemetoot` script was based on [this tweet-deleting script](https:
 `ephemetoot` relies heavily on the Mastodon.py package by [@halcy](https://github.com/halcy)
 
 ## Usage
-
 You can use `ephemetoot` to delete [Mastodon](https://github.com/tootsuite/mastodon) toots that are older than a certain number of days (default is 365). Toots can optionally be saved from deletion if:
 * they are pinned; or
 * they include certain hashtags; or
 * they have certain visibility; or
 * they are individually listed to be kept
 
-## Rate limits
-
-As of v2.7.2 the Mastodon API has a rate limit of 30 deletions per 30 minutes. `mastodon.py` automatically handles this. If you are running `ephemetoot` for the first time and/or have a lot of toots to delete, it may take a while as the script will pause when it hits a rate limit, until the required time has expired. You can use the `--pace` flag to slow down ephemetoot so that it never hits the limit - this is recommended on your first run. It will not speed up the process but will smooth it out.
-
-Note that the rate limit is per access token, so using ephemetoot for multiple accounts on the same server shouldn't be a big problem, however one new user may delay action on subsequent accounts in the config file.
-
-## ASCII / utf-8 errors
-
-Prior to Python 3.7, running a Python script on some BSD and Linux systems may throw an error. This can be resolved by:
-* setting a _locale_ that encodes utf-8, by using the environment setting `PYTHONIOENCODING=utf-8` when running the script, or 
-* upgrading your Python version to 3.7 or higher. See [Issue 11](https://github.com/hughrun/ephemetoot/issues/11) for more information.
-
 ## Contributing
-
-For all bugs, suggestions, pull requests or other contributions, please check the [contributing guide](./contributing.md).
+For all bugs, suggestions, pull requests or other contributions, please check the [contributing guide](./docs/contributing.md).
 
 ## License
-
 This project and all contributions are [licensed](./LICENSE) under the GPL 3.0 or future version
