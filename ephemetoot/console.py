@@ -52,6 +52,9 @@ parser.add_argument(
     "--hide-skipped", "--hide_skipped", action="store_true", help="Do not write to log when skipping saved toots"
 )
 parser.add_argument(
+    "--init", action="store_true", help="Initialise creation of a config file saved in the current directory."
+)
+parser.add_argument(
     "--pace", action="store_true", help="Slow deletion actions to match API rate limit to avoid pausing"
 )
 parser.add_argument(
@@ -82,7 +85,9 @@ else:
     config_file = os.path.join( os.getcwd(), options.config )
 
 def main():
-    if options.version:
+    if options.init:
+        func.init()
+    elif options.version:
         func.version(vnum)
     elif options.schedule:
         func.schedule(options)
