@@ -19,6 +19,7 @@ import requests
 # local
 from ephemetoot import plist
 
+
 def init():
 
     init_start = "\033[96m"
@@ -32,76 +33,64 @@ def init():
     conf_user = ""
     while len(conf_user) < 1:
         conf_user = input(
-          init_start
-          + "Username"
-          + init_eg
-          + "(without the '@' - e.g. alice):"
-          + init_end
+            init_start
+            + "Username"
+            + init_eg
+            + "(without the '@' - e.g. alice):"
+            + init_end
         )
 
     conf_url = ""
     while len(conf_url) < 1:
         conf_url = input(
-          init_start
-          + "Base URL"
-          + init_eg
-          + "(e.g. example.social):"
-          + init_end
+            init_start + "Base URL" + init_eg + "(e.g. example.social):" + init_end
         )
 
     conf_days = ""
     while conf_days.isdigit() == False:
         conf_days = input(
-          init_start
-          + "Days to keep"
-          + init_eg
-          + "(default 365):"
-          + init_end
+            init_start + "Days to keep" + init_eg + "(default 365):" + init_end
         )
 
     conf_keep_pinned = ""
     while conf_keep_pinned not in ["y", "n"]:
         conf_keep_pinned = input(
-            init_start 
-            + "Keep pinned toots?"
-            + init_eg 
-            + "(y or n):"
-            + init_end
+            init_start + "Keep pinned toots?" + init_eg + "(y or n):" + init_end
         )
 
     conf_pinned = "true" if conf_keep_pinned == "y" else "false"
 
     conf_keep_toots = input(
-        init_start 
+        init_start
         + "Toots to keep"
-        + init_eg 
+        + init_eg
         + " (optional list of IDs separated by commas):"
         + init_end
-      )
+    )
 
     conf_keep_hashtags = input(
-        init_start 
+        init_start
         + "Hashtags to keep"
-        + init_eg 
+        + init_eg
         + " (optional list separated by commas):"
         + init_end
-      )
+    )
 
     conf_keep_visibility = input(
-        init_start 
+        init_start
         + "Visibility to keep"
-        + init_eg 
-        + " (optional list separated by commas):" 
+        + init_eg
+        + " (optional list separated by commas):"
         + init_end
-      )
+    )
 
     conf_archive = input(
-        init_start 
+        init_start
         + "Archive path"
-        + init_eg 
+        + init_eg
         + " (optional filepath for archive):"
         + init_end
-      )
+    )
 
     # write out the config file
     with open("config.yaml", "w") as configfile:
@@ -114,27 +103,28 @@ def init():
         configfile.write("\n  keep_pinned: " + conf_pinned)
 
         if len(conf_keep_toots) > 0:
-            keep_list = conf_keep_toots.split(',')
+            keep_list = conf_keep_toots.split(",")
             configfile.write("\n  toots_to_keep:")
             for toot in keep_list:
-              configfile.write("\n    - " + toot.strip())
+                configfile.write("\n    - " + toot.strip())
 
         if len(conf_keep_hashtags) > 0:
-            tag_list = conf_keep_hashtags.split(',')
-            configfile.write("\n  hashtags_to_keep:") 
+            tag_list = conf_keep_hashtags.split(",")
+            configfile.write("\n  hashtags_to_keep:")
             for tag in tag_list:
-              configfile.write("\n    - " + tag.strip())
+                configfile.write("\n    - " + tag.strip())
 
         if len(conf_keep_visibility) > 0:
-            viz_list = conf_keep_visibility.split(',')
-            configfile.write("\n  visibility_to_keep:") 
+            viz_list = conf_keep_visibility.split(",")
+            configfile.write("\n  visibility_to_keep:")
             for mode in viz_list:
-              configfile.write("\n    - " + mode.strip())
+                configfile.write("\n    - " + mode.strip())
 
         if len(conf_archive) > 0:
             configfile.write("\n  archive: " + conf_archive)
 
         configfile.close()
+
 
 def version(vnum):
     try:
@@ -147,10 +137,13 @@ def version(vnum):
         print("-------------------------------")
         print("Using:  \033[92mVersion " + vnum + "\033[0m")
         print("Latest: \033[92m" + latest_version + "\033[0m")
-        print("To upgrade to the most recent version run \033[92mpip3 install --update ephemetoot\033[0m")
+        print(
+            "To upgrade to the most recent version run \033[92mpip3 install --update ephemetoot\033[0m"
+        )
 
     except Exception as e:
         print("Something went wrong:")
+
 
 def schedule(options):
     try:
@@ -172,7 +165,11 @@ def schedule(options):
             lines[23] = "    <integer>" + options.time[1] + "</integer>"
 
         # write out file directly to ~/Library/LaunchAgents
-        f = open(os.path.expanduser("~/Library/LaunchAgents/") + "ephemetoot.scheduler.plist", mode="w")
+        f = open(
+            os.path.expanduser("~/Library/LaunchAgents/")
+            + "ephemetoot.scheduler.plist",
+            mode="w",
+        )
         for line in lines:
             if line == lines[-1]:
                 f.write(line)
@@ -185,12 +182,12 @@ def schedule(options):
             ["launchctl unload ~/Library/LaunchAgents/ephemetoot.scheduler.plist"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            shell=True
+            shell=True,
         )
         # load the new file
         subprocess.run(
             ["launchctl load ~/Library/LaunchAgents/ephemetoot.scheduler.plist"],
-            shell=True
+            shell=True,
         )
         print("⏰ Scheduled!")
     except Exception as e:
@@ -569,7 +566,9 @@ def checkToots(config, options, retry_count=0):
 
     except MastodonAPIError as e:
         if e.args[1] == 401:
-            print("\n🙅  User and/or access token does not exist or has been deleted (401)")
+            print(
+                "\n🙅  User and/or access token does not exist or has been deleted (401)"
+            )
         elif e.args[1] == 404:
             print("\n🔭  Can't find that server (404)")
         else:
@@ -579,11 +578,7 @@ def checkToots(config, options, retry_count=0):
         if retry_count == 0:
             print("\n📡  ephemetoot cannot connect to the server - are you online?")
         if retry_count < 4:
-            print(
-                "Waiting "
-                + str(options.retry_mins)
-                + " minutes before trying again"
-            )
+            print("Waiting " + str(options.retry_mins) + " minutes before trying again")
             time.sleep(60 * options.retry_mins)
             retry_count += 1
             print("Attempt " + str(retry_count + 1))
