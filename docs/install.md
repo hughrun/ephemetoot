@@ -4,17 +4,17 @@
 
 You need to [install Python 3](https://wiki.python.org/moin/BeginnersGuide/Download) to use `ephemetoot`. Python 2 is now end-of-life, however it continued to be installed as the default Python on MacOS and many Linux distributions until very recently, so you should check. 
 
-These instructions use the command `pip` but note that on many systems you may need to use `pip3`, as pip will be pointing to Python 2.
+These instructions use the command `pip3` since it is very likely you will need to use that instead of `pip` (which usually points to Python 2). On some systems you may need to use `pip` instead, if `pip` is pointing to Python 3.
 
 ## Install ephemetoot from pypi
 
 ```shell
-pip install ephemetoot
+pip3 install ephemetoot
 ```
-If you do not have permission to install python modules, you may need to use the `--user` flag. Generally this is not advisable, since you will need to run the script with the same user as ephemetoot will only be installed for that user and not globally:
+If you do not have permission to install python modules, you may need to use the `--user` flag. Generally this is not advisable, since you will need to run ephemetoot with the same user since it will only be installed for that user and not globally:
 
 ```shell
-pip install . --user
+pip3 install . --user
 ```
 
 ## Obtain an access token
@@ -38,13 +38,15 @@ Now you've installed `ephemetoot`, in order to actually use it you will need an 
 
 ## Configuration file
 
-As of version 2, you can use a single `ephemetoot` installation to delete toots from multiple accounts. Configuration for each user is set up in the `config.yaml` file. This uses [yaml syntax](https://yaml.org/spec/1.2/spec.html) and can be updated at any time without having to reload `ephemetoot`.
+Configuration for each user is set up in the `config.yaml` file. This uses [yaml syntax](https://yaml.org/spec/1.2/spec.html) and can be updated at any time without having to reload `ephemetoot`.
 
-Copy `example-config.yaml` to a new file called `config.yaml`:
+You can create a config file by hand, but the easiest way to do it is with the `--init` flag:
+
 ```shell
-cp example-config.yaml config.yaml
+ephemetoot --init
 ```
-You can now enter the configuration details for each user:
+
+This will ask you to fill in information for each part of the file:
 
 | setting | description   |
 | ---:  |   :---        |
@@ -67,7 +69,7 @@ hashtags_to_keep:
 visibility_to_keep: [ ] # this empty list is also ok
 ```
 
-If you want to use `ephemetoot` for multiple accounts, separate the config for each user with a single dash (`-`), as shown in the example file.
+As of version 2, you can use a single `ephemetoot` installation to delete toots from multiple accounts. If you want to use `ephemetoot` for multiple accounts, separate the config for each user with a single dash (`-`), and add the additional details, as shown in [the example file](https://github.com/hughrun/ephemetoot/blob/master/example-config.yaml).
 
 ---
 * [Home](/)

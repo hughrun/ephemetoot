@@ -4,6 +4,16 @@ For a short description of all available options, run `ephemetoot --help` from t
 
 It is **strongly recommended** that you do a test run before using `ephemetoot` live. There is no "undo"!
 
+## Create your config file (--init)
+
+Before you can use `ephemetoot` you need a `config.yaml` file. You can create this yourself, but `--init` will walk you through the values you need and save your `config.yaml` file in the directory from which you run the command:
+
+```shell
+ephemetoot --init
+```
+
+More information about the config file can be found on teh _[Installation](./install.md)_ page, and an [example file](https://github.com/hughrun/ephemetoot/blob/master/example-config.yaml) is available on GitHub.
+
 ## Run in test mode (--test)
 
 To do a test-run without actually deleting anything, run the script with the `--test` flag:
@@ -22,7 +32,7 @@ Depending on how many toots you have and how long you want to keep them, it may 
 
 ## Specify the config location (--config)
 
-By default ephemetoot expects there to be a config file called `config.yaml` in the directory from where you run the `ephemetoot` command. If you want to call it from elsewhere (e.g. with `cron`), you need to specify where your config file is:
+By default ephemetoot expects there to be a config file called `config.yaml` in the directory from where you run the `ephemetoot` command. If you want to call it from elsewhere (e.g. when using `cron`), you need to specify where your config file is:
 
 ```shell
 ephemetoot --config '~/directory/subdirectory/config.yaml'
