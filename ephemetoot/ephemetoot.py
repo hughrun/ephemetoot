@@ -22,6 +22,10 @@ from ephemetoot import plist
 
 def init():
 
+    '''
+    Creates a config.yaml file in the current directory, based on user input.
+    '''
+
     init_start = "\033[96m"
     init_end = "\033[0m"
     init_eg = "\033[2m"
@@ -127,6 +131,9 @@ def init():
 
 
 def version(vnum):
+    '''
+    Prints current and latest version numbers to console.
+    '''
     try:
         latest = requests.get(
             "https://api.github.com/repos/hughrun/ephemetoot/releases/latest"
@@ -146,6 +153,10 @@ def version(vnum):
 
 
 def schedule(options):
+
+    '''
+    Creates and loads a plist file for scheduled running with launchd. If --time flag is used, the scheduled time is set accordingly. Note that this is designed for use on MacOS.
+    '''
     try:
 
         if options.schedule == ".":
@@ -195,6 +206,10 @@ def schedule(options):
 
 
 def checkToots(config, options, retry_count=0):
+
+    '''
+    The main function, uses the Mastodon API to check all toots in the user timeline, and delete any that do not meet any of the exclusion criteria from the config file.
+    '''
 
     keep_pinned = "keep_pinned" in config and config["keep_pinned"]
     toots_to_keep = config["toots_to_keep"] if "toots_to_keep" in config else []

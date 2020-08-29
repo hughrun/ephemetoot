@@ -117,6 +117,9 @@ else:
 
 
 def main():
+  '''
+  Call ephemetoot.checkToots() on each user in the config file, with options set via flags from command line.
+  '''
     try:
 
         if options.init:
