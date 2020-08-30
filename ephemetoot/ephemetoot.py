@@ -134,16 +134,17 @@ def version(vnum):
     '''
     Prints current and latest version numbers to console.
     '''
+
     try:
         latest = requests.get(
             "https://api.github.com/repos/hughrun/ephemetoot/releases/latest"
         )
         res = latest.json()
-        latest_version = res["name"]
+        latest_version = res["tag_name"]
         print("\nephemetoot ==> 🥳 ==> 🧼 ==> 😇")
         print("-------------------------------")
-        print("Using:  \033[92mVersion " + vnum + "\033[0m")
-        print("Latest: \033[92m" + latest_version + "\033[0m")
+        print("You are using release: \033[92mv", vnum, "\033[0m", sep="")
+        print("The latest release is: \033[92m" + latest_version + "\033[0m")
         print(
             "To upgrade to the most recent version run \033[92mpip3 install --update ephemetoot\033[0m"
         )
@@ -204,6 +205,26 @@ def schedule(options):
     except Exception as e:
         print("🙁 Scheduling failed.")
 
+# TODO: move the json function to here and understand what it does
+
+def archive_toot():
+    pass
+    # TODO: move all the archiving logic and definitions to here
+
+def tooted_time(toot):
+    # TODO: return a string with the toot created time
+    pass
+
+def datestamp_now():
+    return str(
+        datetime.now(timezone.utc).strftime(
+            "%a %d %b %Y %H:%M:%S %z"
+        )
+    )
+
+# TODO: move this out of checkToots and pass through all needed arg
+# def checkBatch():
+#   pass
 
 def checkToots(config, options, retry_count=0):
 
@@ -261,88 +282,65 @@ def checkToots(config, options, retry_count=0):
                 try:
                     if keep_pinned and hasattr(toot, "pinned") and toot.pinned:
                         if not (options.hide_skipped or options.quiet):
-                            if options.datestamp:
-                                print(
-                                    str(
-                                        datetime.now(timezone.utc).strftime(
-                                            "%a %d %b %Y %H:%M:%S %z"
-                                        )
-                                    ),
-                                    end=" : ",
-                                )
 
-                            print("📌 skipping pinned toot - " + str(toot.id))
+                            if options.datestamp:
+                                print(datestamp_now(),end=" : ")
+
+                            print("📌 skipping pinned toot -", str(toot.id))
+
                     elif toot.id in toots_to_keep:
                         if not (options.hide_skipped or options.quiet):
-                            if options.datestamp:
-                                print(
-                                    str(
-                                        datetime.now(timezone.utc).strftime(
-                                            "%a %d %b %Y %H:%M:%S %z"
-                                        )
-                                    ),
-                                    end=" : ",
-                                )
 
-                            print("💾 skipping saved toot - " + str(toot.id))
+                            if options.datestamp:
+                                print(datestamp_now(),end=" : ")
+
+                            print("💾 skipping saved toot -", str(toot.id))
+
                     elif toot.visibility in visibility_to_keep:
                         if not (options.hide_skipped or options.quiet):
+
                             if options.datestamp:
-                                print(
-                                    str(
-                                        datetime.now(timezone.utc).strftime(
-                                            "%a %d %b %Y %H:%M:%S %z"
-                                        )
-                                    ),
-                                    end=" : ",
-                                )
+                                print(datestamp_now(), end=" : ")
 
                             print(
-                                "👀 skipping "
-                                + toot.visibility
-                                + " toot - "
-                                + str(toot.id)
+                                "👀 skipping",
+                                toot.visibility,
+                                "toot -",
+                                str(toot.id)
                             )
+
                     elif len(hashtags_to_keep.intersection(toot_tags)) > 0:
                         if not (options.hide_skipped or options.quiet):
-                            if options.datestamp:
-                                print(
-                                    str(
-                                        datetime.now(timezone.utc).strftime(
-                                            "%a %d %b %Y %H:%M:%S %z"
-                                        )
-                                    ),
-                                    end=" : ",
-                                )
 
-                            print("#️⃣  skipping toot with hashtag - " + str(toot.id))
+                            if options.datestamp:
+                                print(datestamp_now(), end=" : ")
+
+                            print(
+                              "#️⃣  skipping toot with hashtag -",
+                              str(toot.id)
+                            )
+
                     elif cutoff_date > toot.created_at:
                         if hasattr(toot, "reblog") and toot.reblog:
                             if not options.quiet:
                                 if options.datestamp:
-                                    print(
-                                        str(
-                                            datetime.now(timezone.utc).strftime(
-                                                "%a %d %b %Y %H:%M:%S %z"
-                                            )
-                                        ),
-                                        end=" : ",
-                                    )
+                                    print(datestamp_now(), end=" : ")
 
                                 print(
-                                    "👎 unboosting toot "
-                                    + str(toot.id)
-                                    + " boosted "
-                                    + toot.created_at.strftime("%d %b %Y")
+                                    "👎 unboosting toot",
+                                    str(toot.id),
+                                    "boosted",
+                                    toot.created_at.strftime("%d %b %Y")
                                 )
+
                             deleted_count += 1
                             # unreblog the original toot (their toot), not the toot created by boosting (your toot)
                             if not options.test:
                                 if mastodon.ratelimit_remaining == 0:
+
                                     if not options.quiet:
-                                        print(
-                                            "Rate limit reached. Waiting for a rate limit reset"
-                                        )
+                                        print("Rate limit reached. Waiting for a rate limit reset")
+
                                 # check for --archive-deleted
                                 if (
                                     options.archive_deleted
@@ -361,21 +359,14 @@ def checkToots(config, options, retry_count=0):
                         else:
                             if not options.quiet:
                                 if options.datestamp:
-                                    print(
-                                        str(
-                                            datetime.now(timezone.utc).strftime(
-                                                "%a %d %b %Y %H:%M:%S %z"
-                                            )
-                                        ),
-                                        end=" : ",
-                                    )
+                                    print(datestamp_now(), end=" : ")
 
                                 print(
-                                    "❌ deleting toot "
-                                    + str(toot.id)
-                                    + " tooted "
-                                    + toot.created_at.strftime("%d %b %Y")
+                                    "❌ deleting toot", 
+                                    str(toot.id), "tooted", 
+                                    toot.created_at.strftime("%d %b %Y")
                                 )
+
                             deleted_count += 1
                             time.sleep(
                                 2
@@ -390,15 +381,11 @@ def checkToots(config, options, retry_count=0):
                                     diff = mastodon.ratelimit_reset - now
 
                                     print(
-                                        "\nRate limit reached at "
-                                        + str(
-                                            datetime.now(timezone.utc).strftime(
-                                                "%a %d %b %Y %H:%M:%S %z"
-                                            )
-                                        )
-                                        + " - next reset due in "
-                                        + str(format(diff / 60, ".0f"))
-                                        + " minutes.\n"
+                                        "\nRate limit reached at",
+                                        datestamp_now(),
+                                        "- next reset due in",
+                                        str(format(diff / 60, ".0f")),
+                                        "minutes.\n"
                                     )
                                 # check for --archive-deleted
                                 if (
@@ -424,11 +411,7 @@ def checkToots(config, options, retry_count=0):
 
                     print(
                         "\nRate limit reached at "
-                        + str(
-                            datetime.now(timezone.utc).strftime(
-                                "%a %d %b %Y %H:%M:%S %z"
-                            )
-                        )
+                        + datestamp_now()
                         + " - waiting for next reset due in "
                         + str(format(diff / 60, ".0f"))
                         + " minutes.\n"
@@ -447,11 +430,7 @@ def checkToots(config, options, retry_count=0):
                                         "Attempt "
                                         + str(attempts)
                                         + " at "
-                                        + str(
-                                            datetime.now(timezone.utc).strftime(
-                                                "%a %d %b %Y %H:%M:%S %z"
-                                            )
-                                        )
+                                        + datestamp_now()
                                     )
                                 mastodon.status_delete(toot)
                                 time.sleep(
@@ -511,11 +490,7 @@ def checkToots(config, options, retry_count=0):
                         if options.datestamp:
                             print(
                                 "\n\n"
-                                + str(
-                                    datetime.now(timezone.utc).strftime(
-                                        "%a %d %b %Y %H:%M:%S %z"
-                                    )
-                                ),
+                                + datestamp_now(),
                                 end=" : ",
                             )
 
@@ -528,11 +503,7 @@ def checkToots(config, options, retry_count=0):
                         if options.datestamp:
                             print(
                                 "\n\n"
-                                + str(
-                                    datetime.now(timezone.utc).strftime(
-                                        "%a %d %b %Y %H:%M:%S %z"
-                                    )
-                                ),
+                                + datestamp_now(),
                                 end=" : ",
                             )
 
