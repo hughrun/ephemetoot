@@ -111,15 +111,19 @@ options = parser.parse_args()
 if options.config[0] == "~":
     config_file = os.path.expanduser(options.config)
 elif options.config[0] == "/":
-    config_file = options.config
+    # make sure user isn't passing in something dodgy
+    if os.path.exists(options.config):
+        config_file = options.config
+    else:
+        config_file = ""
 else:
     config_file = os.path.join(os.getcwd(), options.config)
 
 
 def main():
-  '''
-  Call ephemetoot.checkToots() on each user in the config file, with options set via flags from command line.
-  '''
+    '''
+    Call ephemetoot.checkToots() on each user in the config file, with options set via flags from command line.
+    '''
     try:
 
         if options.init:
@@ -148,8 +152,14 @@ def main():
                         func.checkToots(user, options)
 
     except FileNotFoundError as err:
-        print("🕵️  Missing config file")
-        print("Run \033[92mephemetoot --init\033[0m to create a new one\n")
+
+        if err.filename == config_file:
+            print("🕵️  Missing config file")
+            print("Run \033[92mephemetoot --init\033[0m to create a new one\n")
+
+        else:
+            print("\n🤷‍♂️  The archive directory in your config file does not exist")
+            print("Create the directory or correct your config before trying again\n")
 
 
 if __name__ == "__main__":
