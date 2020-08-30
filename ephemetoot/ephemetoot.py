@@ -178,8 +178,10 @@ def schedule(options):
 
         # write out file directly to ~/Library/LaunchAgents
         f = open(
-            os.path.expanduser("~/Library/LaunchAgents/")
-            + "ephemetoot.scheduler.plist",
+            os.path.join(
+              os.path.expanduser("~/Library/LaunchAgents"),
+              "ephemetoot.scheduler.plist"
+            ),
             mode="w",
         )
         for line in lines:
@@ -203,7 +205,7 @@ def schedule(options):
         )
         print("⏰ Scheduled!")
     except Exception as e:
-        print("🙁 Scheduling failed.")
+        print("🙁 Scheduling failed.", e)
 
 def archive_toot(config, toot):
     # define archive path
@@ -241,6 +243,7 @@ def datestamp_now():
 # def checkBatch():
 #   pass
 
+# TODO: rename to check_toots
 def checkToots(config, options, retry_count=0):
 
     '''
@@ -265,6 +268,7 @@ def checkToots(config, options, retry_count=0):
             + config["base_url"]
         )
 
+        # TODO: rename this to check_batch
         def checkBatch(timeline, deleted_count=0):
             for toot in timeline:
                 # TODO: move all this into a new testable function process_toot()
