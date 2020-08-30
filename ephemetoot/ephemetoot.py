@@ -205,15 +205,30 @@ def schedule(options):
     except Exception as e:
         print("🙁 Scheduling failed.")
 
-# TODO: move the json function to here and understand what it does
+def archive_toot(config, toot):
+    # define archive path
+    if config["archive"][0] == "~":
+        archive_path = os.path.expanduser(config["archive"])
+    elif config["archive"][0] == "/":
+        archive_path = config["archive"]
+    else:
+        archive_path = os.path.join(os.getcwd(), config["archive"])
+    if archive_path[-1] != "/":
+        archive_path += "/"
 
-def archive_toot():
-    pass
-    # TODO: move all the archiving logic and definitions to here
+    filename = os.path.join(archive_path, str(toot["id"]) + ".json")
 
-def tooted_time(toot):
-    # TODO: return a string with the toot created time
-    pass
+    # write to file
+    with open(filename, "w") as f:
+        f.write(json.dumps(toot, indent=4, default=jsondefault))
+        f.close()
+
+def jsondefault(obj):
+    if isinstance(obj, (date, datetime)):
+        return obj.isoformat()
+
+def tooted_date(toot):
+    return toot.created_at.strftime("%d %b %Y")
 
 def datestamp_now():
     return str(
@@ -250,31 +265,14 @@ def checkToots(config, options, retry_count=0):
             + config["base_url"]
         )
 
-        def jsondefault(obj):
-            if isinstance(obj, (date, datetime)):
-                return obj.isoformat()
-
         def checkBatch(timeline, deleted_count=0):
             for toot in timeline:
+                # TODO: move all this into a new testable function process_toot()
                 if "id" in toot and "archive" in config:
-
-                    # define archive path
-                    if config["archive"][0] == "~":
-                        archive_path = os.path.expanduser(config["archive"])
-                    elif config["archive"][0] == "/":
-                        archive_path = config["archive"]
-                    else:
-                        archive_path = os.path.join(os.getcwd(), config["archive"])
-                    if archive_path[-1] != "/":
-                        archive_path += "/"
-
-                    filename = os.path.join(archive_path, str(toot["id"]) + ".json")
 
                     if not options.archive_deleted:
                         # write toot to archive
-                        with open(filename, "w") as f:
-                            f.write(json.dumps(toot, indent=4, default=jsondefault))
-                            f.close()
+                        archive_toot(config, toot)
 
                 toot_tags = set()
                 for tag in toot.tags:
@@ -330,7 +328,7 @@ def checkToots(config, options, retry_count=0):
                                     "👎 unboosting toot",
                                     str(toot.id),
                                     "boosted",
-                                    toot.created_at.strftime("%d %b %Y")
+                                    tooted_date(toot)
                                 )
 
                             deleted_count += 1
@@ -348,13 +346,7 @@ def checkToots(config, options, retry_count=0):
                                     and "archive" in config
                                 ):
                                     # write toot to archive
-                                    with open(filename, "w") as f:
-                                        f.write(
-                                            json.dumps(
-                                                toot, indent=4, default=jsondefault
-                                            )
-                                        )
-                                        f.close()
+                                    archive_toot(config, toot)
                                 mastodon.status_unreblog(toot.reblog)
                         else:
                             if not options.quiet:
@@ -364,7 +356,7 @@ def checkToots(config, options, retry_count=0):
                                 print(
                                     "❌ deleting toot", 
                                     str(toot.id), "tooted", 
-                                    toot.created_at.strftime("%d %b %Y")
+                                    tooted_date(toot)
                                 )
 
                             deleted_count += 1
@@ -394,13 +386,7 @@ def checkToots(config, options, retry_count=0):
                                     and "archive" in config
                                 ):
                                     # write toot to archive
-                                    with open(filename, "w") as f:
-                                        f.write(
-                                            json.dumps(
-                                                toot, indent=4, default=jsondefault
-                                            )
-                                        )
-                                        f.close()
+                                    archive_toot(config, toot)
 
                                 mastodon.status_delete(toot)
 
@@ -553,12 +539,12 @@ def checkToots(config, options, retry_count=0):
     except MastodonAPIError as e:
         if e.args[1] == 401:
             print(
-                "\n🙅  User and/or access token does not exist or has been deleted (401)"
+                "\n🙅  User and/or access token does not exist or has been deleted (401)\n"
             )
         elif e.args[1] == 404:
-            print("\n🔭  Can't find that server (404)")
+            print("\n🔭  Can't find that server (404)\n")
         else:
-            print("\n😕  Server has returned an error (5xx)")
+            print("\n😕  Server has returned an error (5xx)\n")
 
     except MastodonNetworkError:
         if retry_count == 0:
@@ -570,4 +556,4 @@ def checkToots(config, options, retry_count=0):
             print("Attempt " + str(retry_count + 1))
             checkToots(config, options, retry_count)
         else:
-            print("Gave up waiting for network")
+            print("Gave up waiting for network\n")
