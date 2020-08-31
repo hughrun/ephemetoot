@@ -122,7 +122,7 @@ else:
 
 def main():
     '''
-    Call ephemetoot.checkToots() on each user in the config file, with options set via flags from command line.
+    Call ephemetoot.check_toots() on each user in the config file, with options set via flags from command line.
     '''
     try:
 
@@ -149,7 +149,7 @@ def main():
             with open(config_file) as config:
                 for accounts in yaml.safe_load_all(config):
                     for user in accounts:
-                        func.checkToots(user, options)
+                        func.check_toots(user, options)
 
     except FileNotFoundError as err:
 

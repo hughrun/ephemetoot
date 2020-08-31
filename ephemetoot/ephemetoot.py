@@ -218,17 +218,10 @@ def datestamp_now():
         )
     )
 
-# TODO: move this out of checkToots and pass through all needed arg
-# def checkBatch():
-#   pass
-
-# TODO: rename to check_toots
-def checkToots(config, options, retry_count=0):
-
-    '''
-    The main function, uses the Mastodon API to check all toots in the user timeline, and delete any that do not meet any of the exclusion criteria from the config file.
-    '''
-
+def check_batch(config, options, mastodon, user_id, timeline, deleted_count=0):
+    """
+    Check a batch of up to 40 toots. This is usually triggered by check_toots, and then recursively calls itself until all toots within the time period specified have been checked.
+    """
     keep_pinned = "keep_pinned" in config and config["keep_pinned"]
     toots_to_keep = config["toots_to_keep"] if "toots_to_keep" in config else []
     visibility_to_keep = (
@@ -238,256 +231,256 @@ def checkToots(config, options, retry_count=0):
         set(config["hashtags_to_keep"]) if "hashtags_to_keep" in config else set()
     )
     days_to_keep = config["days_to_keep"] if "days_to_keep" in config else 365
+    cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
 
-    try:
-        print(
-            "Fetching account details for @"
-            + config["username"]
-            + "@"
-            + config["base_url"]
-        )
+    for toot in timeline:
+        # TODO: move all this into a new testable function process_toot()
+        if "id" in toot and "archive" in config:
 
-        # TODO: rename this to check_batch
-        def checkBatch(timeline, deleted_count=0):
-            for toot in timeline:
-                # TODO: move all this into a new testable function process_toot()
-                if "id" in toot and "archive" in config:
+            if not options.archive_deleted:
+                # write toot to archive
+                archive_toot(config, toot)
 
-                    if not options.archive_deleted:
-                        # write toot to archive
-                        archive_toot(config, toot)
+        toot_tags = set()
+        for tag in toot.tags:
+            toot_tags.add(tag.name)
+        try:
+            if keep_pinned and hasattr(toot, "pinned") and toot.pinned:
+                if not (options.hide_skipped or options.quiet):
 
-                toot_tags = set()
-                for tag in toot.tags:
-                    toot_tags.add(tag.name)
-                try:
-                    if keep_pinned and hasattr(toot, "pinned") and toot.pinned:
-                        if not (options.hide_skipped or options.quiet):
+                    if options.datestamp:
+                        print(datestamp_now(),end=" : ")
 
-                            if options.datestamp:
-                                print(datestamp_now(),end=" : ")
+                    print("📌 skipping pinned toot -", str(toot.id))
 
-                            print("📌 skipping pinned toot -", str(toot.id))
+            elif toot.id in toots_to_keep:
+                if not (options.hide_skipped or options.quiet):
 
-                    elif toot.id in toots_to_keep:
-                        if not (options.hide_skipped or options.quiet):
+                    if options.datestamp:
+                        print(datestamp_now(),end=" : ")
 
-                            if options.datestamp:
-                                print(datestamp_now(),end=" : ")
+                    print("💾 skipping saved toot -", str(toot.id))
 
-                            print("💾 skipping saved toot -", str(toot.id))
+            elif toot.visibility in visibility_to_keep:
+                if not (options.hide_skipped or options.quiet):
 
-                    elif toot.visibility in visibility_to_keep:
-                        if not (options.hide_skipped or options.quiet):
-
-                            if options.datestamp:
-                                print(datestamp_now(), end=" : ")
-
-                            print(
-                                "👀 skipping",
-                                toot.visibility,
-                                "toot -",
-                                str(toot.id)
-                            )
-
-                    elif len(hashtags_to_keep.intersection(toot_tags)) > 0:
-                        if not (options.hide_skipped or options.quiet):
-
-                            if options.datestamp:
-                                print(datestamp_now(), end=" : ")
-
-                            print(
-                              "#️⃣  skipping toot with hashtag -",
-                              str(toot.id)
-                            )
-
-                    elif cutoff_date > toot.created_at:
-                        if hasattr(toot, "reblog") and toot.reblog:
-                            if not options.quiet:
-                                if options.datestamp:
-                                    print(datestamp_now(), end=" : ")
-
-                                print(
-                                    "👎 unboosting toot",
-                                    str(toot.id),
-                                    "boosted",
-                                    tooted_date(toot)
-                                )
-
-                            deleted_count += 1
-                            # unreblog the original toot (their toot), not the toot created by boosting (your toot)
-                            if not options.test:
-                                if mastodon.ratelimit_remaining == 0:
-
-                                    if not options.quiet:
-                                        print("Rate limit reached. Waiting for a rate limit reset")
-
-                                # check for --archive-deleted
-                                if (
-                                    options.archive_deleted
-                                    and "id" in toot
-                                    and "archive" in config
-                                ):
-                                    # write toot to archive
-                                    archive_toot(config, toot)
-                                mastodon.status_unreblog(toot.reblog)
-                        else:
-                            if not options.quiet:
-                                if options.datestamp:
-                                    print(datestamp_now(), end=" : ")
-
-                                print(
-                                    "❌ deleting toot", 
-                                    str(toot.id), "tooted", 
-                                    tooted_date(toot)
-                                )
-
-                            deleted_count += 1
-                            time.sleep(
-                                2
-                            )  # wait 2 secs between deletes to be a bit nicer to the server
-                            if not options.test:
-                                if (
-                                    mastodon.ratelimit_remaining == 0
-                                    and not options.quiet
-                                ):
-
-                                    now = time.time()
-                                    diff = mastodon.ratelimit_reset - now
-
-                                    print(
-                                        "\nRate limit reached at",
-                                        datestamp_now(),
-                                        "- next reset due in",
-                                        str(format(diff / 60, ".0f")),
-                                        "minutes.\n"
-                                    )
-                                # check for --archive-deleted
-                                if (
-                                    options.archive_deleted
-                                    and "id" in toot
-                                    and "archive" in config
-                                ):
-                                    # write toot to archive
-                                    archive_toot(config, toot)
-
-                                mastodon.status_delete(toot)
-
-                except MastodonRatelimitError:
-
-                    now = time.time()
-                    diff = mastodon.ratelimit_reset - now
+                    if options.datestamp:
+                        print(datestamp_now(), end=" : ")
 
                     print(
-                        "\nRate limit reached at "
-                        + datestamp_now()
-                        + " - waiting for next reset due in "
-                        + str(format(diff / 60, ".0f"))
-                        + " minutes.\n"
+                        "👀 skipping",
+                        toot.visibility,
+                        "toot -",
+                        str(toot.id)
                     )
 
-                    time.sleep(diff + 1)  # wait for rate limit to reset
+            elif len(hashtags_to_keep.intersection(toot_tags)) > 0:
+                if not (options.hide_skipped or options.quiet):
 
-                except MastodonError as e:
-
-                    def retry_on_error(attempts):
-
-                        if attempts < 6:
-                            try:
-                                if not options.quiet:
-                                    print(
-                                        "Attempt "
-                                        + str(attempts)
-                                        + " at "
-                                        + datestamp_now()
-                                    )
-                                mastodon.status_delete(toot)
-                                time.sleep(
-                                    2
-                                )  # wait 2 secs between deletes to be a bit nicer to the server
-                            except:
-                                attempts += 1
-                                time.sleep(60 * options.retry_mins)
-                                retry_on_error(attempts)
-                        else:
-                            raise TimeoutError("Gave up after 5 attempts")
+                    if options.datestamp:
+                        print(datestamp_now(), end=" : ")
 
                     print(
-                        "🛑 ERROR deleting toot - "
-                        + str(toot.id)
-                        + " - "
-                        + str(e.args[0])
-                        + " - "
-                        + str(e.args[3])
+                      "#️⃣  skipping toot with hashtag -",
+                      str(toot.id)
                     )
+
+            elif cutoff_date > toot.created_at:
+                if hasattr(toot, "reblog") and toot.reblog:
                     if not options.quiet:
+                        if options.datestamp:
+                            print(datestamp_now(), end=" : ")
+
                         print(
-                            "Waiting "
-                            + str(options.retry_mins)
-                            + " minutes before re-trying"
+                            "👎 unboosting toot",
+                            str(toot.id),
+                            "boosted",
+                            tooted_date(toot)
                         )
-                    time.sleep(60 * options.retry_mins)
-                    retry_on_error(attempts=2)
 
-                except KeyboardInterrupt:
-                    print("Operation aborted.")
-                    break
-                except KeyError as e:
-                    print(
-                        "⚠️  There is an error in your config.yaml file. Please add a value for "
-                        + str(e)
-                        + " and try again."
-                    )
-                    break
-                except:
-                    e = sys.exc_info()
+                    deleted_count += 1
+                    # unreblog the original toot (their toot), not the toot created by boosting (your toot)
+                    if not options.test:
+                        if mastodon.ratelimit_remaining == 0:
 
-                    print("🛑 Unknown ERROR deleting toot - " + str(toot.id))
+                            if not options.quiet:
+                                print("Rate limit reached. Waiting for a rate limit reset")
 
-                    print("ERROR: " + str(e[0]) + " - " + str(e[1]))
-
-            # the account_statuses call is paginated with a 40-toot limit
-            # get the id of the last toot to include as 'max_id' in the next API call.
-            # then keep triggering new rounds of checkToots() until there are no more toots to check
-            try:
-                max_id = timeline[-1:][0].id
-                next_batch = mastodon.account_statuses(user_id, limit=40, max_id=max_id)
-                if len(next_batch) > 0:
-                    checkBatch(next_batch, deleted_count)
+                        # check for --archive-deleted
+                        if (
+                            options.archive_deleted
+                            and "id" in toot
+                            and "archive" in config
+                        ):
+                            # write toot to archive
+                            archive_toot(config, toot)
+                        mastodon.status_unreblog(toot.reblog)
                 else:
-                    if options.test:
+                    if not options.quiet:
                         if options.datestamp:
-                            print(
-                                "\n\n"
-                                + datestamp_now(),
-                                end=" : ",
-                            )
+                            print(datestamp_now(), end=" : ")
 
                         print(
-                            "Test run completed. This would have removed "
-                            + str(deleted_count)
-                            + " toots."
+                            "❌ deleting toot", 
+                            str(toot.id), "tooted", 
+                            tooted_date(toot)
                         )
-                    else:
-                        if options.datestamp:
+
+                    deleted_count += 1
+                    time.sleep(
+                        2
+                    )  # wait 2 secs between deletes to be a bit nicer to the server
+                    if not options.test:
+                        if (
+                            mastodon.ratelimit_remaining == 0
+                            and not options.quiet
+                        ):
+
+                            now = time.time()
+                            diff = mastodon.ratelimit_reset - now
+
                             print(
-                                "\n\n"
-                                + datestamp_now(),
-                                end=" : ",
+                                "\nRate limit reached at",
+                                datestamp_now(),
+                                "- next reset due in",
+                                str(format(diff / 60, ".0f")),
+                                "minutes.\n"
                             )
+                        # check for --archive-deleted
+                        if (
+                            options.archive_deleted
+                            and "id" in toot
+                            and "archive" in config
+                        ):
+                            # write toot to archive
+                            archive_toot(config, toot)
 
-                        print("Removed " + str(deleted_count) + " toots.")
+                        mastodon.status_delete(toot)
 
-                    if not options.quiet:
-                        print("\n---------------------------------------")
-                        print("🥳 ==> 🧼 ==> 😇 User cleanup complete!")
-                        print("---------------------------------------\n")
+        except MastodonRatelimitError:
 
-            except IndexError:
-                print("No toots found!")
+            now = time.time()
+            diff = mastodon.ratelimit_reset - now
 
-            except Exception as e:
-                print("ERROR: " + str(e.args[0]))
+            print(
+                "\nRate limit reached at "
+                + datestamp_now()
+                + " - waiting for next reset due in "
+                + str(format(diff / 60, ".0f"))
+                + " minutes.\n"
+            )
+
+            time.sleep(diff + 1)  # wait for rate limit to reset
+
+        except MastodonError as e:
+
+            def retry_on_error(attempts):
+
+                if attempts < 6:
+                    try:
+                        if not options.quiet:
+                            print(
+                                "Attempt "
+                                + str(attempts)
+                                + " at "
+                                + datestamp_now()
+                            )
+                        mastodon.status_delete(toot)
+                        time.sleep(
+                            2
+                        )  # wait 2 secs between deletes to be a bit nicer to the server
+                    except:
+                        attempts += 1
+                        time.sleep(60 * options.retry_mins)
+                        retry_on_error(attempts)
+                else:
+                    raise TimeoutError("Gave up after 5 attempts")
+
+            print(
+                "🛑 ERROR deleting toot - "
+                + str(toot.id)
+                + " - "
+                + str(e.args[0])
+                + " - "
+                + str(e.args[3])
+            )
+            if not options.quiet:
+                print(
+                    "Waiting "
+                    + str(options.retry_mins)
+                    + " minutes before re-trying"
+                )
+            time.sleep(60 * options.retry_mins)
+            retry_on_error(attempts=2)
+
+        except KeyboardInterrupt:
+            print("Operation aborted.")
+            break
+        except KeyError as e:
+            print(
+                "⚠️  There is an error in your config.yaml file. Please add a value for "
+                + str(e)
+                + " and try again."
+            )
+            break
+        except:
+            e = sys.exc_info()
+
+            print("🛑 Unknown ERROR deleting toot - " + str(toot.id))
+
+            print("ERROR: " + str(e[0]) + " - " + str(e[1]))
+
+    # the account_statuses call is paginated with a 40-toot limit
+    # get the id of the last toot to include as 'max_id' in the next API call.
+    # then keep triggering new rounds of check_toots() until there are no more toots to check
+    try:
+        max_id = timeline[-1:][0].id
+        next_batch = mastodon.account_statuses(user_id, limit=40, max_id=max_id)
+        if len(next_batch) > 0:
+            check_batch(config, options, mastodon, user_id, next_batch, deleted_count)
+        else:
+            if options.test:
+                if options.datestamp:
+                    print(
+                        "\n\n"
+                        + datestamp_now(),
+                        end=" : ",
+                    )
+
+                print(
+                    "Test run completed. This would have removed "
+                    + str(deleted_count)
+                    + " toots."
+                )
+            else:
+                if options.datestamp:
+                    print(
+                        "\n\n"
+                        + datestamp_now(),
+                        end=" : ",
+                    )
+
+                print("Removed " + str(deleted_count) + " toots.")
+
+            if not options.quiet:
+                print("\n---------------------------------------")
+                print("🥳 ==> 🧼 ==> 😇 User cleanup complete!")
+                print("---------------------------------------\n")
+
+    except IndexError:
+        print("No toots found!")
+
+    except Exception as e:
+        print("ERROR: " + str(e.args[0]))
+
+
+def check_toots(config, options, retry_count=0):
+
+    '''
+    The main function, uses the Mastodon API to check all toots in the user timeline, and delete any that do not meet any of the exclusion criteria from the config file.
+    '''
+    try:
+        print("Fetching account details for @", config["username"], "@", config["base_url"], sep="")
 
         if options.pace:
             mastodon = Mastodon(
@@ -495,25 +488,22 @@ def checkToots(config, options, retry_count=0):
                 api_base_url="https://" + config["base_url"],
                 ratelimit_method="pace",
             )
-
         else:
-
             mastodon = Mastodon(
                 access_token=config["access_token"],
                 api_base_url="https://" + config["base_url"],
                 ratelimit_method="wait",
             )
 
-        # STARTS HERE
-        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
-        user_id = mastodon.account_verify_credentials().id
-        account = mastodon.account(user_id)
-        timeline = mastodon.account_statuses(user_id, limit=40)
+        user_id = mastodon.account_verify_credentials().id # verify user and get ID
+        account = mastodon.account(user_id) # get the account
+        timeline = mastodon.account_statuses(user_id, limit=40) # initial batch
 
         if not options.quiet:
-            print("Checking " + str(account.statuses_count) + " toots")
+            print("Checking", str(account.statuses_count), "toots")
 
-        checkBatch(timeline)
+        # check first batch, check_batch then recursively keeps looping until all toots have been checked
+        check_batch(config, options, mastodon, user_id, timeline) 
 
     except KeyError as val:
         print("\n⚠️  error with in your config.yaml file!")
@@ -537,6 +527,6 @@ def checkToots(config, options, retry_count=0):
             time.sleep(60 * options.retry_mins)
             retry_count += 1
             print("Attempt " + str(retry_count + 1))
-            checkToots(config, options, retry_count)
+            check_toots(config, options, retry_count)
         else:
             print("Gave up waiting for network\n")
