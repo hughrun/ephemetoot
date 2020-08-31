@@ -19,116 +19,95 @@ import requests
 # local
 from ephemetoot import plist
 
+def compulsory_input(tags, name, example):
 
+    value = ""
+    while len(value) < 1:
+        if example:
+            value = input(tags[0] + name + tags[1] + example + tags[2])
+        else:
+            value = input(tags[0] + name + tags[2])
+
+    return value
+
+def digit_input(tags, name, example):
+
+    value = ""
+    while value.isdigit() == False:
+        if example:
+            value = input(tags[0] + name + tags[1] + example + tags[2])
+        else:
+            value = input(tags[0] + name + tags[2])
+
+    return value
+
+def yes_no_input(tags, name):
+    value = ""
+    while value not in ["y", "n"]:
+        value = input(
+            tags[0] + name + tags[1] + "(y or n):" + tags[2]
+        )
+    return_val = "true" if value == "y" else "false"
+    return return_val
+
+def optional_input(tags, name, example):
+    value = input(tags[0] + name + tags[1] + example + tags[2])
+    return value
+        
 def init():
-
     '''
     Creates a config.yaml file in the current directory, based on user input.
     '''
+    try:
 
-    init_start = "\033[96m"
-    init_end = "\033[0m"
-    init_eg = "\033[2m"
+        # text colour markers (beginning, example, end)
+        tags = ("\033[96m", "\033[2m", "\033[0m")
 
-    conf_token = ""
-    while len(conf_token) < 1:
-        conf_token = input(init_start + "Access token: " + init_end)
+        conf_token = compulsory_input(tags, "Access token: ", None)
+        conf_user = compulsory_input(tags, "Username", "(without the '@' - e.g. alice):")
+        conf_url = compulsory_input(tags, "Base URL", "(e.g. example.social):")
+        conf_days = digit_input(tags, "Days to keep", "(default 365):")
+        conf_pinned = yes_no_input(tags, "Keep pinned toots?")
+        conf_keep_toots = optional_input(tags, "Toots to keep", "(optional list of IDs separated by commas):")
+        conf_keep_hashtags = optional_input(tags, "Hashtags to keep", "(optional list separated by commas):")
+        conf_keep_visibility = optional_input(tags, "Visibility to keep", "(optional list separated by commas):")
+        conf_archive = optional_input(tags, "Archive path", "(optional filepath for archive):")
 
-    conf_user = ""
-    while len(conf_user) < 1:
-        conf_user = input(
-            init_start
-            + "Username"
-            + init_eg
-            + "(without the '@' - e.g. alice):"
-            + init_end
-        )
+        # write out the config file
+        with open("config.yaml", "w") as configfile:
 
-    conf_url = ""
-    while len(conf_url) < 1:
-        conf_url = input(
-            init_start + "Base URL" + init_eg + "(e.g. example.social):" + init_end
-        )
+            configfile.write("-")
+            configfile.write("\n  access_token: " + conf_token)
+            configfile.write("\n  username: " + conf_user)
+            configfile.write("\n  base_url: " + conf_url)
+            configfile.write("\n  days_to_keep: " + conf_days)
+            configfile.write("\n  keep_pinned: " + conf_pinned)
 
-    conf_days = ""
-    while conf_days.isdigit() == False:
-        conf_days = input(
-            init_start + "Days to keep" + init_eg + "(default 365):" + init_end
-        )
+            if len(conf_keep_toots) > 0:
+                keep_list = conf_keep_toots.split(",")
+                configfile.write("\n  toots_to_keep:")
+                for toot in keep_list:
+                    configfile.write("\n    - " + toot.strip())
 
-    conf_keep_pinned = ""
-    while conf_keep_pinned not in ["y", "n"]:
-        conf_keep_pinned = input(
-            init_start + "Keep pinned toots?" + init_eg + "(y or n):" + init_end
-        )
+            if len(conf_keep_hashtags) > 0:
+                tag_list = conf_keep_hashtags.split(",")
+                configfile.write("\n  hashtags_to_keep:")
+                for tag in tag_list:
+                    configfile.write("\n    - " + tag.strip())
 
-    conf_pinned = "true" if conf_keep_pinned == "y" else "false"
+            if len(conf_keep_visibility) > 0:
+                viz_list = conf_keep_visibility.split(",")
+                configfile.write("\n  visibility_to_keep:")
+                for mode in viz_list:
+                    configfile.write("\n    - " + mode.strip())
 
-    conf_keep_toots = input(
-        init_start
-        + "Toots to keep"
-        + init_eg
-        + " (optional list of IDs separated by commas):"
-        + init_end
-    )
+            if len(conf_archive) > 0:
+                configfile.write("\n  archive: " + conf_archive)
 
-    conf_keep_hashtags = input(
-        init_start
-        + "Hashtags to keep"
-        + init_eg
-        + " (optional list separated by commas):"
-        + init_end
-    )
+            configfile.close()
 
-    conf_keep_visibility = input(
-        init_start
-        + "Visibility to keep"
-        + init_eg
-        + " (optional list separated by commas):"
-        + init_end
-    )
-
-    conf_archive = input(
-        init_start
-        + "Archive path"
-        + init_eg
-        + " (optional filepath for archive):"
-        + init_end
-    )
-
-    # write out the config file
-    with open("config.yaml", "w") as configfile:
-
-        configfile.write("-")
-        configfile.write("\n  access_token: " + conf_token)
-        configfile.write("\n  username: " + conf_user)
-        configfile.write("\n  base_url: " + conf_url)
-        configfile.write("\n  days_to_keep: " + conf_days)
-        configfile.write("\n  keep_pinned: " + conf_pinned)
-
-        if len(conf_keep_toots) > 0:
-            keep_list = conf_keep_toots.split(",")
-            configfile.write("\n  toots_to_keep:")
-            for toot in keep_list:
-                configfile.write("\n    - " + toot.strip())
-
-        if len(conf_keep_hashtags) > 0:
-            tag_list = conf_keep_hashtags.split(",")
-            configfile.write("\n  hashtags_to_keep:")
-            for tag in tag_list:
-                configfile.write("\n    - " + tag.strip())
-
-        if len(conf_keep_visibility) > 0:
-            viz_list = conf_keep_visibility.split(",")
-            configfile.write("\n  visibility_to_keep:")
-            for mode in viz_list:
-                configfile.write("\n    - " + mode.strip())
-
-        if len(conf_archive) > 0:
-            configfile.write("\n  archive: " + conf_archive)
-
-        configfile.close()
-
+    except Exception as e:
+        print(e)
 
 def version(vnum):
     '''
