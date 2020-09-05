@@ -3,6 +3,12 @@
 
 **ephemetoot** is a Python command line tool for deleting old toots.
 
+**NOTE:** to install ephemetoot from pypi currently you must pin the beta version:
+
+```
+pip install ephemetoot=3.0.0-beta.0
+```
+
 ## Documentation
 * [Installation](./docs/install.md)
 * [Options](./docs/options.md)
