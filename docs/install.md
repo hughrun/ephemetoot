@@ -14,7 +14,7 @@ pip3 install ephemetoot
 If you do not have permission to install python modules, you may need to use the `--user` flag. Generally this is not advisable, since you will need to run ephemetoot with the same user since it will only be installed for that user and not globally:
 
 ```shell
-pip3 install . --user
+pip3 install ephemetoot --user
 ```
 
 ## Obtain an access token
@@ -27,7 +27,7 @@ Now you've installed `ephemetoot`, in order to actually use it you will need an 
 4. Enter an application name (e.g. 'ephemetoot'), and give the app both 'read' and 'write' Scopes
 5. Click `SUBMIT`
 6. Click on the name of the new app, which should be a link
-7. Copy the `Your access token` string
+7. Copy the `Your access token` string - you will need this for your configuration file (see below)
 
 **NOTE**: Anyone who has your access token and the domain name of your Mastodon server will be able to:
 * read all your private and direct toots, 

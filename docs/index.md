@@ -2,7 +2,11 @@
 
 **ephemetoot** is a Python command line tool for deleting old toots.
 
-These docs apply to Version 3.
+These docs apply to `ephemetoot` version 3.
+
+Note that throughout these docs the `pip` command is referred to as `pip3`. This is to help new Python users on systems running both Python 2 and Python 3, which is currently still common and a frequent source of confusion. On some systems, `pip` will be the appropriate command, as it points to Python 3 environments.
+
+If you are upgrading from an `ephemetoot` version prior to v3.0.0 please see the [upgrading](./upgrade.md) instructions and note that you need to manually uninstall the old version first.
 
 * [Installation](./install.md)
 * [Options](./options.md)

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ephemetoot"
-version = "3.0.0-alpha.0"
+version = "3.0.0-beta.0"
 description = "A command line tool to delete your old toots"
 authors = ["Hugh Rundle <ephemetoot@hugh.run>"]
 license = "GPL-3.0-or-later"
@@ -24,7 +24,7 @@ requests = "^2.22.0"
 pyyaml = "^5.0"
 
 [tool.poetry.dev-dependencies]
-# TODO - tests!
+pytest = "^6"
 
 [tool.poetry.scripts]
 ephemetoot = 'ephemetoot.console:main'

@@ -30,7 +30,7 @@ import yaml
 from argparse import ArgumentParser
 from datetime import datetime, timezone
 import os
-import pkg_resources 
+import pkg_resources
 
 # import funtions
 from ephemetoot import ephemetoot as func
@@ -40,70 +40,127 @@ vnum = pkg_resources.require("ephemetoot")[0].version
 
 parser = ArgumentParser()
 parser.add_argument(
-    "--archive-deleted", action="store_true", help="Only archive toots that are being deleted"
+    "--archive-deleted",
+    action="store_true",
+    help="Only archive toots that are being deleted",
 )
 parser.add_argument(
-    "--config", action="store", metavar="filepath", default="config.yaml", help="Filepath of your config file, absolute or relative to the current directory. If no --config path is provided, ephemetoot will use 'config.yaml'."
+    "--config",
+    action="store",
+    metavar="filepath",
+    default="config.yaml",
+    help="Filepath of your config file, absolute or relative to the current directory. If no --config path is provided, ephemetoot will use 'config.yaml'in the current directory",
 )
 parser.add_argument(
-    "--datestamp", action="store_true", help="Include a datetime stamp for every action (e.g. deleting a toot)"
+    "--datestamp",
+    action="store_true",
+    help="Include a datetime stamp for every action (e.g. deleting a toot)",
 )
 parser.add_argument(
-    "--hide-skipped", "--hide_skipped", action="store_true", help="Do not write to log when skipping saved toots"
+    "--hide-skipped",
+    "--hide_skipped",
+    action="store_true",
+    help="Do not write to log when skipping saved toots",
 )
 parser.add_argument(
-    "--init", action="store_true", help="Initialise creation of a config file saved in the current directory."
+    "--init",
+    action="store_true",
+    help="Create a config file that is saved in the current directory",
 )
 parser.add_argument(
-    "--pace", action="store_true", help="Slow deletion actions to match API rate limit to avoid pausing"
+    "--pace",
+    action="store_true",
+    help="Slow deletion actions to match API rate limit to avoid pausing",
+)
+parser.add_argument("--quiet", action="store_true", help="Suppress most logging")
+parser.add_argument(
+    "--retry-mins",
+    action="store",
+    metavar="minutes",
+    nargs="?",
+    const="1",
+    default="1",
+    type=int,
+    help="Number of minutes to wait between retries, when an error is thrown",
 )
 parser.add_argument(
-    "--quiet", action="store_true", help="Suppress most logging"
-)
-parser.add_argument(
-    "--retry-mins", action="store", metavar="minutes", nargs="?", const="1", default="1", type=int, help="Number of minutes to wait between retries, when an error is thrown"
-)
-parser.add_argument(
-    "--schedule", action="store", metavar="filepath", nargs="?", const=".", help="Save and load plist file on MacOS"
+    "--schedule",
+    action="store",
+    metavar="filepath",
+    nargs="?",
+    const=".",
+    help="Save and load plist file on MacOS",
 )
 parser.add_argument(
     "--test", action="store_true", help="Do a test run without deleting any toots"
 )
 parser.add_argument(
-    "--time", action="store", metavar=('hour', 'minute'), nargs="*", help="Hour and minute to schedule: e.g. 9 30 for 9.30am"
+    "--time",
+    action="store",
+    metavar=("hour", "minute"),
+    nargs="*",
+    help="Hour and minute to schedule: e.g. 9 30 for 9.30am",
 )
 parser.add_argument(
-    "--version", action="store_true", help="Display the version number"
+    "--version",
+    action="store_true",
+    help="Display the version numbers of the installed and latest versions",
 )
 
 options = parser.parse_args()
-if options.config[0] == '~':
+if options.config[0] == "~":
     config_file = os.path.expanduser(options.config)
-elif options.config[0] == '/':
-    config_file = options.config
-else: 
-    config_file = os.path.join( os.getcwd(), options.config )
+elif options.config[0] == "/":
+    # make sure user isn't passing in something dodgy
+    if os.path.exists(options.config):
+        config_file = options.config
+    else:
+        config_file = ""
+else:
+    config_file = os.path.join(os.getcwd(), options.config)
+
 
 def main():
-    if options.init:
-        func.init()
-    elif options.version:
-        func.version(vnum)
-    elif options.schedule:
-        func.schedule(options)
-    else:
-        if not options.quiet:
-            print('')
-            print('============= EPHEMETOOT v' + vnum + ' ================')
-            print('Running at ' + str( datetime.now(timezone.utc).strftime('%a %d %b %Y %H:%M:%S %z') ))
-            print('================================================')
-            print('')
-        if options.test:
-            print("This is a test run...\n")
-        with open(config_file) as config:
-            for accounts in yaml.safe_load_all(config):
-                for user in accounts:
-                    func.checkToots(user, options)
+    '''
+    Call ephemetoot.check_toots() on each user in the config file, with options set via flags from command line.
+    '''
+    try:
 
-if __name__ == '__main__':
+        if options.init:
+            func.init()
+        elif options.version:
+            func.version(vnum)
+        elif options.schedule:
+            func.schedule(options)
+        else:
+            if not options.quiet:
+                print("")
+                print("============= EPHEMETOOT v" + vnum + " ================")
+                print(
+                    "Running at "
+                    + str(
+                        datetime.now(timezone.utc).strftime("%a %d %b %Y %H:%M:%S %z")
+                    )
+                )
+                print("================================================")
+                print("")
+            if options.test:
+                print("This is a test run...\n")
+            with open(config_file) as config:
+                for accounts in yaml.safe_load_all(config):
+                    for user in accounts:
+                        func.check_toots(user, options)
+
+    except FileNotFoundError as err:
+
+        if err.filename == config_file:
+            print("🕵️  Missing config file")
+            print("Run \033[92mephemetoot --init\033[0m to create a new one\n")
+
+        else:
+            print("\n🤷‍♂️  The archive directory in your config file does not exist")
+            print("Create the directory or correct your config before trying again\n")
+
+
+if __name__ == "__main__":
     main()
