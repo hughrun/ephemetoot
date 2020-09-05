@@ -229,6 +229,7 @@ def console_print(msg, options, skip):
         print(msg)
 
 def print_rate_limit_message(mastodon):
+
     now = time.time()
     diff = mastodon.ratelimit_reset - now
 
@@ -239,6 +240,24 @@ def print_rate_limit_message(mastodon):
         str(format(diff / 60, ".0f")),
         "minutes.\n"
     )
+
+# TODO: this should ideally have a test associated with it
+def retry_on_error(options, mastodon, toot, attempts):
+
+    if attempts < 6:
+        try:
+            console_print(
+              "Attempt " + str(attempts) + " at " + datestamp_now(),
+              options,
+              False
+            )
+            mastodon.status_delete(toot)
+        except:
+            attempts += 1
+            time.sleep(60 * options.retry_mins)
+            retry_on_error(options, mastodon, toot, attempts)
+    else:
+        raise TimeoutError("Gave up after 5 attempts")
 
 def process_toot(config, options, mastodon, deleted_count, toot):
 
@@ -262,6 +281,7 @@ def process_toot(config, options, mastodon, deleted_count, toot):
     toot_tags = set()
     for tag in toot.tags:
         toot_tags.add(tag.name)
+
     try:
         if keep_pinned and hasattr(toot, "pinned") and toot.pinned:
             console_print(
@@ -327,14 +347,12 @@ def process_toot(config, options, mastodon, deleted_count, toot):
                 time.sleep(2)  # wait 2 secs between deletes to be a bit nicer to the server
 
                 if not options.test:
-
                     # deal with rate limits
                     if (mastodon.ratelimit_remaining == 0 and not options.quiet):
                         print_rate_limit_message(mastodon)
 
                     # check for --archive-deleted
                     if (options.archive_deleted and "id" in toot and "archive" in config):
-
                         archive_toot(config, toot)
 
                     # finally we actually delete the toot
@@ -350,40 +368,14 @@ def process_toot(config, options, mastodon, deleted_count, toot):
 
     except MastodonError as e:
 
-        # TODO: this should ideally have a test associated with it
-        def retry_on_error(attempts):
-
-            if attempts < 6:
-                try:
-                    console_print(
-                      "Attempt " + str(attempts) + " at " + datestamp_now(),
-                      options,
-                      False
-                    )
-                    mastodon.status_delete(toot)
-                    time.sleep(2)  # wait 2 secs between deletes to be a bit nicer to the server
-                except:
-                    attempts += 1
-                    time.sleep(60 * options.retry_mins)
-                    retry_on_error(attempts)
-            else:
-                raise TimeoutError("Gave up after 5 attempts")
-
-        print(
-            "🛑 ERROR deleting toot - "
-            + str(toot.id)
-            + " - "
-            + str(e.args[0])
-            + " - "
-            + str(e.args[3])
-        )
+        print( "🛑 ERROR deleting toot -", str(toot.id), "-", str(e.args[0]), "-", str(e.args[3]) )
         console_print(
           "Waiting " + str(options.retry_mins) + " minutes before re-trying",
           options,
           False
         )
         time.sleep(60 * options.retry_mins)
-        retry_on_error(attempts=2)
+        retry_on_error(options, mastodon, toot, attempts=2)
 
     except KeyboardInterrupt:
         print("Operation aborted.")
