@@ -224,9 +224,21 @@ def console_print(msg, options, skip):
     if not (skip_announcement or options.quiet):
 
         if options.datestamp:
-            msg += datestamp_now() + " : "
+            msg = datestamp_now() + " : " + msg
 
         print(msg)
+
+def print_rate_limit_message(mastodon):
+    now = time.time()
+    diff = mastodon.ratelimit_reset - now
+
+    print(
+        "\nRate limit reached at",
+        datestamp_now(),
+        "- next reset due in",
+        str(format(diff / 60, ".0f")),
+        "minutes.\n"
+    )
 
 def process_toot(config, options, mastodon, deleted_count, toot):
 
@@ -291,7 +303,11 @@ def process_toot(config, options, mastodon, deleted_count, toot):
                 # unreblog the original toot (their toot), not the toot created by boosting (your toot)
                 if not options.test:
                     if mastodon.ratelimit_remaining == 0:
-                        console_print("Rate limit reached. Waiting for a rate limit reset")
+                        console_print(
+                          "Rate limit reached. Waiting for a rate limit reset", 
+                          options, 
+                          False
+                        )
 
                     # check for --archive-deleted
                     if (options.archive_deleted and "id" in toot and "archive" in config):
@@ -302,7 +318,7 @@ def process_toot(config, options, mastodon, deleted_count, toot):
 
             else:
                 console_print(
-                  "❌ deleting toot ", str(toot.id) + " tooted " + tooted_date(toot),
+                  "❌ deleting toot " + str(toot.id) + " tooted " + tooted_date(toot),
                   options,
                   False
                 )
@@ -314,17 +330,7 @@ def process_toot(config, options, mastodon, deleted_count, toot):
 
                     # deal with rate limits
                     if (mastodon.ratelimit_remaining == 0 and not options.quiet):
-
-                        now = time.time()
-                        diff = mastodon.ratelimit_reset - now
-                        # TODO: create a function for rate limit message
-                        print(
-                            "\nRate limit reached at",
-                            datestamp_now(),
-                            "- next reset due in",
-                            str(format(diff / 60, ".0f")),
-                            "minutes.\n"
-                        )
+                        print_rate_limit_message(mastodon)
 
                     # check for --archive-deleted
                     if (options.archive_deleted and "id" in toot and "archive" in config):
@@ -339,22 +345,12 @@ def process_toot(config, options, mastodon, deleted_count, toot):
 
     except MastodonRatelimitError:
 
-        now = time.time()
-        diff = mastodon.ratelimit_reset - now
-
-        print(
-            "\nRate limit reached at "
-            + datestamp_now()
-            + " - waiting for next reset due in "
-            + str(format(diff / 60, ".0f"))
-            + " minutes.\n"
-        )
-
+        print_rate_limit_message(mastodon)
         time.sleep(diff + 1)  # wait for rate limit to reset
 
     except MastodonError as e:
 
-        # TODO: this should have a test associated with it
+        # TODO: this should ideally have a test associated with it
         def retry_on_error(attempts):
 
             if attempts < 6:
