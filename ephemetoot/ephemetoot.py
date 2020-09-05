@@ -197,7 +197,7 @@ def archive_toot(config, toot):
     if archive_path[-1] != "/":
         archive_path += "/"
 
-    filename = os.path.join(archive_path, str(toot["id"]) + ".json")
+    filename = os.path.join(archive_path, str(toot.id) + ".json")
 
     # write to file
     with open(filename, "w") as f:
@@ -241,7 +241,6 @@ def print_rate_limit_message(mastodon):
         "minutes.\n"
     )
 
-# TODO: this should ideally have a test associated with it
 def retry_on_error(options, mastodon, toot, attempts):
 
     if attempts < 6:
@@ -272,7 +271,7 @@ def process_toot(config, options, mastodon, deleted_count, toot):
     days_to_keep = config["days_to_keep"] if "days_to_keep" in config else 365
     cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
 
-    if "id" in toot and "archive" in config:
+    if toot.id and "archive" in config:
 
         if not options.archive_deleted:
             # write toot to archive
@@ -314,7 +313,7 @@ def process_toot(config, options, mastodon, deleted_count, toot):
         elif cutoff_date > toot.created_at:
             if hasattr(toot, "reblog") and toot.reblog:
                 console_print( 
-                  "👎 unboosting toot" + str(toot.id) + "boosted" + tooted_date(toot), 
+                  "👎 unboosting toot " + str(toot.id) + " boosted " + tooted_date(toot), 
                   options, 
                   False
                 )
@@ -413,18 +412,18 @@ def check_batch(config, options, mastodon, user_id, timeline, deleted_count=0):
         else:
             if options.test:
                 if options.datestamp:
-                    print( "\n\n", datestamp_now(), sep="", end=" : ")
+                    print( "\n", datestamp_now(), sep="", end=" : ")
 
                 print(
-                    "Test run completed. This would have removed", str(deleted_count), "toots.")
+                    "Test run completed. This would have removed", str(deleted_count), "toots.\n")
             else:
                 if options.datestamp:
-                    print( "\n\n", datestamp_now(), end=" : ")
+                    print( "\n", datestamp_now(), end=" : ")
 
-                print("Removed " + str(deleted_count) + " toots.")
+                print("Removed " + str(deleted_count) + " toots.\n")
 
             if not options.quiet:
-                print("\n---------------------------------------")
+                print("---------------------------------------")
                 print("🥳 ==> 🧼 ==> 😇 User cleanup complete!")
                 print("---------------------------------------\n")
 
