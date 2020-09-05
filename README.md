@@ -6,7 +6,7 @@
 **NOTE:** to install ephemetoot from pypi currently you must pin the beta version:
 
 ```
-pip install ephemetoot=3.0.0-beta.0
+pip install ephemetoot==3.0.0-beta.0
 ```
 
 ## Documentation
