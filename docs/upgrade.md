@@ -10,7 +10,7 @@ To upgrade from an earlier version to Version 3.x you will need to remove your e
 2. run `pip3 uninstall ephemetoot`
 3. run `pip3 install ephemetoot`
 4. check your config file is in the current directory
-5. check everythign is working with `ephemetoot --test` or `ephemetoot --version`
+5. check everything is working with `ephemetoot --test` or `ephemetoot --version`
 
 ### Upgrading with pypi
 To upgrade to a new version, the easiest way is to use pip to download the latest version from pypi (remembering that for your machine you may need to substitute `pip` for `pip3`):

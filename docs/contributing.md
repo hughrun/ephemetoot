@@ -7,7 +7,7 @@ You can contribute in many ways - improving the documentation, reporting bugs, s
 # Expectations
 
 ## Adhere to the Code of Conduct 🤗
-All contributors must adhere to the [Code of Conduct](https://github.com/hughrun/ephemetoot/blob/poetry/CODE_OF_CONDUCT.md) for this project. If you do not wish to follow this Code of Conduct, feel free to direct your energies towards a different project.
+All contributors must adhere to the [Code of Conduct](https://github.com/hughrun/ephemetoot/blob/master/CODE_OF_CONDUCT.md) for this project. If you do not wish to follow this Code of Conduct, feel free to direct your energies towards a different project.
 
 ## Do not log security problems as public issues
 If you have identified a security flaw in **ephemetoot**, please email `ephemetoot@hugh.run` to discuss this confidentially.
@@ -35,6 +35,10 @@ Each issue should refer to a single bug or enhancement. Don't include multiple s
 - "handle IndexError when there are no toots in the timeline" ([bugfix](https://github.com/hughrun/ephemetoot/commit/92643271d53e00089a10bacd1795cfd50e030413))
 - "add support for archiving toots into JSON files" ([new feature](https://github.com/hughrun/ephemetoot/commit/c0d680258ff0fe141fbabcf14a60eee8994e8d18))
 
+## Pull requests should include tests (if you can) ⛳️
+
+We aim to have as close to full test coverage as possible: if you know how to write tests, please include them with your Pull Requests. Tests are run with `pytest`, which has [pretty good documentation](https://docs.pytest.org/en/latest/), so if you're new to `pytest` or new to testing, take a look at the docs. If you want to contribute a new fix or feature, but don't know how to rwite a test, you can also request assistance from a maintainer.
+
 ## Closing issues in pull requests 🏁
 
 When your pull request resolves an issue, you can optionally use [one of the magic words](https://docs.github.com/en/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword) to automatically close the issue. An example of a longer commit messages that does this is [`Add --version flag`](https://github.com/hughrun/ephemetoot/commit/a1db933bbd6c03e633975463801e6c94f7b9e9fa). The pull request template includes wording for this so you just need to add the issue number.
@@ -49,6 +53,10 @@ When adding a new feature, you should probably use a new, _optional_ value in th
 For example, we use a configuration file boolean value for `keep_pinned` because that affects the _actions_ - if it is set to "true" then pinned toots are not deleted, and if set to "false", pinned toots _are_ deleted. On the other hand we use the `--datestamp` flag to print a datestamp against each action as it is logged. This doesn't change the action, merely the output to the screen or log file.
 
 There are some exceptions to this general rule (`--test` prevents any real actions, for example), but the exceptions should be rare and reasonably obvious.
+
+## Prefer top-level functions ⬆️
+
+Putting functions inside other functions can make the codebase confusing to understand. Wherever possible, prefer to define standalone functions and then call them from wherever they need to be used. This keeps our code [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) and makes it easier to test.
 
 # Your first contribution
 First time contributors are warmly encouraged! If you have never contributed to a project on GitHub or another public code repository, the **ephemetoot** maintainers can help you through the process.

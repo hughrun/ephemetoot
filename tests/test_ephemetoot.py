@@ -197,6 +197,10 @@ def mock_github_response(monkeypatch):
 #         TESTS        #
 ########################
 
+# Tests should be listed in alphabetical order
+# Remember that a previous test may have mutated
+# one of the values above: set all values you are using
+
 def test_archive_toot(tmpdir):
     p = tmpdir.mkdir("archive")
     config_file['archive'] = str(p) # make archive directory a temp test dir
