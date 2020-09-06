@@ -6,6 +6,12 @@ These docs apply to `ephemetoot` version 3.
 
 Note that throughout these docs the `pip` command is referred to as `pip3`. This is to help new Python users on systems running both Python 2 and Python 3, which is currently still common and a frequent source of confusion. On some systems, `pip` will be the appropriate command, as it points to Python 3 environments.
 
+**NOTE:** to install ephemetoot from pypi currently you must pin the beta version:
+
+```
+pip3 install ephemetoot==3.0.0-beta.0
+```
+
 If you are upgrading from an `ephemetoot` version prior to v3.0.0 please see the [upgrading](./upgrade.md) instructions and note that you need to manually uninstall the old version first.
 
 * [Installation](./install.md)
