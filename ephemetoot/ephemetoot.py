@@ -69,8 +69,8 @@ def init():
         conf_days = digit_input(tags, "Days to keep", "(default 365):")
         conf_pinned = yes_no_input(tags, "Keep pinned toots?")
         conf_keep_toots = optional_input(tags, "Toots to keep", "(optional list of IDs separated by commas):")
-        conf_keep_hashtags = optional_input(tags, "Hashtags to keep", "(optional list separated by commas):")
-        conf_keep_visibility = optional_input(tags, "Visibility to keep", "(optional list separated by commas):")
+        conf_keep_hashtags = optional_input(tags, "Hashtags to keep", "(optional list without '#' e.g. mastodon, gardening, cats):")
+        conf_keep_visibility = optional_input(tags, "Visibility to keep", "(optional list e.g. 'direct'):")
         conf_archive = optional_input(tags, "Archive path", "(optional filepath for archive):")
 
         # write out the config file

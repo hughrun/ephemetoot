@@ -3,6 +3,27 @@
 
 **ephemetoot** is a Python command line tool for deleting old toots.
 
+## Quickstart
+
+You should have Python3 and pip installed, and an app access token on hand. More detail information is available in [the docs](https://ephemetoot.hugh.run)
+
+Install with pip:
+```shell
+pip install ephemetoot
+```
+Create a config file:
+```shell
+ephemetoot --init
+```
+Do a first run in `--test` mode:
+```shell
+ephemetoot --test
+```
+Find out about other options:
+```shell
+ephemetoot --help
+```
+
 ## Documentation
 * [Installation](./docs/install.md)
 * [Options](./docs/options.md)
