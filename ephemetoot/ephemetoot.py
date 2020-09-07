@@ -401,22 +401,30 @@ def check_batch(config, options, mastodon, user_id, timeline, deleted_count=0):
         if len(next_batch) > 0:
             check_batch(config, options, mastodon, user_id, next_batch, deleted_count)
         else:
-            if options.test:
-                if options.datestamp:
-                    print( "\n", datestamp_now(), sep="", end=" : ")
-
-                print(
-                    "Test run completed. This would have removed", str(deleted_count), "toots.\n")
-            else:
+            if not options.test:
                 if options.datestamp:
                     print( "\n", datestamp_now(), end=" : ")
 
                 print("Removed " + str(deleted_count) + " toots.\n")
 
-            if not options.quiet:
-                print("---------------------------------------")
-                print("🥳 ==> 🧼 ==> 😇 User cleanup complete!")
-                print("---------------------------------------\n")
+                if not options.quiet:
+                    print("---------------------------------------")
+                    print("🥳 ==> 🧼 ==> 😇 User cleanup complete!")
+                    print("---------------------------------------\n")
+
+            else:
+
+                if options.quiet:
+                    if options.datestamp:
+                        print( "\n", datestamp_now(), sep="", end=" : ")
+
+                    print("Test run completed. This would have removed", str(deleted_count), "toots.\n")
+
+                else:
+                    print("---------------------------------------")
+                    print("🥳 ==> 🧪 ==> 📋 Test run complete!")
+                    print("This would have removed", str(deleted_count), "toots.")
+                    print("---------------------------------------\n")
 
     except IndexError:
         print("No toots found!\n")
