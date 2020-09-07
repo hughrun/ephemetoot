@@ -371,7 +371,7 @@ def process_toot(config, options, mastodon, deleted_count, toot):
     except MastodonError as e:
 
         if options.verbose:
-            print("🛑 ERROR deleting toot -", str(toot.id), e)
+            print("🛑 ERROR deleting toot -", str(toot.id), "\n", e)
         else:
             print( "🛑 ERROR deleting toot -", str(toot.id), "-", str(e.args[0]), "-", str(e.args[3]) )
 
