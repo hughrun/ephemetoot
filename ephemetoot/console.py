@@ -102,6 +102,11 @@ parser.add_argument(
     help="Hour and minute to schedule: e.g. 9 30 for 9.30am",
 )
 parser.add_argument(
+    "--verbose",
+    action="store_true",
+    help="Log more information about errors and exceptions",
+)
+parser.add_argument(
     "--version",
     action="store_true",
     help="Display the version numbers of the installed and latest versions",
