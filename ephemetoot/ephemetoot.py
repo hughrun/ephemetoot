@@ -129,8 +129,7 @@ def version(vnum):
         )
 
     except Exception as e:
-        print("Something went wrong:")
-
+        print("Something went wrong:", e)
 
 def schedule(options):
 
@@ -185,6 +184,8 @@ def schedule(options):
         print("⏰ Scheduled!")
     except Exception as e:
         print("🙁 Scheduling failed.", e)
+        if options.verbose:
+            print(e)
 
 def archive_toot(config, toot):
     # define archive path
@@ -365,9 +366,15 @@ def process_toot(config, options, mastodon, deleted_count, toot):
         print_rate_limit_message(mastodon)
         time.sleep(diff + 1)  # wait for rate limit to reset
 
+    # If a server goes offline for maintenance etc halfway through a run, we don't necessarily
+    # want to just error out. Handling it here allows us to give it time to sort itself out.
     except MastodonError as e:
 
-        print( "🛑 ERROR deleting toot -", str(toot.id), "-", str(e.args[0]), "-", str(e.args[3]) )
+        if options.verbose:
+            print("🛑 ERROR deleting toot -", str(toot.id), e)
+        else:
+            print( "🛑 ERROR deleting toot -", str(toot.id), "-", str(e.args[0]), "-", str(e.args[3]) )
+
         console_print(
           "Waiting " + str(options.retry_mins) + " minutes before re-trying",
           options,
@@ -375,22 +382,6 @@ def process_toot(config, options, mastodon, deleted_count, toot):
         )
         time.sleep(60 * options.retry_mins)
         retry_on_error(options, mastodon, toot, attempts=2)
-
-    except KeyboardInterrupt:
-        print("Operation aborted.")
-
-    except KeyError as e:
-        print(
-            "⚠️  There is an error in your config.yaml file. Please add a value for",
-            str(e),
-            "and try again."
-        )
-
-    except:
-        e = sys.exc_info()
-        print( "🛑 Unknown ERROR deleting toot -", str(toot.id) )
-        print( "ERROR:", str(e[0]),"-", str(e[1]) )
-
 
 def check_batch(config, options, mastodon, user_id, timeline, deleted_count=0):
     """
@@ -430,9 +421,6 @@ def check_batch(config, options, mastodon, user_id, timeline, deleted_count=0):
     except IndexError:
         print("No toots found!\n")
 
-    except Exception as e:
-        print("ERROR:", str(e.args[0]), "\n")
-
 def check_toots(config, options, retry_count=0):
     '''
     The main function, uses the Mastodon API to check all toots in the user timeline, and delete any that do not meet any of the exclusion criteria from the config file.
@@ -464,6 +452,9 @@ def check_toots(config, options, retry_count=0):
         # check_batch() then recursively keeps looping until all toots have been checked
         check_batch(config, options, mastodon, user_id, timeline) 
 
+    except KeyboardInterrupt:
+        print("Operation aborted.")
+
     except KeyError as val:
         print("\n⚠️  error with in your config.yaml file!")
         print("Please ensure there is a value for " + str(val) + "\n")
@@ -478,9 +469,14 @@ def check_toots(config, options, retry_count=0):
         else:
             print("\n😕  Server has returned an error (5xx)\n")
 
-    except MastodonNetworkError:
+        if options.verbose:
+            print(e, "\n")
+
+    except MastodonNetworkError as e:
         if retry_count == 0:
             print("\n📡  ephemetoot cannot connect to the server - are you online?")
+            if options.verbose:
+                print(e)
         if retry_count < 4:
             print("Waiting " + str(options.retry_mins) + " minutes before trying again")
             time.sleep(60 * options.retry_mins)
@@ -489,3 +485,9 @@ def check_toots(config, options, retry_count=0):
             check_toots(config, options, retry_count)
         else:
             print("Gave up waiting for network\n")
+
+    except Exception as e:
+        if options.verbose:
+            print("ERROR:", e)
+        else:
+            print("ERROR:", str(e.args[0]), "\n")
