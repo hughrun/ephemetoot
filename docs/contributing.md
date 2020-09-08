@@ -74,7 +74,7 @@ This is a pretty small project so there usually won't be a lot of issues waiting
 You can get in touch with Hugh at [@hugh@ausglam.space](https://ausglam.space/@hugh) if you need help contributing or want to discuss something about **ephemetoot**.
 
 ---
-* [Home](/)
-* [Installation](./install.md)
-* [Options](./options.md)
-* [Upgrading and uninstalling](./upgrade.md)
+* [Home](index.md)
+* [Installation](install.md)
+* [Options](options.md)
+* [Upgrading and uninstalling](upgrade.md)

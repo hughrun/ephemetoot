@@ -127,7 +127,7 @@ For example to run at 2.25pm every day:
 ephemetoot --schedule --time 14 25
 ```
 ---
-* [Home](/)
-* [Installation](./install.md)
-* [Upgrading and uninstalling](./upgrade.md)
-* [Contributing](./contributing.md)
+* [Home](index.md)
+* [Installation](install.md)
+* [Upgrading and uninstalling](upgrade.md)
+* [Contributing](contributing.md)

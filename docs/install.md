@@ -77,7 +77,7 @@ visibility_to_keep: [ ] # this empty list is also ok
 As of version 2, you can use a single `ephemetoot` installation to delete toots from multiple accounts. If you want to use `ephemetoot` for multiple accounts, separate the config for each user with a single dash (`-`), and add the additional details, as shown in [the example file](https://github.com/hughrun/ephemetoot/blob/master/example-config.yaml).
 
 ---
-* [Home](./)
-* [Options](./options.md)
-* [Upgrading and uninstalling](./upgrade.md)
-* [Contributing](./contributing.md)
+* [Home](index.md)
+* [Options](options.md)
+* [Upgrading and uninstalling](upgrade.md)
+* [Contributing](contributing.md)

@@ -49,7 +49,7 @@ launchctl unload ~/Library/LaunchAgents/ephemetoot.scheduler.plist
 rm ~/Library/LaunchAgents/ephemetoot.scheduler.plist
 ```
 ---
-* [Home](/)
-* [Installation](./install.md)
-* [Options](./options.md)
-* [Contributing](./contributing.md)
+* [Home](index.md)
+* [Installation](install.md)
+* [Options](options.md)
+* [Contributing](contributing.md)
