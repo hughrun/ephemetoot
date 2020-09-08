@@ -63,6 +63,16 @@ def init():
         # text colour markers (beginning, example, end)
         tags = ("\033[96m", "\033[2m", "\033[0m")
 
+        print("\nCreate your config.yaml file.\n")
+        print(
+          "For help checkout the docs at ",
+          tags[0],
+          "ephemetoot.hugh.run",
+          tags[2],
+          "\n",
+          sep=""
+          )
+
         conf_token = compulsory_input(tags, "Access token: ", None)
         conf_user = compulsory_input(tags, "Username", "(without the '@' - e.g. alice):")
         conf_url = compulsory_input(tags, "Base URL", "(e.g. example.social):")

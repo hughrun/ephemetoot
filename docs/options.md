@@ -57,6 +57,10 @@ ephemetoot --retry-mins 20
 
 If you want to know exactly when each delete action occured, you can use the `--datestamp` flag to add a datestamp to the log output. This is useful when using `--pace` so you can see the rate you have been slowed down to.
 
+### Include full error messages (--verbose)
+
+Sometimes you might get an error and want to know more about what's triggering it. Use the `--verbose` flag to print the full error to the console, instead of just the friendly version.
+
 ## Do less
 
 ### Hide skipped items (--hide-skipped)
