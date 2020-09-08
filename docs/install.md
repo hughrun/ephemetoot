@@ -4,17 +4,17 @@
 
 You need to [install Python 3](https://wiki.python.org/moin/BeginnersGuide/Download) to use `ephemetoot`. Python 2 is now end-of-life, however it continued to be installed as the default Python on MacOS and many Linux distributions until very recently, so you should check. 
 
-These instructions use the command `pip3` since it is very likely you will need to use that instead of `pip` (which usually points to Python 2). On some systems you may need to use `pip` instead, if `pip` is pointing to Python 3.
+These instructions use the command `pip` - depending on your setup you may need to use `pip3` instead.
 
 ## Install ephemetoot from pypi
 
 ```shell
-pip3 install ephemetoot
+pip install ephemetoot
 ```
 If you do not have permission to install python modules, you may need to use the `--user` flag. Generally this is not advisable, since you will need to run ephemetoot with the same user since it will only be installed for that user and not globally:
 
 ```shell
-pip3 install ephemetoot --user
+pip install ephemetoot --user
 ```
 
 ## Obtain an access token
@@ -24,15 +24,20 @@ Now you've installed `ephemetoot`, in order to actually use it you will need an 
 1. Click the `settings` cog
 2. Click on `Development`
 3. Click `NEW APPLICATION`
-4. Enter an application name (e.g. 'ephemetoot'), and give the app both 'read' and 'write' Scopes
+4. Enter an application name (e.g. 'ephemetoot')
+5. The following 'scopes' are required:
+   - `read:accounts`
+   - `read:statuses`
+   - `write:conversations`
+   - `write:statuses`
 5. Click `SUBMIT`
 6. Click on the name of the new app, which should be a link
 7. Copy the `Your access token` string - you will need this for your configuration file (see below)
 
 **NOTE**: Anyone who has your access token and the domain name of your Mastodon server will be able to:
 * read all your private and direct toots, 
-* publish toots and DMs, and 
-* delete everything in your account.  
+* publish toots and DMs from your account, and 
+* read everything in your account settings.  
 
 **Do not share your access token with anyone you do not 100% trust!!!**.
 
@@ -72,7 +77,7 @@ visibility_to_keep: [ ] # this empty list is also ok
 As of version 2, you can use a single `ephemetoot` installation to delete toots from multiple accounts. If you want to use `ephemetoot` for multiple accounts, separate the config for each user with a single dash (`-`), and add the additional details, as shown in [the example file](https://github.com/hughrun/ephemetoot/blob/master/example-config.yaml).
 
 ---
-* [Home](/)
-* [Options](./options.md)
-* [Upgrading and uninstalling](./upgrade.md)
-* [Contributing](./contributing.md)
+* [Home](index.md)
+* [Options](options.md)
+* [Upgrading and uninstalling](upgrade.md)
+* [Contributing](contributing.md)

@@ -19,6 +19,7 @@ import requests
 # local
 from ephemetoot import plist
 
+
 def compulsory_input(tags, name, example):
 
     value = ""
@@ -29,6 +30,7 @@ def compulsory_input(tags, name, example):
             value = input(tags[0] + name + tags[2])
 
     return value
+
 
 def digit_input(tags, name, example):
 
@@ -41,37 +43,60 @@ def digit_input(tags, name, example):
 
     return value
 
+
 def yes_no_input(tags, name):
     value = ""
     while value not in ["y", "n"]:
-        value = input(
-            tags[0] + name + tags[1] + "(y or n):" + tags[2]
-        )
+        value = input(tags[0] + name + tags[1] + "(y or n):" + tags[2])
     return_val = "true" if value == "y" else "false"
     return return_val
+
 
 def optional_input(tags, name, example):
     value = input(tags[0] + name + tags[1] + example + tags[2])
     return value
-        
+
+
 def init():
-    '''
+    """
     Creates a config.yaml file in the current directory, based on user input.
-    '''
+    """
     try:
 
         # text colour markers (beginning, example, end)
         tags = ("\033[96m", "\033[2m", "\033[0m")
 
+        print("\nCreate your config.yaml file.\n")
+        print(
+            "For help check out the docs at ",
+            tags[0],
+            "ephemetoot.hugh.run",
+            tags[2],
+            "\n",
+            sep="",
+        )
+
         conf_token = compulsory_input(tags, "Access token: ", None)
-        conf_user = compulsory_input(tags, "Username", "(without the '@' - e.g. alice):")
+        conf_user = compulsory_input(
+            tags, "Username", "(without the '@' - e.g. alice):"
+        )
         conf_url = compulsory_input(tags, "Base URL", "(e.g. example.social):")
         conf_days = digit_input(tags, "Days to keep", "(default 365):")
         conf_pinned = yes_no_input(tags, "Keep pinned toots?")
-        conf_keep_toots = optional_input(tags, "Toots to keep", "(optional list of IDs separated by commas):")
-        conf_keep_hashtags = optional_input(tags, "Hashtags to keep", "(optional list separated by commas):")
-        conf_keep_visibility = optional_input(tags, "Visibility to keep", "(optional list separated by commas):")
-        conf_archive = optional_input(tags, "Archive path", "(optional filepath for archive):")
+        conf_keep_toots = optional_input(
+            tags, "Toots to keep", "(optional list of IDs separated by commas):"
+        )
+        conf_keep_hashtags = optional_input(
+            tags,
+            "Hashtags to keep",
+            "(optional list without '#' e.g. mastodon, gardening, cats):",
+        )
+        conf_keep_visibility = optional_input(
+            tags, "Visibility to keep", "(optional list e.g. 'direct'):"
+        )
+        conf_archive = optional_input(
+            tags, "Archive path", "(optional filepath for archive):"
+        )
 
         # write out the config file
         with open("config.yaml", "w") as configfile:
@@ -109,10 +134,11 @@ def init():
     except Exception as e:
         print(e)
 
+
 def version(vnum):
-    '''
+    """
     Prints current and latest version numbers to console.
-    '''
+    """
 
     try:
         latest = requests.get(
@@ -129,14 +155,14 @@ def version(vnum):
         )
 
     except Exception as e:
-        print("Something went wrong:")
+        print("Something went wrong:", e)
 
 
 def schedule(options):
 
-    '''
+    """
     Creates and loads a plist file for scheduled running with launchd. If --time flag is used, the scheduled time is set accordingly. Note that this is designed for use on MacOS.
-    '''
+    """
     try:
 
         if options.schedule == ".":
@@ -158,8 +184,8 @@ def schedule(options):
         # write out file directly to ~/Library/LaunchAgents
         f = open(
             os.path.join(
-              os.path.expanduser("~/Library/LaunchAgents"),
-              "ephemetoot.scheduler.plist"
+                os.path.expanduser("~/Library/LaunchAgents"),
+                "ephemetoot.scheduler.plist",
             ),
             mode="w",
         )
@@ -185,6 +211,9 @@ def schedule(options):
         print("⏰ Scheduled!")
     except Exception as e:
         print("🙁 Scheduling failed.", e)
+        if options.verbose:
+            print(e)
+
 
 def archive_toot(config, toot):
     # define archive path
@@ -204,19 +233,19 @@ def archive_toot(config, toot):
         f.write(json.dumps(toot, indent=4, default=jsondefault))
         f.close()
 
+
 def jsondefault(obj):
     if isinstance(obj, (date, datetime)):
         return obj.isoformat()
 
+
 def tooted_date(toot):
     return toot.created_at.strftime("%d %b %Y")
 
+
 def datestamp_now():
-    return str(
-        datetime.now(timezone.utc).strftime(
-            "%a %d %b %Y %H:%M:%S %z"
-        )
-    )
+    return str(datetime.now(timezone.utc).strftime("%a %d %b %Y %H:%M:%S %z"))
+
 
 def console_print(msg, options, skip):
 
@@ -228,6 +257,7 @@ def console_print(msg, options, skip):
 
         print(msg)
 
+
 def print_rate_limit_message(mastodon):
 
     now = time.time()
@@ -238,17 +268,16 @@ def print_rate_limit_message(mastodon):
         datestamp_now(),
         "- next reset due in",
         str(format(diff / 60, ".0f")),
-        "minutes.\n"
+        "minutes.\n",
     )
+
 
 def retry_on_error(options, mastodon, toot, attempts):
 
     if attempts < 6:
         try:
             console_print(
-              "Attempt " + str(attempts) + " at " + datestamp_now(),
-              options,
-              False
+                "Attempt " + str(attempts) + " at " + datestamp_now(), options, False
             )
             mastodon.status_delete(toot)
         except:
@@ -257,6 +286,7 @@ def retry_on_error(options, mastodon, toot, attempts):
             retry_on_error(options, mastodon, toot, attempts)
     else:
         raise TimeoutError("Gave up after 5 attempts")
+
 
 def process_toot(config, options, mastodon, deleted_count, toot):
 
@@ -283,39 +313,32 @@ def process_toot(config, options, mastodon, deleted_count, toot):
 
     try:
         if keep_pinned and hasattr(toot, "pinned") and toot.pinned:
-            console_print(
-              "📌 skipping pinned toot - " + str(toot.id), 
-              options, 
-              True
-            )
+            console_print("📌 skipping pinned toot - " + str(toot.id), options, True)
 
         elif toot.id in toots_to_keep:
-            console_print(
-              "💾 skipping saved toot - " + str(toot.id), 
-              options, 
-              True
-            )
+            console_print("💾 skipping saved toot - " + str(toot.id), options, True)
 
         elif toot.visibility in visibility_to_keep:
             console_print(
-              "👀 skipping " + toot.visibility + " toot - " + str(toot.id), 
-              options, 
-              True
+                "👀 skipping " + toot.visibility + " toot - " + str(toot.id),
+                options,
+                True,
             )
 
         elif len(hashtags_to_keep.intersection(toot_tags)) > 0:
             console_print(
-              "#️⃣  skipping toot with hashtag - " + str(toot.id), 
-              options, 
-              True
+                "#️⃣  skipping toot with hashtag - " + str(toot.id), options, True
             )
 
         elif cutoff_date > toot.created_at:
             if hasattr(toot, "reblog") and toot.reblog:
-                console_print( 
-                  "👎 unboosting toot " + str(toot.id) + " boosted " + tooted_date(toot), 
-                  options, 
-                  False
+                console_print(
+                    "👎 unboosting toot "
+                    + str(toot.id)
+                    + " boosted "
+                    + tooted_date(toot),
+                    options,
+                    False,
                 )
 
                 deleted_count += 1
@@ -323,13 +346,13 @@ def process_toot(config, options, mastodon, deleted_count, toot):
                 if not options.test:
                     if mastodon.ratelimit_remaining == 0:
                         console_print(
-                          "Rate limit reached. Waiting for a rate limit reset", 
-                          options, 
-                          False
+                            "Rate limit reached. Waiting for a rate limit reset",
+                            options,
+                            False,
                         )
 
                     # check for --archive-deleted
-                    if (options.archive_deleted and "id" in toot and "archive" in config):
+                    if options.archive_deleted and "id" in toot and "archive" in config:
                         # write toot to archive
                         archive_toot(config, toot)
 
@@ -337,21 +360,23 @@ def process_toot(config, options, mastodon, deleted_count, toot):
 
             else:
                 console_print(
-                  "❌ deleting toot " + str(toot.id) + " tooted " + tooted_date(toot),
-                  options,
-                  False
+                    "❌ deleting toot " + str(toot.id) + " tooted " + tooted_date(toot),
+                    options,
+                    False,
                 )
 
                 deleted_count += 1
-                time.sleep(2)  # wait 2 secs between deletes to be a bit nicer to the server
+                time.sleep(
+                    2
+                )  # wait 2 secs between deletes to be a bit nicer to the server
 
                 if not options.test:
                     # deal with rate limits
-                    if (mastodon.ratelimit_remaining == 0 and not options.quiet):
+                    if mastodon.ratelimit_remaining == 0 and not options.quiet:
                         print_rate_limit_message(mastodon)
 
                     # check for --archive-deleted
-                    if (options.archive_deleted and "id" in toot and "archive" in config):
+                    if options.archive_deleted and "id" in toot and "archive" in config:
                         archive_toot(config, toot)
 
                     # finally we actually delete the toot
@@ -365,31 +390,29 @@ def process_toot(config, options, mastodon, deleted_count, toot):
         print_rate_limit_message(mastodon)
         time.sleep(diff + 1)  # wait for rate limit to reset
 
+    # If a server goes offline for maintenance etc halfway through a run, we don't necessarily
+    # want to just error out. Handling it here allows us to give it time to sort itself out.
     except MastodonError as e:
 
-        print( "🛑 ERROR deleting toot -", str(toot.id), "-", str(e.args[0]), "-", str(e.args[3]) )
+        if options.verbose:
+            print("🛑 ERROR deleting toot -", str(toot.id), "\n", e)
+        else:
+            print(
+                "🛑 ERROR deleting toot -",
+                str(toot.id),
+                "-",
+                str(e.args[0]),
+                "-",
+                str(e.args[3]),
+            )
+
         console_print(
-          "Waiting " + str(options.retry_mins) + " minutes before re-trying",
-          options,
-          False
+            "Waiting " + str(options.retry_mins) + " minutes before re-trying",
+            options,
+            False,
         )
         time.sleep(60 * options.retry_mins)
         retry_on_error(options, mastodon, toot, attempts=2)
-
-    except KeyboardInterrupt:
-        print("Operation aborted.")
-
-    except KeyError as e:
-        print(
-            "⚠️  There is an error in your config.yaml file. Please add a value for",
-            str(e),
-            "and try again."
-        )
-
-    except:
-        e = sys.exc_info()
-        print( "🛑 Unknown ERROR deleting toot -", str(toot.id) )
-        print( "ERROR:", str(e[0]),"-", str(e[1]) )
 
 
 def check_batch(config, options, mastodon, user_id, timeline, deleted_count=0):
@@ -410,35 +433,51 @@ def check_batch(config, options, mastodon, user_id, timeline, deleted_count=0):
         if len(next_batch) > 0:
             check_batch(config, options, mastodon, user_id, next_batch, deleted_count)
         else:
-            if options.test:
+            if not options.test:
                 if options.datestamp:
-                    print( "\n", datestamp_now(), sep="", end=" : ")
-
-                print(
-                    "Test run completed. This would have removed", str(deleted_count), "toots.\n")
-            else:
-                if options.datestamp:
-                    print( "\n", datestamp_now(), end=" : ")
+                    print("\n", datestamp_now(), end=" : ")
 
                 print("Removed " + str(deleted_count) + " toots.\n")
 
-            if not options.quiet:
-                print("---------------------------------------")
-                print("🥳 ==> 🧼 ==> 😇 User cleanup complete!")
-                print("---------------------------------------\n")
+                if not options.quiet:
+                    print("---------------------------------------")
+                    print("🥳 ==> 🧼 ==> 😇 User cleanup complete!")
+                    print("---------------------------------------\n")
+
+            else:
+
+                if options.quiet:
+                    if options.datestamp:
+                        print("\n", datestamp_now(), sep="", end=" : ")
+
+                    print(
+                        "Test run completed. This would have removed",
+                        str(deleted_count),
+                        "toots.\n",
+                    )
+
+                else:
+                    print("---------------------------------------")
+                    print("🥳 ==> 🧪 ==> 📋 Test run complete!")
+                    print("This would have removed", str(deleted_count), "toots.")
+                    print("---------------------------------------\n")
 
     except IndexError:
         print("No toots found!\n")
 
-    except Exception as e:
-        print("ERROR:", str(e.args[0]), "\n")
 
 def check_toots(config, options, retry_count=0):
-    '''
+    """
     The main function, uses the Mastodon API to check all toots in the user timeline, and delete any that do not meet any of the exclusion criteria from the config file.
-    '''
+    """
     try:
-        print("Fetching account details for @", config["username"], "@", config["base_url"], sep="")
+        print(
+            "Fetching account details for @",
+            config["username"],
+            "@",
+            config["base_url"],
+            sep="",
+        )
 
         if options.pace:
             mastodon = Mastodon(
@@ -453,16 +492,19 @@ def check_toots(config, options, retry_count=0):
                 ratelimit_method="wait",
             )
 
-        user_id = mastodon.account_verify_credentials().id # verify user and get ID
-        account = mastodon.account(user_id) # get the account
-        timeline = mastodon.account_statuses(user_id, limit=40) # initial batch
+        user_id = mastodon.account_verify_credentials().id  # verify user and get ID
+        account = mastodon.account(user_id)  # get the account
+        timeline = mastodon.account_statuses(user_id, limit=40)  # initial batch
 
         if not options.quiet:
             print("Checking", str(account.statuses_count), "toots")
 
-        # check first batch 
+        # check first batch
         # check_batch() then recursively keeps looping until all toots have been checked
-        check_batch(config, options, mastodon, user_id, timeline) 
+        check_batch(config, options, mastodon, user_id, timeline)
+
+    except KeyboardInterrupt:
+        print("Operation aborted.")
 
     except KeyError as val:
         print("\n⚠️  error with in your config.yaml file!")
@@ -478,9 +520,14 @@ def check_toots(config, options, retry_count=0):
         else:
             print("\n😕  Server has returned an error (5xx)\n")
 
-    except MastodonNetworkError:
+        if options.verbose:
+            print(e, "\n")
+
+    except MastodonNetworkError as e:
         if retry_count == 0:
             print("\n📡  ephemetoot cannot connect to the server - are you online?")
+            if options.verbose:
+                print(e)
         if retry_count < 4:
             print("Waiting " + str(options.retry_mins) + " minutes before trying again")
             time.sleep(60 * options.retry_mins)
@@ -489,3 +536,9 @@ def check_toots(config, options, retry_count=0):
             check_toots(config, options, retry_count)
         else:
             print("Gave up waiting for network\n")
+
+    except Exception as e:
+        if options.verbose:
+            print("ERROR:", e)
+        else:
+            print("ERROR:", str(e.args[0]), "\n")

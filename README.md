@@ -3,16 +3,33 @@
 
 **ephemetoot** is a Python command line tool for deleting old toots.
 
-**NOTE:** to install ephemetoot from pypi currently you must pin the beta version:
+## Quickstart
 
+You should have Python3 and pip installed, and an app access token on hand. More detail information is available in [the docs](https://ephemetoot.hugh.run)
+
+Install with pip:
+```shell
+pip install ephemetoot
 ```
-pip install ephemetoot==3.0.0-beta.0
+Create a config file:
+```shell
+ephemetoot --init
+```
+Do a first run in `--test` mode:
+```shell
+ephemetoot --test
+```
+Find out about other options:
+```shell
+ephemetoot --help
 ```
 
 ## Documentation
 * [Installation](./docs/install.md)
 * [Options](./docs/options.md)
 * [Upgrading and uninstalling](./docs/upgrade.md)
+
+You can also read the docs at [ephemetoot.hugh.run](https://ephemetoot.hugh.run)
 
 ## Prior work
 The initial `ephemetoot` script was based on [this tweet-deleting script](https://gist.github.com/flesueur/bcb2d9185b64c5191915d860ad19f23f) by [@flesueur](https://github.com/flesueur)
