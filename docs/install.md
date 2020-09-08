@@ -4,17 +4,17 @@
 
 You need to [install Python 3](https://wiki.python.org/moin/BeginnersGuide/Download) to use `ephemetoot`. Python 2 is now end-of-life, however it continued to be installed as the default Python on MacOS and many Linux distributions until very recently, so you should check. 
 
-These instructions use the command `pip3` since it is very likely you will need to use that instead of `pip` (which usually points to Python 2). On some systems you may need to use `pip` instead, if `pip` is pointing to Python 3.
+These instructions use the command `pip` - depending on your setup you may need to use `pip3` instead.
 
 ## Install ephemetoot from pypi
 
 ```shell
-pip3 install ephemetoot
+pip install ephemetoot
 ```
 If you do not have permission to install python modules, you may need to use the `--user` flag. Generally this is not advisable, since you will need to run ephemetoot with the same user since it will only be installed for that user and not globally:
 
 ```shell
-pip3 install ephemetoot --user
+pip install ephemetoot --user
 ```
 
 ## Obtain an access token

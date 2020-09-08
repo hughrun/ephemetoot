@@ -4,14 +4,14 @@
 
 These docs apply to `ephemetoot` version 3.
 
-Note that throughout these docs the `pip` command is referred to as `pip3`. This is to help new Python users on systems running both Python 2 and Python 3, which is currently still common and a frequent source of confusion. On some systems, `pip` will be the appropriate command, as it points to Python 3 environments.
+These instructions use the command `pip` - depending on your setup you may need to use `pip3` instead.
 
-If you are upgrading from an `ephemetoot` version prior to v3.0.0 please see the [upgrading](./upgrade.md) instructions and note that you need to manually uninstall the old version first.
+If you are upgrading from an `ephemetoot` version prior to v3.0.0 please see the [upgrading](upgrade.md) instructions and note that you need to manually uninstall the old version first.
 
-* [Installation](./install.md)
-* [Options](./options.md)
-* [Upgrading and uninstalling](./upgrade.md)
-* [Contributing](./contributing.md)
+* [Installation](install.md)
+* [Options](options.md)
+* [Upgrading and uninstalling](upgrade.md)
+* [Contributing](contributing.md)
 
 ## Prior work
 The initial `ephemetoot` script was based on [this tweet-deleting script](https://gist.github.com/flesueur/bcb2d9185b64c5191915d860ad19f23f) by [@flesueur](https://github.com/flesueur)
