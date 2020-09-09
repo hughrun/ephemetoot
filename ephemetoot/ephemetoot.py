@@ -437,7 +437,21 @@ def check_batch(config, options, mastodon, user_id, timeline, deleted_count=0):
                 if options.datestamp:
                     print("\n", datestamp_now(), end=" : ")
 
-                print("Removed " + str(deleted_count) + " toots.\n")
+                # options.quiet can be None
+                if (
+                    (not options.quiet)
+                    or options.quiet <= 1
+                    or (options.quiet == 2 and deleted_count)
+                ):
+                    print(
+                        "Removed "
+                        + str(deleted_count)
+                        + " toots for "
+                        + config["username"]
+                        + "@"
+                        + config["base_url"]
+                        + ".\n"
+                    )
 
                 if not options.quiet:
                     print("---------------------------------------")
@@ -471,13 +485,14 @@ def check_toots(config, options, retry_count=0):
     The main function, uses the Mastodon API to check all toots in the user timeline, and delete any that do not meet any of the exclusion criteria from the config file.
     """
     try:
-        print(
-            "Fetching account details for @",
-            config["username"],
-            "@",
-            config["base_url"],
-            sep="",
-        )
+        if not options.quiet:
+            print(
+                "Fetching account details for @",
+                config["username"],
+                "@",
+                config["base_url"],
+                sep="",
+            )
 
         if options.pace:
             mastodon = Mastodon(

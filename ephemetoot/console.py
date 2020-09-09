@@ -72,7 +72,12 @@ parser.add_argument(
     action="store_true",
     help="Slow deletion actions to match API rate limit to avoid pausing",
 )
-parser.add_argument("--quiet", action="store_true", help="Suppress most logging")
+parser.add_argument(
+    "-q",
+    "--quiet",
+    action="count",
+    help="Limits logging to one line per account. Use -qq to limit logging to accounts with deleted toots and -qqq to completely suppress logging.",
+)
 parser.add_argument(
     "--retry-mins",
     action="store",

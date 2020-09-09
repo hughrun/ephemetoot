@@ -239,7 +239,7 @@ def test_check_batch(capfd, monkeypatch):
     ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
     # deleted_count should be 10
     output = capfd.readouterr().out.split("\n")
-    assert output[0] == "Removed 10 toots."
+    assert output[0] == "Removed 10 toots for alice@test.social."
 
 
 def test_console_print(capfd):
