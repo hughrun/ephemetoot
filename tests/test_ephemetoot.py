@@ -117,7 +117,7 @@ config_file = {
     "days_to_keep": 14,
     "keep_pinned": True,
     "toots_to_keep": [103996285277439262, 103976473612749097, 103877521458738491],
-    "visibility_to_keep": [None],
+    "visibility_to_keep": [],
     "archive": "archive",
 }
 
@@ -241,6 +241,85 @@ def test_check_batch(capfd, monkeypatch):
     output = capfd.readouterr().out.split("\n")
     assert output[0] == "Removed 10 toots for alice@test.social."
 
+def test_check_batch_quiet(capfd, monkeypatch):
+    config = config_file
+    options = Namespace(archive_deleted=False, quiet=1)
+    mastodon = Mocktodon()
+    user_id = "test_user_id"
+    timeline = mastodon.account_statuses(user_id=user_id, limit=2, max_id=0)
+    monkeypatch.setattr(
+        "ephemetoot.ephemetoot.process_toot",
+        lambda config, options, mastodon, deleted_count, toot: deleted_count + 1,
+    )
+    ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
+    # deleted_count should be 10
+    output = capfd.readouterr().out.split("\n")
+    assert output[0] == "Removed 10 toots for alice@test.social."
+
+def test_check_batch_quiet_no_toots(capfd, monkeypatch):
+    config = config_file
+    options = Namespace(archive_deleted=False, quiet=2)
+    mastodon = Mocktodon()
+    user_id = "test_user_id"
+    # max_id is the last toot in our batch so this returns no toots
+    timeline = mastodon.account_statuses(user_id=user_id, limit=2, max_id=10)
+    monkeypatch.setattr(
+        "ephemetoot.ephemetoot.process_toot",
+        lambda config, options, mastodon, deleted_count, toot: deleted_count + 1,
+    )
+    # run check_batch
+    ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
+    # deleted_count should be 0 but with quiet=2 there should be not output
+    output = capfd.readouterr().out
+    assert output == ""
+
+def test_check_batch_qq(capfd, monkeypatch):
+    config = config_file
+    options = Namespace(archive_deleted=False, quiet=2)
+    mastodon = Mocktodon()
+    user_id = "test_user_id"
+    timeline = mastodon.account_statuses(user_id=user_id, limit=2, max_id=0)
+    monkeypatch.setattr(
+        "ephemetoot.ephemetoot.process_toot",
+        lambda config, options, mastodon, deleted_count, toot: deleted_count + 1,
+    )
+    ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
+    # deleted_count should be 10 and message printed since there was a delete
+    output = capfd.readouterr().out.split("\n")
+    assert output[0] == "Removed 10 toots for alice@test.social."
+
+def test_check_batch_qq_no_deletes(capfd, monkeypatch):
+    config = config_file
+    options = Namespace(archive_deleted=False, quiet=2)
+    mastodon = Mocktodon()
+    user_id = "quiet_user_id"
+    timeline = mastodon.account_statuses(user_id=user_id, limit=2, max_id=0)
+    # simulate no deletes occuring
+    monkeypatch.setattr(
+        "ephemetoot.ephemetoot.process_toot",
+        lambda config, options, mastodon, deleted_count, toot: 0,
+    )
+    # run check_batch
+    ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
+    # deleted_count should be 0 with no message since quiet=2
+    output = capfd.readouterr().out
+    assert output == ""
+
+def test_check_batch_qqq(capfd, monkeypatch):
+    config = config_file
+    options = Namespace(archive_deleted=False, quiet=3)
+    mastodon = Mocktodon()
+    user_id = "test_user_id"
+    timeline = mastodon.account_statuses(user_id=user_id, limit=2, max_id=0)
+    monkeypatch.setattr(
+        "ephemetoot.ephemetoot.process_toot",
+        lambda config, options, mastodon, deleted_count, toot: deleted_count + 1,
+    )
+    # run check_batch
+    ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
+    # deleted_count should be 10 and no message should be printed since quiet=3
+    output = capfd.readouterr().out
+    assert output == ""
 
 def test_console_print(capfd):
     ephemetoot.console_print(
@@ -579,6 +658,6 @@ ephemetoot ==> 🥳 ==> 🧼 ==> 😇
 -------------------------------
 You are using release: \033[92mvTEST_VERSION\033[0m
 The latest release is: \033[92mvLATEST_VERSION\033[0m
-To upgrade to the most recent version run \033[92mpip3 install --update ephemetoot\033[0m\n"""
+To upgrade to the most recent version run \033[92mpip install --upgrade ephemetoot\033[0m\n"""
 
     assert output == msg

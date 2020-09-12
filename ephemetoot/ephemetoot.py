@@ -585,7 +585,14 @@ def check_batch(config, options, mastodon, user_id, timeline, deleted_count=0):
                     print("---------------------------------------\n")
 
     except IndexError:
-        print("No toots found!\n")
+        if not options.quiet or options.quiet <= 1:
+            print(
+              "No toots found for "
+              + config["username"]
+              + "@"
+              + config["base_url"]
+              + ".\n"
+            )
 
 
 def check_toots(config, options, retry_count=0):
