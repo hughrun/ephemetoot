@@ -2,6 +2,7 @@
 from datetime import date, datetime, timedelta, timezone
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -29,7 +30,14 @@ def compulsory_input(tags, name, example):
         else:
             value = input(tags[0] + name + tags[2])
 
-    return value
+        sanitised = sanitise_input(value, name, tags)
+
+        if len(value) > 0 and (sanitised == "ok" or sanitised == None):
+            return value
+        else:
+            if len(value) > 0 and sanitised != None:
+                print(sanitised)
+            value = ""
 
 
 def digit_input(tags, name, example):
@@ -53,8 +61,108 @@ def yes_no_input(tags, name):
 
 
 def optional_input(tags, name, example):
-    value = input(tags[0] + name + tags[1] + example + tags[2])
-    return value
+
+    incomplete = True
+    while incomplete:
+        value = input(tags[0] + name + tags[1] + example + tags[2])
+        sanitised = sanitise_input(value, name, tags)
+        if len(value) > 0 and (sanitised == "ok" or sanitised == None):
+            incomplete = False
+            return value
+        elif len(value) > 0 and sanitised != None:
+            print(sanitised)
+        else:
+            return ""
+
+
+def sanitise_input(value, input_type, tags):
+    """
+    Check that data entered when running --init complies with requirements
+    """
+
+    if input_type == "Username":
+        return (
+            "Do not include '@' in username, please try again"
+            if value.startswith("@")
+            else "ok"
+        )
+
+    if input_type == "Base URL":
+        error = value.startswith("http") or value.find(".") == -1
+        return (
+            "Provide full domain without protocol prefix (e.g. "
+            + tags[1]
+            + "example.social"
+            + tags[2]
+            + ", not "
+            + tags[1]
+            + "http://example.social"
+            + tags[2]
+            + ")"
+            if error
+            else "ok"
+        )
+
+    if input_type == "Toots to keep":
+        l = value.split(",")
+
+        def check(s):
+            d = s.strip()
+            if not d.isdigit():
+                return False
+
+        allnum = map(check, l)
+        return (
+            "Toot IDs must be numeric and separated with commas"
+            if False in list(allnum)
+            else "ok"
+        )
+
+    if input_type == "Hashtags to keep":
+        l = value.split(",")
+
+        def check(s):
+            d = s.strip()
+            if d.isdigit():
+                return False
+            if not re.fullmatch(r"[\w]+", d, flags=re.IGNORECASE):
+                return False
+
+        complies = map(check, l)
+        return_string = (
+            "Hashtags must not include '#' and must match rules at "
+            + tags[0]
+            + "https://docs.joinmastodon.org/user/posting/#hashtags"
+            + tags[2]
+        )
+        return return_string if False in list(complies) else "ok"
+
+    if input_type == "Visibility to keep":
+        l = value.split(",")
+        viz_options = set(["public", "unlisted", "private", "direct"])
+
+        def check(s):
+            d = [s.strip().lower()]
+            intersects = viz_options.intersection(d)
+            if len(intersects) == 0:
+                return False
+
+        complies = map(check, l)
+        return_string = "Valid values are one or more of 'public', 'unlisted', 'private' or 'direct'"
+        return return_string if False in list(complies) else "ok"
+
+    if input_type == "Archive path":
+        path = (
+            os.path.expanduser(value)
+            if len(str(value)) > 0 and str(value)[0] == "~"
+            else value
+        )
+        response = (
+            "ok"
+            if os.path.exists(path)
+            else "That directory does not exist, please try again"
+        )
+        return response
 
 
 def init():

@@ -291,6 +291,94 @@ def test_init(monkeypatch, tmpdir):
     assert os.path.exists(os.path.join(current_dir, "config.yaml"))
 
 
+def test_init_archive_path(tmpdir):
+
+    good_path = tmpdir.mkdir("archive_dir")  # temporary directory for testing
+    wrong = ephemetoot.sanitise_input(
+        os.path.join(good_path, "/bad/path/"), "Archive path", None
+    )
+    ok = ephemetoot.sanitise_input(good_path, "Archive path", None)
+    also_ok = ephemetoot.sanitise_input("~/Desktop", "Archive path", None)
+
+    assert ok == "ok"
+    assert wrong == "That directory does not exist, please try again"
+
+
+def test_init_sanitise_id_list():
+    tags = ("\033[96m", "\033[2m", "\033[0m")
+    wrong = ephemetoot.sanitise_input(
+        "987654321, toot_id_number", "Toots to keep", tags
+    )
+    also_wrong = ephemetoot.sanitise_input("toot_id_number", "Toots to keep", tags)
+    ok = ephemetoot.sanitise_input("1234598745, 999933335555", "Toots to keep", tags)
+    also_ok = ephemetoot.sanitise_input("1234598745", "Toots to keep", tags)
+
+    assert wrong == "Toot IDs must be numeric and separated with commas"
+    assert also_wrong == "Toot IDs must be numeric and separated with commas"
+    assert ok == "ok"
+    assert also_ok == "ok"
+
+
+def test_init_sanitise_tag_list():
+    tags = ("\033[96m", "\033[2m", "\033[0m")
+    wrong = ephemetoot.sanitise_input("#tag, another_tag", "Hashtags to keep", tags)
+    also_wrong = ephemetoot.sanitise_input("tag, another tag", "Hashtags to keep", tags)
+    still_wrong = ephemetoot.sanitise_input("tag, 12345", "Hashtags to keep", tags)
+    ok = ephemetoot.sanitise_input("tag123, another_TAG", "Hashtags to keep", tags)
+    also_ok = ephemetoot.sanitise_input("single_tag", "Hashtags to keep", tags)
+
+    error = (
+        "Hashtags must not include '#' and must match rules at "
+        + tags[0]
+        + "https://docs.joinmastodon.org/user/posting/#hashtags"
+        + tags[2]
+    )
+
+    assert ok == "ok"
+    assert also_ok == "ok"
+    assert wrong == error
+    assert also_wrong == error
+    assert still_wrong == error
+
+
+def test_init_sanitise_url():
+    tags = ("\033[96m", "\033[2m", "\033[0m")
+    wrong = ephemetoot.sanitise_input("http://example.social", "Base URL", tags)
+    also_wrong = ephemetoot.sanitise_input("http://example.social", "Base URL", tags)
+    ok = ephemetoot.sanitise_input("example.social", "Base URL", tags)
+
+    assert (
+        wrong
+        == "Provide full domain without protocol prefix (e.g. \033[2mexample.social\033[0m, not \033[2mhttp://example.social\033[0m)"
+    )
+    assert ok == "ok"
+
+
+def test_init_sanitise_username():
+    tags = ("\033[96m", "\033[2m", "\033[0m")
+    wrong = ephemetoot.sanitise_input("@alice", "Username", tags)
+    ok = ephemetoot.sanitise_input("alice", "Username", tags)
+
+    assert wrong == "Do not include '@' in username, please try again"
+    assert ok == "ok"
+
+
+def test_init_sanitise_visibility_list():
+    tags = ("\033[96m", "\033[2m", "\033[0m")
+    wrong = ephemetoot.sanitise_input("nonexistent", "Visibility to keep", tags)
+    also_wrong = ephemetoot.sanitise_input("direct public", "Visibility to keep", tags)
+    ok = ephemetoot.sanitise_input("direct", "Visibility to keep", tags)
+    also_ok = ephemetoot.sanitise_input("direct, public", "Visibility to keep", tags)
+
+    error = (
+        "Valid values are one or more of 'public', 'unlisted', 'private' or 'direct'"
+    )
+    assert ok == "ok"
+    assert also_ok == "ok"
+    assert wrong == error
+    assert also_wrong == error
+
+
 def test_jsondefault():
     d = ephemetoot.jsondefault(toot.created_at)
     assert d == "2020-05-09T02:17:18.598000+00:00"
