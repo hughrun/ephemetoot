@@ -259,7 +259,7 @@ def version(vnum):
         print("You are using release: \033[92mv", vnum, "\033[0m", sep="")
         print("The latest release is: \033[92m" + latest_version + "\033[0m")
         print(
-            "To upgrade to the most recent version run \033[92mpip3 install --update ephemetoot\033[0m"
+            "To upgrade to the most recent version run \033[92mpip install --upgrade ephemetoot\033[0m"
         )
 
     except Exception as e:
