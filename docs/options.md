@@ -69,7 +69,7 @@ If you skip a lot of items (e.g. you skip direct messages) it may clutter your l
 
 ### Hide everything (--quiet)
 
-Use the `--quiet` or `-q` flag to suppress all logging except for the account name being checked and the number of toots deleted. Use the `-qq` flag to further suppress output for accounts with zero deleted toots. The `-qqq` flag will suppress all output. Exception messages will not be suppressed.
+Use the `--quiet` or `-q` flag to suppress all logging except for the account name being checked and the number of toots deleted. Use the `-qq` flag to further suppress output for accounts with zero deleted toots. The `-qqq` flag will suppress all output. Exception messages will not be suppressed, other than `IndexError` when any account has no toots to check.
 
 ### Only archive deleted toots (--archive-deleted)
 
