@@ -579,6 +579,6 @@ ephemetoot ==> 🥳 ==> 🧼 ==> 😇
 -------------------------------
 You are using release: \033[92mvTEST_VERSION\033[0m
 The latest release is: \033[92mvLATEST_VERSION\033[0m
-To upgrade to the most recent version run \033[92mpip3 install --update ephemetoot\033[0m\n"""
+To upgrade to the most recent version run \033[92mpip install --upgrade ephemetoot\033[0m\n"""
 
     assert output == msg
