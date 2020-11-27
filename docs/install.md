@@ -58,7 +58,7 @@ This will ask you to fill in information for each part of the file:
 | access_token | **required** - The alphanumeric access token string from the app you created in Mastodon |
 | username | **required** - Your username without the '@' or server domain. e.g. `hugh`|
 | base_url | **required** - The base url of your Mastodon server, without the 'https://'. e.g. `ausglam.space`|
-| days_to_keep | Number of days to keep toots e.g. `30`. If not value is provided the default number is 365 |
+| days_to_keep | Number of days to keep toots e.g. `30`. If no value is provided the default number is 365 |
 | keep_pinned | Either `true` or `false` - if `true`, any pinned toots will be kept regardless of age |
 | toots_to_keep | A list of toot ids indicating toots to be kept regardless of other settings. The ID of a toot is the last part of its individual URL. e.g. for [https://ausglam.space/@hugh/101294246770105799](https://ausglam.space/@hugh/101294246770105799) the id is `101294246770105799` |
 | hashtags_to_keep | A list of hashtags, where any toots with any of these hashtags will be kept regardless of age. Do not include the '#' symbol. Do remember the [rules for hashtags](https://docs.joinmastodon.org/user/posting/#hashtags) |
