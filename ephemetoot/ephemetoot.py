@@ -380,9 +380,9 @@ def print_rate_limit_message(mastodon):
     )
 
 
-def retry_on_error(options, mastodon, toot, attempts):
+def retry_on_error(options, mastodon, toot, attempts=0):
 
-    if attempts < 6:
+    if attempts < 6:  
         try:
             console_print(
                 "Attempt " + str(attempts) + " at " + datestamp_now(), options, False
@@ -396,7 +396,7 @@ def retry_on_error(options, mastodon, toot, attempts):
         raise TimeoutError("Gave up after 5 attempts")
 
 
-def process_toot(config, options, mastodon, deleted_count, toot):
+def process_toot(config, options, mastodon, toot, deleted_count=0):
 
     keep_pinned = "keep_pinned" in config and config["keep_pinned"]
     toots_to_keep = config["toots_to_keep"] if "toots_to_keep" in config else []
@@ -531,7 +531,7 @@ def check_batch(config, options, mastodon, user_id, timeline, deleted_count=0):
     try:
         for toot in timeline:
             # process_toot returns the value of the deleted_count so we can keep track here
-            deleted_count = process_toot(config, options, mastodon, deleted_count, toot)
+            deleted_count = process_toot(config, options, mastodon, toot, deleted_count)
 
         # the account_statuses call is paginated with a 40-toot limit
         # get the id of the last toot to include as 'max_id' in the next API call.
