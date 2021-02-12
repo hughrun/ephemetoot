@@ -233,7 +233,7 @@ def test_check_batch(capfd, monkeypatch):
     # this simulates what would happen if the toot was being deleted
     monkeypatch.setattr(
         "ephemetoot.ephemetoot.process_toot",
-        lambda config, options, mastodon, deleted_count, toot: deleted_count + 1,
+        lambda config, options, mastodon, toot, deleted_count: deleted_count + 1,
     )
     # run check_batch
     ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
@@ -249,7 +249,7 @@ def test_check_batch_quiet(capfd, monkeypatch):
     timeline = mastodon.account_statuses(user_id=user_id, limit=2, max_id=0)
     monkeypatch.setattr(
         "ephemetoot.ephemetoot.process_toot",
-        lambda config, options, mastodon, deleted_count, toot: deleted_count + 1,
+        lambda config, options, mastodon, toot, deleted_count: deleted_count + 1,
     )
     ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
     # deleted_count should be 10
@@ -265,7 +265,7 @@ def test_check_batch_quiet_no_toots(capfd, monkeypatch):
     timeline = mastodon.account_statuses(user_id=user_id, limit=2, max_id=10)
     monkeypatch.setattr(
         "ephemetoot.ephemetoot.process_toot",
-        lambda config, options, mastodon, deleted_count, toot: deleted_count + 1,
+        lambda config, options, mastodon, toot, deleted_count: deleted_count + 1,
     )
     # run check_batch
     ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
@@ -281,7 +281,7 @@ def test_check_batch_qq(capfd, monkeypatch):
     timeline = mastodon.account_statuses(user_id=user_id, limit=2, max_id=0)
     monkeypatch.setattr(
         "ephemetoot.ephemetoot.process_toot",
-        lambda config, options, mastodon, deleted_count, toot: deleted_count + 1,
+        lambda config, options, mastodon, toot, deleted_count: deleted_count + 1,
     )
     ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
     # deleted_count should be 10 and message printed since there was a delete
@@ -297,7 +297,7 @@ def test_check_batch_qq_no_deletes(capfd, monkeypatch):
     # simulate no deletes occuring
     monkeypatch.setattr(
         "ephemetoot.ephemetoot.process_toot",
-        lambda config, options, mastodon, deleted_count, toot: 0,
+        lambda config, options, mastodon, toot, deleted_count: 0,
     )
     # run check_batch
     ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
@@ -313,7 +313,7 @@ def test_check_batch_qqq(capfd, monkeypatch):
     timeline = mastodon.account_statuses(user_id=user_id, limit=2, max_id=0)
     monkeypatch.setattr(
         "ephemetoot.ephemetoot.process_toot",
-        lambda config, options, mastodon, deleted_count, toot: deleted_count + 1,
+        lambda config, options, mastodon, toot, deleted_count: deleted_count + 1,
     )
     # run check_batch
     ephemetoot.check_batch(config, options, mastodon, user_id, timeline, 0)
@@ -377,7 +377,6 @@ def test_init_archive_path(tmpdir):
         os.path.join(good_path, "/bad/path/"), "Archive path", None
     )
     ok = ephemetoot.sanitise_input(good_path, "Archive path", None)
-    also_ok = ephemetoot.sanitise_input("~/Desktop", "Archive path", None)
 
     assert ok == "ok"
     assert wrong == "That directory does not exist, please try again"
@@ -423,7 +422,6 @@ def test_init_sanitise_tag_list():
 def test_init_sanitise_url():
     tags = ("\033[96m", "\033[2m", "\033[0m")
     wrong = ephemetoot.sanitise_input("http://example.social", "Base URL", tags)
-    also_wrong = ephemetoot.sanitise_input("http://example.social", "Base URL", tags)
     ok = ephemetoot.sanitise_input("example.social", "Base URL", tags)
 
     assert (
@@ -476,7 +474,7 @@ def test_process_toot(capfd, tmpdir, monkeypatch):
     toot_dict["visibility"] = "public"
     toot_dict["reblog"] = False
     toot = dict2obj(toot_dict)
-    ephemetoot.process_toot(config_file, options, mastodon, 0, toot)
+    ephemetoot.process_toot(config_file, options, mastodon, toot, 0)
     assert (
         capfd.readouterr().out
         == "❌ deleting toot 104136090490756999 tooted 09 May 2020\n"
@@ -492,7 +490,7 @@ def test_process_toot_pinned(capfd, tmpdir):
     mastodon = Mocktodon()
     toot_dict["pinned"] = True
     toot = dict2obj(toot_dict)
-    ephemetoot.process_toot(config_file, options, mastodon, 0, toot)
+    ephemetoot.process_toot(config_file, options, mastodon, toot, 0)
     assert capfd.readouterr().out == "📌 skipping pinned toot - 104136090490756999\n"
 
 
@@ -506,7 +504,7 @@ def test_process_toot_saved(capfd, tmpdir):
     mastodon = Mocktodon()
     toot_dict["pinned"] = False
     toot = dict2obj(toot_dict)
-    ephemetoot.process_toot(config_file, options, mastodon, 0, toot)
+    ephemetoot.process_toot(config_file, options, mastodon, toot, 0)
     assert capfd.readouterr().out == "💾 skipping saved toot - 104136090490756999\n"
 
 
@@ -522,7 +520,7 @@ def test_process_toot_visibility(capfd, tmpdir):
     toot_dict["pinned"] = False  # is true above so make false
     toot_dict["visibility"] = "testing"
     toot = dict2obj(toot_dict)
-    ephemetoot.process_toot(config_file, options, mastodon, 0, toot)
+    ephemetoot.process_toot(config_file, options, mastodon, toot, 0)
     assert capfd.readouterr().out == "👀 skipping testing toot - 104136090490756999\n"
 
 
@@ -540,7 +538,7 @@ def test_process_toot_hashtag(capfd, tmpdir, monkeypatch):
     toot_dict["reblog"] = True
     toot = dict2obj(toot_dict)
 
-    ephemetoot.process_toot(config_file, options, mastodon, 0, toot)
+    ephemetoot.process_toot(config_file, options, mastodon, toot, 0)
     assert (
         capfd.readouterr().out
         == "👎 unboosting toot 104136090490756999 boosted 09 May 2020\n"
