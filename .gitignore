@@ -3,3 +3,4 @@ _assets
 pypi-readme.md
 archive
 dist
+.pytest_cache/*
