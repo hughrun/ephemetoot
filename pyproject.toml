@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ephemetoot"
-version = "3.1.1a1"
+version = "3.1.1"
 description = "A command line tool to delete your old toots"
 authors = ["Hugh Rundle <ephemetoot@hugh.run>"]
 license = "GPL-3.0-or-later"

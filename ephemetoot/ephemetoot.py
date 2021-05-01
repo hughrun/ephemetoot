@@ -382,7 +382,7 @@ def print_rate_limit_message(mastodon):
 
 def retry_on_error(options, mastodon, toot, attempts=0):
 
-    if attempts < 6:  
+    if attempts < 6:
         try:
             console_print(
                 "Attempt " + str(attempts) + " at " + datestamp_now(), options, False
@@ -587,11 +587,11 @@ def check_batch(config, options, mastodon, user_id, timeline, deleted_count=0):
     except IndexError:
         if not options.quiet or options.quiet <= 1:
             print(
-              "No toots found for "
-              + config["username"]
-              + "@"
-              + config["base_url"]
-              + ".\n"
+                "No toots found for "
+                + config["username"]
+                + "@"
+                + config["base_url"]
+                + ".\n"
             )
 
 
