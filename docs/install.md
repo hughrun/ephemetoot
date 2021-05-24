@@ -43,7 +43,7 @@ Now you've installed `ephemetoot`, in order to actually use it you will need an 
 
 ## Configuration file
 
-Configuration for each user is set up in the `config.yaml` file. This uses [yaml syntax](https://yaml.org/spec/1.2/spec.html) and can be updated at any time without having to reload `ephemetoot`.
+By default, configuration for each user is expected to be in a file called `config.yaml` in the path from where `ephemetoot` is run. This uses [yaml syntax](https://yaml.org/spec/1.2/spec.html) and can be updated at any time without having to reload/restart `ephemetoot`.
 
 You can create a config file by hand, but the easiest way to do it is with the `--init` flag:
 
@@ -51,7 +51,9 @@ You can create a config file by hand, but the easiest way to do it is with the `
 ephemetoot --init
 ```
 
-This will ask you to fill in information for each part of the file:
+Calling `--init` will save your configuration file as `config.yaml` in the current directory. Once this file has been created, you may change the name or move the file if you prefer. See [`--config`](./options.html#specify-the-config-location-config) for more detail on using a non-default configuration filepath.
+
+`--init` will ask you to fill in information for each part of the file:
 
 | setting | description   |
 | ---:  |   :---        |
