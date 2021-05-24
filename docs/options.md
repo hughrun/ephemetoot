@@ -6,13 +6,13 @@ It is **strongly recommended** that you do a test run before using `ephemetoot` 
 
 ## Create your config file (--init)
 
-Before you can use `ephemetoot` you need a `config.yaml` file. You can create this yourself, but `--init` will walk you through the values you need and save your `config.yaml` file in the directory from which you run the command:
+Before you can use `ephemetoot` you need a configuration file. You can create this yourself, but `--init` will walk you through the values you need and save it to `config.yaml` in the directory from which you run the command:
 
 ```shell
 ephemetoot --init
 ```
 
-More information about the config file can be found on teh _[Installation](./install.md)_ page, and an [example file](https://github.com/hughrun/ephemetoot/blob/master/example-config.yaml) is available on GitHub.
+More information about the config file can be found on the _[Installation](./install.md#configuration-file)_ page, and an [example file](https://github.com/hughrun/ephemetoot/blob/master/example-config.yaml) is available on GitHub.
 
 ## Run in test mode (--test)
 
