@@ -31,10 +31,12 @@ ephemetoot --help
 
 You can also read the docs at [ephemetoot.hugh.run](https://ephemetoot.hugh.run)
 
-## Prior work
+## Prior and related work
 The initial `ephemetoot` script was based on [this tweet-deleting script](https://gist.github.com/flesueur/bcb2d9185b64c5191915d860ad19f23f) by [@flesueur](https://github.com/flesueur)
 
 `ephemetoot` relies heavily on the Mastodon.py package by [@halcy](https://github.com/halcy)
+
+Looks like [Gabriel Augendre had the same idea](https://git.augendre.info/gaugendre/cleantoots). You might prefer to use Gabriel's `cleantoots` instead.
 
 ## Usage
 You can use `ephemetoot` to delete [Mastodon](https://github.com/tootsuite/mastodon) toots that are older than a certain number of days (default is 365). Toots can optionally be saved from deletion if:
