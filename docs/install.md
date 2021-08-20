@@ -66,6 +66,7 @@ Calling `--init` will save your configuration file as `config.yaml` in the curre
 | hashtags_to_keep | A list of hashtags, where any toots with any of these hashtags will be kept regardless of age. Do not include the '#' symbol. Do remember the [rules for hashtags](https://docs.joinmastodon.org/user/posting/#hashtags) |
 | visibility_to_keep | Toots with any of the visibility settings in this list will be kept regardless of age. Options are: `public`, `unlisted`, `private`, `direct`. |
 | archive | A string representing the filepath to your toot archive. If this is provided, for every toot checked, the full toot is archived into individual files named by the toot's `id` in this writeable directory. Note that the default is for **all** toots to be archived, not just those that are being deleted. It is generally best to use an absolute file path - relative paths will not work if you call `ephemetoot` from another directory. |
+| archive_media | Either `true` or `false` - if `true`, media attachments are archived when a toot is archived. |
 
 All values other than `access_token`, `username` and `base_url` are optional, however if you include `toots_to_keep`, `hashtags_to_keep`, or `visibility_to_keep` you must make each a list, even if it is empty:
 

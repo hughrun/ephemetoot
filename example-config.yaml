@@ -28,6 +28,7 @@
     - direct
     - private
   archive : Users/alice/toots_archive/ausglam/
+  archive_media: true
 -
 # minimal example
 # values other than access_token, username, and base_url are all optional
