@@ -66,7 +66,13 @@ toot_dict = {
             {"name": "Luxury", "value": "Communism", "verified_at": None},
         ],
     },
-    "media_attachments": [],
+    "media_attachments": [
+      {
+        "id": 123456789987654321,
+        "type": "image",
+        "url": "https://hugh.run/success/accomplished.jpg"
+      }
+    ],
     "mentions": [],
     "tags": [],
     "emojis": [],
@@ -79,7 +85,6 @@ toot_dict = {
 # you need to your dict object
 # NOTE: ensure values in the dict object are what you need:
 # it can be mutated by any test before your test runs
-
 
 def dict2obj(d):
     # checking whether object d is a
@@ -119,6 +124,7 @@ config_file = {
     "toots_to_keep": [103996285277439262, 103976473612749097, 103877521458738491],
     "visibility_to_keep": [],
     "archive": "archive",
+    "archive_media": False
 }
 
 # mock GitHub API call for the version number
@@ -221,6 +227,14 @@ def test_archive_toot(tmpdir):
     file_exists = os.path.exists(p + "/104136090490756999.json")
     assert file_exists
 
+def test_archive_toot_media(tmpdir):
+    p = tmpdir.mkdir("archive")
+    config_file["archive"] = str(p)  # make archive directory a temp test dir
+    config_file["archive_media"] = True
+    ephemetoot.archive_toot_media(p, toot.media_attachments[0].url)
+    image_exists = os.path.exists(p + "/hugh.run/success/accomplished.jpg")
+    config_file["archive_media"] = False
+    assert image_exists
 
 def test_check_batch(capfd, monkeypatch):
     config = config_file
