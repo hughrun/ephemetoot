@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta, timezone
 import json
 import os
 import re
+import urllib.parse
 import subprocess
 import sys
 import time
@@ -206,6 +207,9 @@ def init():
             tags, "Archive path", "(optional filepath for archive):"
         )
 
+        if len(conf_archive) > 0:
+            conf_archive_media = yes_no_input(tags, "Archive media?")
+
         # write out the config file
         with open("config.yaml", "w") as configfile:
 
@@ -236,6 +240,7 @@ def init():
 
             if len(conf_archive) > 0:
                 configfile.write("\n  archive: " + conf_archive)
+                configfile.write("\n  archive_media: " + conf_archive_media)
 
             configfile.close()
 
@@ -323,7 +328,22 @@ def schedule(options):
             print(e)
 
 
+def archive_toot_media(archive_path, full_url):
+    url = urllib.parse.urlparse(full_url)
+    (dir_name, file_name) = os.path.split(url.path)
+    media_archive_path = os.path.join(archive_path, url.netloc, dir_name[1:])
+    media_archive_file_path = os.path.join(media_archive_path, file_name)
+    if os.path.isfile(media_archive_file_path):
+        return
+    os.makedirs(media_archive_path, exist_ok=True)
+    r = requests.get(full_url)
+    with open(media_archive_file_path, "wb") as f:
+        f.write(r.content)
+
+
 def archive_toot(config, toot):
+    archive_media = "archive_media" in config and config["archive_media"]
+
     # define archive path
     if config["archive"][0] == "~":
         archive_path = os.path.expanduser(config["archive"])
@@ -340,6 +360,11 @@ def archive_toot(config, toot):
     with open(filename, "w") as f:
         f.write(json.dumps(toot, indent=4, default=jsondefault))
         f.close()
+
+    if archive_media and "media_attachments" in toot:
+        for media_attachment in toot["media_attachments"]:
+            if "url" in media_attachment:
+                archive_toot_media(archive_path, media_attachment["url"])
 
 
 def jsondefault(obj):
