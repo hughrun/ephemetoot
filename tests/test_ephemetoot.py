@@ -134,6 +134,13 @@ class MockGitHub:
         return {"tag_name": "vLATEST_VERSION"}
 
 
+# mock image call for archive
+class MockMedia:
+    f = open('tests/accomplished.jpg', 'rb')
+    content = f.read()
+    f.close()
+
+
 # mock Mastodon
 class Mocktodon:
     def __init__(self):
@@ -209,6 +216,13 @@ def mock_github_response(monkeypatch):
     monkeypatch.setattr(requests, "get", mock_get)
 
 
+@pytest.fixture
+def mock_archive_response(monkeypatch):
+    def mock_get(*args, **kwargs):
+        return MockMedia()
+
+    monkeypatch.setattr(requests, "get", mock_get)
+
 ########################
 #         TESTS        #
 ########################
@@ -227,7 +241,7 @@ def test_archive_toot(tmpdir):
     file_exists = os.path.exists(p + "/104136090490756999.json")
     assert file_exists
 
-def test_archive_toot_media(tmpdir):
+def test_archive_toot_media(mock_archive_response, tmpdir):
     p = tmpdir.mkdir("archive")
     config_file["archive"] = str(p)  # make archive directory a temp test dir
     config_file["archive_media"] = True
