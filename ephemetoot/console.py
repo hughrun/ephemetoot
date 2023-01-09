@@ -30,13 +30,13 @@ import yaml
 from argparse import ArgumentParser
 from datetime import datetime, timezone
 import os
-import pkg_resources
+from importlib.metadata import version
 
 # import funtions
 from ephemetoot import ephemetoot as func
 
 # version number from package info
-vnum = pkg_resources.require("ephemetoot")[0].version
+vnum = version("ephemetoot")
 
 parser = ArgumentParser()
 parser.add_argument(
