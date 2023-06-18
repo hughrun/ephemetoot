@@ -469,7 +469,7 @@ def process_toot(config, options, mastodon, deleted_count, toot):
 
                     mastodon.status_unreblog(toot.reblog)
 
-            if not boosts_only:
+            elif not boosts_only:
                 console_print(
                     "❌ deleting toot " + str(toot.id) + " tooted " + tooted_date(toot),
                     options,
