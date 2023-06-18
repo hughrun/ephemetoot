@@ -192,6 +192,7 @@ def init():
         conf_url = compulsory_input(tags, "Base URL", "(e.g. example.social):")
         conf_days = digit_input(tags, "Days to keep", "(default 365):")
         conf_pinned = yes_no_input(tags, "Keep pinned toots?")
+        conf_boosts_only = yes_no_input(tags, "Only remove boosted toots?")
         conf_keep_toots = optional_input(
             tags, "Toots to keep", "(optional list of IDs separated by commas):"
         )
@@ -219,6 +220,7 @@ def init():
             configfile.write("\n  base_url: " + conf_url)
             configfile.write("\n  days_to_keep: " + conf_days)
             configfile.write("\n  keep_pinned: " + conf_pinned)
+            configfile.write("\n  boosts_only: " + conf_boosts_only)
 
             if len(conf_keep_toots) > 0:
                 keep_list = conf_keep_toots.split(",")
@@ -424,6 +426,7 @@ def retry_on_error(options, mastodon, toot, attempts=0):
 def process_toot(config, options, mastodon, toot, deleted_count=0):
 
     keep_pinned = "keep_pinned" in config and config["keep_pinned"]
+    boosts_only = "boosts_only" in config and config["boosts_only"]
     toots_to_keep = config["toots_to_keep"] if "toots_to_keep" in config else []
     visibility_to_keep = (
         config["visibility_to_keep"] if "visibility_to_keep" in config else []
@@ -491,7 +494,7 @@ def process_toot(config, options, mastodon, toot, deleted_count=0):
 
                     mastodon.status_unreblog(toot.reblog)
 
-            else:
+            elif not boosts_only:
                 console_print(
                     "❌ deleting toot " + str(toot.id) + " tooted " + tooted_date(toot),
                     options,
