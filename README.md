@@ -1,7 +1,8 @@
 # 🥳 ==> 🧼 ==> 😇
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)  
 
 **ephemetoot** is a Python command line tool for deleting old toots.
+
+As Mastodon now has similar functionality built in, `ephemetoot` is now in maintenance mode - no new features will be added, only security updates.
 
 ## Quickstart
 
@@ -48,7 +49,7 @@ You can use `ephemetoot` to delete [Mastodon](https://github.com/tootsuite/masto
 ## Contributing
 ephemetoot is tested using `pytest`.
 
-For all bugs, suggestions, pull requests or other contributions, please check the [contributing guide](./docs/contributing.md).
+For bugs or other contributions, please check the [contributing guide](./docs/contributing.md).
 
 ## License
 This project and all contributions are [licensed](./LICENSE) under the GPL 3.0 or future version

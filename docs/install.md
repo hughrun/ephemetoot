@@ -62,6 +62,7 @@ Calling `--init` will save your configuration file as `config.yaml` in the curre
 | base_url | **required** - The base url of your Mastodon server, without the 'https://'. e.g. `ausglam.space`|
 | days_to_keep | Number of days to keep toots e.g. `30`. If no value is provided the default number is 365 |
 | keep_pinned | Either `true` or `false` - if `true`, any pinned toots will be kept regardless of age |
+| boosts_only | Either `true` or `false`. |
 | toots_to_keep | A list of toot ids indicating toots to be kept regardless of other settings. The ID of a toot is the last part of its individual URL. e.g. for [https://ausglam.space/@hugh/101294246770105799](https://ausglam.space/@hugh/101294246770105799) the id is `101294246770105799` |
 | hashtags_to_keep | A list of hashtags, where any toots with any of these hashtags will be kept regardless of age. Do not include the '#' symbol. Do remember the [rules for hashtags](https://docs.joinmastodon.org/user/posting/#hashtags) |
 | visibility_to_keep | Toots with any of the visibility settings in this list will be kept regardless of age. Options are: `public`, `unlisted`, `private`, `direct`. |
