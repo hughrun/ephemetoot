@@ -46,7 +46,7 @@ You can use `ephemetoot` to delete [Mastodon](https://github.com/tootsuite/masto
 * they are individually listed to be kept
 
 ## Contributing
-ephemetoot is packaged using `poetry` and tested using `pytest`.
+ephemetoot is tested using `pytest`.
 
 For all bugs, suggestions, pull requests or other contributions, please check the [contributing guide](./docs/contributing.md).
 

@@ -1,35 +1,38 @@
-[tool.poetry]
+[project]
 name = "ephemetoot"
-version = "3.1.4"
+version = "3.2.0"
 description = "A command line tool to delete your old toots"
-authors = ["Hugh Rundle <ephemetoot@hugh.run>"]
-license = "GPL-3.0-or-later"
+requires-python = ">=3.8"
+authors = [
+    {name = "Hugh Rundle", email = "ephemetoot@hugh.run"}
+    ]
+license = { text = "GPL-3.0-or-later"}
 readme = "pypi-readme.md"
-homepage = "https://ephemetoot.hugh.run"
-repository = "https://github.com/hughrun/ephemetoot"
 keywords = ["mastodon", "api", "microblogging"]
 classifiers = [
     "Environment :: Console",
     "Operating System :: OS Independent",
     "Topic :: Communications"
 ]
-include = [
-    "LICENSE",
-    "tests"
+dependencies = [
+    "requests>=2.22.0",
+    "mastodon.py>=1.4.3",
+    "pyyaml>=5.0"
 ]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-requests = "^2.22.0"
-"mastodon.py" = "^1.4.3"
-pyyaml = "^5.0"
+[project.optional-dependencies]
+dev = ["pytest>=6"]
 
-[tool.poetry.dev-dependencies]
-pytest = "^6"
-
-[tool.poetry.scripts]
+[project.scripts]
 ephemetoot = 'ephemetoot.console:main'
 
+[project.urls]
+homepage = "https://ephemetoot.hugh.run"
+repository = "https://github.com/hughrun/ephemetoot"
+
 [build-system]
-requires = ["poetry-core>=1.0.0a5"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["ephemetoot"]
