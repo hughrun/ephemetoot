@@ -2,7 +2,7 @@
 
 **ephemetoot** is a Python command line tool for deleting old toots.
 
-As Mastodon now has similar functionality built in, `ephemetoot` is now in maintenance mode - no new features will be added, only security updates.
+**As Mastodon now has similar functionality built in, `ephemetoot` is now in maintenance mode - no new features will be added, only security updates.**
 
 ## Quickstart
 
