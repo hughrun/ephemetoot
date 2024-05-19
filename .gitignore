@@ -3,4 +3,6 @@ _assets
 pypi-readme.md
 archive
 dist
-.pytest_cache/*
+src/ephemetoot.egg-info
+.pytest_cache
+.venv

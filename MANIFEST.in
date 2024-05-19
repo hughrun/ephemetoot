@@ -1,1 +1,7 @@
-tests/*
+graft src
+graft tests
+prune src/ephemetoot/__pycache__*
+prune tests/__pycache__*
+include example-config.yaml
+exclude docs/_config.yml docs/CNAME
+global-exclude .DS_Store

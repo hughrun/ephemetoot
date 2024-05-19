@@ -274,7 +274,6 @@ def version(vnum):
 
 
 def schedule(options):
-
     """
     Creates and loads a plist file for scheduled running with launchd. If --time flag is used, the scheduled time is set accordingly. Note that this is designed for use on MacOS.
     """

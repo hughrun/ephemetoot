@@ -67,11 +67,11 @@ toot_dict = {
         ],
     },
     "media_attachments": [
-      {
-        "id": 123456789987654321,
-        "type": "image",
-        "url": "https://hugh.run/success/accomplished.jpg"
-      }
+        {
+            "id": 123456789987654321,
+            "type": "image",
+            "url": "https://hugh.run/success/accomplished.jpg",
+        }
     ],
     "mentions": [],
     "tags": [],
@@ -85,6 +85,7 @@ toot_dict = {
 # you need to your dict object
 # NOTE: ensure values in the dict object are what you need:
 # it can be mutated by any test before your test runs
+
 
 def dict2obj(d):
     # checking whether object d is a
@@ -124,8 +125,9 @@ config_file = {
     "toots_to_keep": [103996285277439262, 103976473612749097, 103877521458738491],
     "visibility_to_keep": [],
     "archive": "archive",
-    "archive_media": False
+    "archive_media": False,
 }
+
 
 # mock GitHub API call for the version number
 class MockGitHub:
@@ -136,7 +138,7 @@ class MockGitHub:
 
 # mock image call for archive
 class MockMedia:
-    f = open('tests/accomplished.jpg', 'rb')
+    f = open("tests/accomplished.jpg", "rb")
     content = f.read()
     f.close()
 
@@ -223,6 +225,7 @@ def mock_archive_response(monkeypatch):
 
     monkeypatch.setattr(requests, "get", mock_get)
 
+
 ########################
 #         TESTS        #
 ########################
@@ -241,6 +244,7 @@ def test_archive_toot(tmpdir):
     file_exists = os.path.exists(p + "/104136090490756999.json")
     assert file_exists
 
+
 def test_archive_toot_media(mock_archive_response, tmpdir):
     p = tmpdir.mkdir("archive")
     config_file["archive"] = str(p)  # make archive directory a temp test dir
@@ -249,6 +253,7 @@ def test_archive_toot_media(mock_archive_response, tmpdir):
     image_exists = os.path.exists(p + "/hugh.run/success/accomplished.jpg")
     config_file["archive_media"] = False
     assert image_exists
+
 
 def test_check_batch(capfd, monkeypatch):
     config = config_file
@@ -269,6 +274,7 @@ def test_check_batch(capfd, monkeypatch):
     output = capfd.readouterr().out.split("\n")
     assert output[0] == "Removed 10 toots for alice@test.social."
 
+
 def test_check_batch_quiet(capfd, monkeypatch):
     config = config_file
     options = Namespace(archive_deleted=False, quiet=1)
@@ -283,6 +289,7 @@ def test_check_batch_quiet(capfd, monkeypatch):
     # deleted_count should be 10
     output = capfd.readouterr().out.split("\n")
     assert output[0] == "Removed 10 toots for alice@test.social."
+
 
 def test_check_batch_quiet_no_toots(capfd, monkeypatch):
     config = config_file
@@ -301,6 +308,7 @@ def test_check_batch_quiet_no_toots(capfd, monkeypatch):
     output = capfd.readouterr().out
     assert output == ""
 
+
 def test_check_batch_qq(capfd, monkeypatch):
     config = config_file
     options = Namespace(archive_deleted=False, quiet=2)
@@ -315,6 +323,7 @@ def test_check_batch_qq(capfd, monkeypatch):
     # deleted_count should be 10 and message printed since there was a delete
     output = capfd.readouterr().out.split("\n")
     assert output[0] == "Removed 10 toots for alice@test.social."
+
 
 def test_check_batch_qq_no_deletes(capfd, monkeypatch):
     config = config_file
@@ -333,6 +342,7 @@ def test_check_batch_qq_no_deletes(capfd, monkeypatch):
     output = capfd.readouterr().out
     assert output == ""
 
+
 def test_check_batch_qqq(capfd, monkeypatch):
     config = config_file
     options = Namespace(archive_deleted=False, quiet=3)
@@ -348,6 +358,7 @@ def test_check_batch_qqq(capfd, monkeypatch):
     # deleted_count should be 10 and no message should be printed since quiet=3
     output = capfd.readouterr().out
     assert output == ""
+
 
 def test_console_print(capfd):
     ephemetoot.console_print(
