@@ -1,6 +1,6 @@
 [project]
 name = "ephemetoot"
-version = "3.2.0"
+version = "3.2.1"
 description = "A command line tool to delete your old toots"
 requires-python = ">=3.8"
 authors = [
@@ -16,8 +16,8 @@ classifiers = [
 ]
 dependencies = [
     "requests>=2.31.0",
-    "mastodon.py>=1.4.3",
-    "pyyaml>=5.0"
+    "mastodon.py>=1.8.1",
+    "pyyaml>=6.0.1"
 ]
 
 [project.optional-dependencies]
@@ -31,8 +31,8 @@ homepage = "https://ephemetoot.hugh.run"
 repository = "https://github.com/hughrun/ephemetoot"
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=69.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-packages = ["ephemetoot"]
+[tool.setuptools.packages.find]
+where = ["src"]
